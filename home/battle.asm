@@ -15,22 +15,15 @@ GetPartyLocation::
 	ld bc, PARTYMON_STRUCT_LENGTH
 	jp AddNTimes
 
-GetDexNumber:: ; unreferenced
-; Probably used in gen 1 to convert index number to dex number
-; Not required in gen 2 because index number == dex number
-	push hl
-	ld a, b
-	dec a
-	ld b, 0
-	add hl, bc
-	ld hl, BaseData + BASE_DEX_NO
-	ld bc, BASE_DATA_SIZE
-	call AddNTimes
-	ld a, BANK(BaseData)
-	call GetFarWord
-	ld b, l
-	ld c, h
-	pop hl
+FarSkipEvolutions::
+; Calls SkipEvolutions from another bank. It can't be a farcall because it uses hl.
+	ldh a, [hROMBank]
+	push af
+	ld a, BANK(SkipEvolutions)
+	rst Bankswitch
+	call SkipEvolutions
+	pop af
+	rst Bankswitch
 	ret
 
 UserPartyAttr::

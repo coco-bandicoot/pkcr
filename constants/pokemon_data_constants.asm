@@ -1,6 +1,6 @@
 ; base data struct members (see data/pokemon/base_stats/*.asm)
 rsreset
-DEF BASE_DEX_NO      rb
+DEF BASE_SPECIES     rb
 DEF BASE_STATS       rb NUM_STATS
 rsset BASE_STATS
 DEF BASE_HP          rb
@@ -75,11 +75,7 @@ DEF MON_SPECIES            rb
 DEF MON_ITEM               rb
 DEF MON_MOVES              rb NUM_MOVES
 DEF MON_ID                 rw
-DEF MON_EXP                rb
-rsset MON_EXP
-DEF MON_CAUGHTTIME         rb
-DEF MON_EXP2               rb
-DEF MON_EXP3               rb
+DEF MON_EXP                rb 3
 DEF MON_STAT_EXP           rw NUM_EXP_STATS
 rsset MON_STAT_EXP
 DEF MON_HP_EXP             rw
@@ -93,7 +89,7 @@ DEF MON_HAPPINESS          rb
 DEF MON_POKERUS            rb
 DEF MON_CAUGHTDATA         rw
 rsset MON_CAUGHTDATA
-                           rb_skip
+DEF MON_CAUGHTTIME         rb
 DEF MON_CAUGHTGENDER       rb
 rsset MON_CAUGHTDATA
 DEF MON_CAUGHTLEVEL        rb
@@ -116,12 +112,10 @@ DEF PARTYMON_STRUCT_LENGTH EQU _RS
 DEF NICKNAMED_MON_STRUCT_LENGTH EQU PARTYMON_STRUCT_LENGTH + MON_NAME_LENGTH
 DEF REDMON_STRUCT_LENGTH EQU 44
 
-; experience data
-
-DEF CAUGHT_TIME_MASK EQU %11000000
-DEF EXP_MASK         EQU %00111111
-
 ; caught data
+
+DEF CAUGHT_TIME_MASK  EQU %11000000
+DEF CAUGHT_LEVEL_MASK EQU %00111111
 
 DEF CAUGHT_GENDER_MASK   EQU %10000000
 DEF CAUGHT_LOCATION_MASK EQU %01111111
@@ -145,9 +139,9 @@ DEF NUM_BOXES EQU 14
 
 ; hall of fame
 ; hof_mon: species, id, dvs, level, nicknames
-DEF HOF_MON_LENGTH EQU 1 + 2 + 2 + 1 + (MON_NAME_LENGTH - 1) ; $10
+DEF HOF_MON_LENGTH EQU 2 + 2 + 2 + 1 + (MON_NAME_LENGTH - 1)
 ; hall_of_fame: win count, party, terminator
-DEF HOF_LENGTH EQU 1 + HOF_MON_LENGTH * PARTY_LENGTH + 1 ; $62
+DEF HOF_LENGTH EQU 1 + HOF_MON_LENGTH * PARTY_LENGTH + 2
 DEF NUM_HOF_TEAMS EQU 30
 
 ; evolution types (used in data/pokemon/evos_attacks.asm)
@@ -175,8 +169,8 @@ DEF NUM_HOF_TEAMS EQU 30
 DEF NUM_GRASSMON EQU 7 ; data/wild/*_grass.asm table size
 DEF NUM_WATERMON EQU 3 ; data/wild/*_water.asm table size
 
-DEF GRASS_WILDDATA_LENGTH EQU 2 + 3 + NUM_GRASSMON * 2 * 3
-DEF WATER_WILDDATA_LENGTH EQU 2 + 1 + NUM_WATERMON * 2
+DEF GRASS_WILDDATA_LENGTH EQU 2 + (1 + NUM_GRASSMON * 3) * 3
+DEF WATER_WILDDATA_LENGTH EQU 2 + (1 + NUM_WATERMON * 3) * 1
 DEF FISHGROUP_DATA_LENGTH EQU 1 + 2 * 3
 
 DEF NUM_ROAMMON_MAPS EQU 16 ; RoamMaps table size (see data/wild/roammon_maps.asm)

@@ -459,16 +459,14 @@ CheckTMHM:
 GetTMHMNumber::
 ; Return the number of a TM/HM by item id c.
 	ld a, c
-	sub TM01
-	inc a
+	sub TM01 - 1
 	ld c, a
 	ret
 
 GetNumberedTMHM:
 ; Return the item id of a TM/HM by number c.
 	ld a, c
-	add TM01
-	dec a
+	add a, TM01 - 1
 	ld c, a
 	ret
 

@@ -23,7 +23,6 @@ BattleCommand_MirrorCoat:
 
 	ld a, BATTLE_VARS_LAST_COUNTER_MOVE_OPP
 	call GetBattleVar
-	dec a
 	ld de, wStringBuffer1
 	call GetMoveData
 
@@ -35,10 +34,11 @@ BattleCommand_MirrorCoat:
 	cp SPECIAL
 	ret c
 
+; BUG: Counter and Mirror Coat still work if the opponent uses an item (see docs/bugs_and_glitches.md)
 	ld hl, wCurDamage
 	ld a, [hli]
 	or [hl]
-	jr z, .failed
+	ret z
 
 	ld a, [hl]
 	add a
@@ -50,14 +50,8 @@ BattleCommand_MirrorCoat:
 	ld a, $ff
 	ld [hli], a
 	ld [hl], a
-
 .capped
+
 	xor a
 	ld [wAttackMissed], a
-	ret
-
-.failed
-	ld a, 1
-	ld [wEffectFailed], a
-	and a
 	ret

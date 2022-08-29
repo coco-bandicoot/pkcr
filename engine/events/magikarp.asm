@@ -8,7 +8,20 @@ CheckMagikarpLength:
 	farcall SelectMonFromParty
 	jr c, .declined
 	ld a, [wCurPartySpecies]
-	cp MAGIKARP
+	call GetPokemonIndexFromID
+	ld a, l
+	sub LOW(MAGIKARP)
+	if HIGH(MAGIKARP) == 0
+		or h
+	else
+		jr nz, .not_magikarp
+		if HIGH(MAGIKARP) == 1
+			dec h
+		else
+			ld a, h
+			cp HIGH(MAGIKARP)
+		endc
+	endc
 	jr nz, .not_magikarp
 
 	; Now let's compute its length based on its DVs and ID.
@@ -278,9 +291,11 @@ CalcMagikarpLength:
 	ret
 
 .BCLessThanDE:
+; BUG: Magikarp lengths can be miscalculated (see docs/bugs_and_glitches.md)
 	ld a, b
 	cp d
 	ret c
+	ret nc
 	ld a, c
 	cp e
 	ret

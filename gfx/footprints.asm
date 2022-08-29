@@ -1,5 +1,4 @@
 Footprints:
-; Entries correspond to Pokémon species, two apiece, 8 tops then 8 bottoms
 	table_width LEN_1BPP_TILE * 4, Footprints
 
 INCBIN "gfx/footprints/bulbasaur.1bpp"

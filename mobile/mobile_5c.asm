@@ -212,9 +212,12 @@ CheckBTMonMovesForErrors:
 .loop
 	push hl
 	ld a, [hl]
-	cp NUM_ATTACKS + 1
+	cp MOVE_TABLE_ENTRIES + 1
 	jr c, .okay
-	ld a, POUND
+	push hl
+	ld hl, POUND
+	call GetMoveIDFromIndex
+	pop hl
 	ld [hl], a
 
 .okay
@@ -224,7 +227,7 @@ CheckBTMonMovesForErrors:
 	ld a, [hl]
 	and a
 	jr z, .loop3
-	cp NUM_ATTACKS + 1
+	cp MOVE_TABLE_ENTRIES + 1
 	jr c, .next
 
 .loop3
@@ -866,13 +869,7 @@ Stadium2N64GFX:
 INCBIN "gfx/mobile/stadium2_n64.2bpp"
 
 Stadium2N64Tilemap:
-if DEF(_CRYSTAL11)
-; Crystal 1.1 corrupted this tilemap by treating $0a bytes as Unix newlines,
-; and converting them to $0d $0a Windows newlines.
-INCBIN "gfx/mobile/stadium2_n64_corrupt.tilemap"
-else
 INCBIN "gfx/mobile/stadium2_n64.tilemap"
-endc
 
 Stadium2N64Attrmap:
 INCBIN "gfx/mobile/stadium2_n64.attrmap"

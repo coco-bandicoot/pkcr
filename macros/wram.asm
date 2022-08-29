@@ -9,7 +9,6 @@ MACRO box_struct
 \1Item::           db
 \1Moves::          ds NUM_MOVES
 \1ID::             dw
-\1CaughtTime::
 \1Exp::            ds 3
 \1StatExp::
 \1HPExp::          dw
@@ -22,6 +21,7 @@ MACRO box_struct
 \1Happiness::      db
 \1PokerusStatus::  db
 \1CaughtData::
+\1CaughtTime::
 \1CaughtLevel::    db
 \1CaughtGender::
 \1CaughtLocation:: db
@@ -217,7 +217,7 @@ MACRO bugcontestwinner
 ENDM
 
 MACRO hof_mon
-\1Species::  db
+\1Species::  dw
 \1ID::       dw
 \1DVs::      dw
 \1Level::    db
@@ -231,7 +231,7 @@ MACRO hall_of_fame
 	for n, 1, PARTY_LENGTH + 1
 	\1Mon{d:n}:: hof_mon \1Mon{d:n}
 	endr
-\1End:: db
+\1End:: dw
 ENDM
 
 MACRO link_battle_record

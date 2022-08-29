@@ -41,6 +41,24 @@ MACRO dbw
 	dw \2
 ENDM
 
+MACRO dbbbw
+	db \1, \2, \3
+	dw \4
+ENDM
+
+MACRO dbwbb
+	db \1
+	dw \2
+	db \3, \4
+ENDM
+
+MACRO dbwbw
+	db \1
+	dw \2
+	db \3
+	dw \4
+ENDM
+
 MACRO dn ; nybbles
 	rept _NARG / 2
 		db ((\1) << 4) | (\2)
@@ -85,5 +103,14 @@ MACRO bcd
 	rept _NARG
 		dn ((\1) % 100) / 10, (\1) % 10
 		shift
+	endr
+ENDM
+
+MACRO sine_table
+; \1 samples of sin(x) from x=0 to x<32768 (pi radians)
+	DEF x = 0
+	rept \1
+		dw (sin(x) + (sin(x) & $ff)) >> 8 ; round up
+		DEF x += DIV(32768, \1) ; a circle has 65536 "degrees"
 	endr
 ENDM

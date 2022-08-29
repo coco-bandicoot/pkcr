@@ -193,10 +193,6 @@ ItemNames::
 	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
-	li "TERU-SAMA"
-	li "TERU-SAMA"
-	li "TERU-SAMA"
-	li "TERU-SAMA"
 	assert_list_length NUM_ITEMS
 	li "TM01"
 	li "TM02"
@@ -257,6 +253,10 @@ ItemNames::
 	li "HM06"
 	li "HM07"
 	assert_list_length NUM_ITEMS + NUM_TMS + NUM_HMS
-	li "?"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
 	li "?"
 	assert_list_length $100

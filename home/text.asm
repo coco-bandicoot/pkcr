@@ -1,7 +1,7 @@
 ClearBox::
 ; Fill a c*b box at hl with blank tiles.
 	ld a, " "
-	; fallthrough
+; fallthrough
 
 FillBoxWithByte::
 .row
@@ -128,10 +128,6 @@ SpeechTextbox::
 	ld c, TEXTBOX_INNERW
 	jp Textbox
 
-GameFreakText:: ; unreferenced
-	text "ゲームフりーク！" ; "GAMEFREAK!"
-	done
-
 RadioTerminator::
 	ld hl, .stop
 	ret
@@ -162,6 +158,20 @@ SetUpTextbox::
 	call UpdateSprites
 	call ApplyTilemap
 	pop hl
+	ret
+
+FarPlaceString::
+	ld c, a
+	ldh a, [hROMBank]
+	ld b, a
+	ld a, c
+	rst Bankswitch
+
+	push bc
+	call PlaceString
+
+	pop af
+	rst Bankswitch
 	ret
 
 PlaceString::
@@ -242,16 +252,9 @@ ENDM
 	dict "<USER>",    PlaceMoveUsersName
 	dict "<ENEMY>",   PlaceEnemysName
 	dict "<PLAY_G>",  PlaceGenderedPlayerName
-	dict "ﾟ",         .diacritic
-	dict "ﾞ",         .diacritic
-	jr .not_diacritic
+	dict "ﾟ",         .place
+	dict "ﾞ",         .place
 
-.diacritic
-	ld b, a
-	call Diacritic
-	jp NextChar
-
-.not_diacritic
 	cp FIRST_REGULAR_TEXT_CHAR
 	jr nc, .place
 ; dakuten or handakuten
@@ -268,7 +271,6 @@ ENDM
 	add "か" - "が"
 .place_dakuten
 	ld b, "ﾞ" ; dakuten
-	call Diacritic
 	jr .place
 
 .handakuten
@@ -282,7 +284,6 @@ ENDM
 	add "は" - "ぱ"
 .place_handakuten
 	ld b, "ﾟ" ; handakuten
-	call Diacritic
 
 .place
 	ld [hli], a
@@ -389,7 +390,7 @@ PlaceGenderedPlayerName::
 	ld de, KunSuffixText
 	jr z, PlaceCommandCharacter
 	ld de, ChanSuffixText
-	jr PlaceCommandCharacter
+; fallthrough
 
 PlaceCommandCharacter::
 	call PlaceString
@@ -625,9 +626,6 @@ Text_WaitBGMap::
 	pop bc
 	ret
 
-Diacritic::
-	ret
-
 LoadBlinkingCursor::
 	ld a, "▼"
 	ldcoord_a 18, 17
@@ -759,8 +757,7 @@ TextCommand_FAR::
 	ld d, a
 	ld a, [hli]
 
-	ldh [hROMBank], a
-	ld [MBC3RomBank], a
+	rst Bankswitch
 
 	push hl
 	ld h, d
@@ -769,8 +766,7 @@ TextCommand_FAR::
 	pop hl
 
 	pop af
-	ldh [hROMBank], a
-	ld [MBC3RomBank], a
+	rst Bankswitch
 	ret
 
 TextCommand_BCD::
@@ -928,18 +924,6 @@ TextCommand_SOUND::
 	pop de
 
 .done
-	pop hl
-	pop bc
-	ret
-
-TextCommand_CRY:: ; unreferenced
-; play a pokemon cry
-	push de
-	ld e, [hl]
-	inc hl
-	ld d, [hl]
-	call PlayMonCry
-	pop de
 	pop hl
 	pop bc
 	ret

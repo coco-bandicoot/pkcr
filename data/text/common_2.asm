@@ -100,17 +100,19 @@ Text_Gained::
 	text_end
 
 _BoostedExpPointsText::
+; BUG: Five-digit experience gain is printed incorrectly (see docs/bugs_and_glitches.md)
 	text_start
 	line "a boosted"
 	cont "@"
-	text_decimal wStringBuffer2, 2, 5
+	text_decimal wStringBuffer2, 2, 4
 	text " EXP. Points!"
 	prompt
 
 _ExpPointsText::
+; BUG: Five-digit experience gain is printed incorrectly (see docs/bugs_and_glitches.md)
 	text_start
 	line "@"
-	text_decimal wStringBuffer2, 2, 5
+	text_decimal wStringBuffer2, 2, 4
 	text " EXP. Points!"
 	prompt
 
@@ -737,12 +739,7 @@ _ActorNameText::
 	text "<USER>@"
 	text_end
 
-_UsedMove1Text::
-	text_start
-	line "used @"
-	text_end
-
-_UsedMove2Text::
+_UsedMoveText::
 	text_start
 	line "used @"
 	text_end
@@ -754,27 +751,6 @@ _UsedInsteadText::
 
 _MoveNameText::
 	text_ram wStringBuffer2
-	text_end
-
-	text_end ; unreferenced
-
-_EndUsedMove1Text::
-	text "!"
-	done
-
-_EndUsedMove2Text::
-	text "!"
-	done
-
-_EndUsedMove3Text::
-	text "!"
-	done
-
-_EndUsedMove4Text::
-	text "!"
-	done
-
-_EndUsedMove5Text::
 	text "!"
 	done
 

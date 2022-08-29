@@ -24,6 +24,7 @@ BattleCommand_BeatUp:
 	ld [wCurBeatUpPartyMon], a
 
 .got_mon
+; BUG: Beat Up can desynchronize link battles (see docs/bugs_and_glitches.md)
 	ld a, [wCurBeatUpPartyMon]
 	ld hl, wPartyMonNicknames
 	call GetNickname
@@ -35,7 +36,7 @@ BattleCommand_BeatUp:
 	ld a, [wCurBeatUpPartyMon]
 	ld c, a
 	ld a, [wCurBattleMon]
-	cp c
+	cp [hl]
 	ld hl, wBattleMonStatus
 	jr z, .active_mon
 	ld a, MON_STATUS
@@ -194,12 +195,10 @@ BattleCommand_BeatUp:
 	jp SkipToBattleCommand
 
 BattleCommand_BeatUpFailText:
+; BUG: Beat Up may trigger King's Rock even if it failed (see docs/bugs_and_glitches.md)
 	ld a, [wBeatUpHitAtLeastOnce]
 	and a
 	ret nz
-
-	inc a
-	ld [wAttackMissed], a
 
 	jp PrintButItFailed
 

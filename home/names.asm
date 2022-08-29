@@ -1,13 +1,9 @@
 NamesPointers::
-; entries correspond to GetName constants (see constants/text_constants.asm)
-	dba PokemonNames        ; MON_NAME (not used; jumps to GetPokemonName)
-	dba MoveNames           ; MOVE_NAME
-	dba NULL                ; DUMMY_NAME
+; entries correspond to GetName constants (see constants/text_constants.asm); MON_NAME and MOVE_NAME are not handled by this table
 	dba ItemNames           ; ITEM_NAME
 	dbw 0, wPartyMonOTs     ; PARTY_OT_NAME
 	dbw 0, wOTPartyMonOTs   ; ENEMY_OT_NAME
 	dba TrainerClassNames   ; TRAINER_NAME
-	dbw 4, MoveDescriptions ; MOVE_DESC_NAME_BROKEN (wrong bank)
 
 GetName::
 ; Return name wCurSpecies from name list wNamedObjectType in wStringBuffer1.
@@ -18,28 +14,37 @@ GetName::
 	push bc
 	push de
 
-	ld a, [wNamedObjectType]
-	cp MON_NAME
-	jr nz, .NotPokeName
-
 	ld a, [wCurSpecies]
 	ld [wNamedObjectIndex], a
-	call GetPokemonName
-	ld hl, MON_NAME_LENGTH
-	add hl, de
-	ld e, l
-	ld d, h
-	jr .done
 
-.NotPokeName:
 	ld a, [wNamedObjectType]
+	dec a ; MON_NAME
+	ld hl, GetPokemonName
+	jr z, .go
+	dec a ; MOVE_NAME
+	ld hl, GetMoveName
+	jr z, .go
 	dec a
-	ld e, a
-	ld d, 0
-	ld hl, NamesPointers
-	add hl, de
-	add hl, de
-	add hl, de
+	ld hl, .generic_function
+.go
+	call _hl_
+
+	pop de
+	pop bc
+	pop hl
+	pop af
+	rst Bankswitch
+	ret
+
+.generic_function
+	ld l, a
+	add a, a
+	add a, l
+	add a, LOW(NamesPointers)
+	ld l, a
+	ld a, HIGH(NamesPointers)
+	adc 0
+	ld h, a
 	ld a, [hli]
 	rst Bankswitch
 	ld a, [hli]
@@ -52,20 +57,21 @@ GetName::
 
 	ld de, wStringBuffer1
 	ld bc, ITEM_NAME_LENGTH
-	call CopyBytes
+	jp CopyBytes
 
-.done
-	ld a, e
-	ld [wUnusedNamesPointer], a
-	ld a, d
-	ld [wUnusedNamesPointer + 1], a
+GetNthString16::
+; Like GetNthString, but with a 16-bit index in bc
+	inc b
+	jr .handle_loop
 
-	pop de
-	pop bc
-	pop hl
-	pop af
-	rst Bankswitch
-	ret
+.loop
+	xor a
+	call GetNthString.loop ; will act as a = $100
+.handle_loop
+	dec b
+	jr nz, .loop
+	ld a, c
+	; fallthrough
 
 GetNthString::
 ; Return the address of the
@@ -74,6 +80,7 @@ GetNthString::
 	and a
 	ret z
 
+.loop
 	push bc
 	ld b, a
 	ld c, "@"
@@ -120,16 +127,14 @@ GetPokemonName::
 
 ; Each name is ten characters
 	ld a, [wNamedObjectIndex]
-	dec a
-	ld d, 0
-	ld e, a
-	ld h, 0
-	ld l, a
+	call GetPokemonIndexFromID
+	ld e, l
+	ld d, h
 	add hl, hl
 	add hl, hl
 	add hl, de
 	add hl, hl
-	ld de, PokemonNames
+	ld de, PokemonNames - 10
 	add hl, de
 
 ; Terminator
@@ -255,15 +260,25 @@ INCLUDE "home/hm_moves.asm"
 
 GetMoveName::
 	push hl
-
-	ld a, MOVE_NAME
-	ld [wNamedObjectType], a
-
-	ld a, [wNamedObjectIndex] ; move id
-	ld [wCurSpecies], a
-
-	call GetName
+	push bc
+	ldh a, [hROMBank]
+	push af
+	ld a, BANK(MoveNames)
+	rst Bankswitch
+	ld a, [wNamedObjectIndex]
+	call GetMoveIndexFromID
+	dec hl
+	ld b, h
+	ld c, l
+	ld hl, MoveNames
+	call GetNthString16
 	ld de, wStringBuffer1
-
+	push de
+	ld bc, MOVE_NAME_LENGTH
+	call CopyBytes
+	pop de
+	pop af
+	rst Bankswitch
+	pop bc
 	pop hl
 	ret

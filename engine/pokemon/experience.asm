@@ -22,13 +22,6 @@ CalcLevel:
 	ldh a, [hProduct + 1]
 	ld c, a
 	ld a, [hl]
-	push de
-	push af
-	and EXP_MASK
-	ld d, a
-	pop af
-	ld a, d
-	pop de
 	sbc c
 	pop hl
 	jr nc, .next_level
@@ -39,18 +32,7 @@ CalcLevel:
 
 CalcExpAtLevel:
 ; (a/b)*n**3 + c*n**2 + d*n - e
-	ld a, d
-	dec a
-	jr nz, .UseExpFormula
-; Pokémon have 0 experience at level 1
-	ld hl, hProduct
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
-	ret
-
-.UseExpFormula
+; BUG: Experience underflow for level 1 Pokémon with Medium-Slow growth rate (see docs/bugs_and_glitches.md)
 	ld a, [wBaseGrowthRate]
 	add a
 	add a

@@ -454,7 +454,20 @@ PokeAnim_StopWaitAnim:
 
 PokeAnim_IsUnown:
 	ld a, [wPokeAnimSpecies]
-	cp UNOWN
+	push hl
+	call GetPokemonIndexFromID
+	ld a, l
+	cp LOW(UNOWN)
+	ld a, h
+	pop hl
+	ret nz
+	if HIGH(UNOWN) == 0
+		and a
+	elif HIGH(UNOWN) == 1
+		dec a
+	else
+		cp HIGH(UNOWN)
+	endc
 	ret
 
 PokeAnim_IsEgg:
@@ -614,6 +627,8 @@ PokeAnim_ConvertAndApplyBitmask:
 	ld hl, wPokeAnimGraphicStartTile
 	add [hl]
 	pop hl
+	cp $7f
+	sbc -1 ;increment if no carry
 	ld [hl], a
 	ret
 
@@ -889,27 +904,28 @@ GetMonAnimPointer:
 	jr z, .egg
 
 	ld c, BANK(UnownAnimationPointers) ; aka BANK(UnownAnimationIdlePointers)
-	ld hl, UnownAnimationPointers
-	ld de, UnownAnimationIdlePointers
+	ld hl, UnownAnimationPointers - 2
+	ld de, UnownAnimationIdlePointers - 2
 	call PokeAnim_IsUnown
 	jr z, .unown
 	ld c, BANK(AnimationPointers) ; aka BANK(AnimationIdlePointers)
-	ld hl, AnimationPointers
-	ld de, AnimationIdlePointers
+	ld hl, AnimationPointers - 2
+	ld de, AnimationIdlePointers - 2
 .unown
 
 	ld a, [wPokeAnimIdleFlag]
 	and a
-	jr z, .idles
-	ld h, d
-	ld l, e
-.idles
+	jr nz, .got_pointer
+	ld d, h
+	ld e, l
+.got_pointer
 
+	call PokeAnim_IsUnown
 	ld a, [wPokeAnimSpeciesOrUnown]
-	dec a
-	ld e, a
-	ld d, 0
-	add hl, de
+	ld l, a
+	ld h, 0
+	call nz, GetPokemonIndexFromID
+	add hl, hl
 	add hl, de
 	ld a, c
 	ld [wPokeAnimPointerBank], a
@@ -958,28 +974,36 @@ GetMonFramesPointer:
 	jr z, .egg
 
 	call PokeAnim_IsUnown
-	ld b, BANK(UnownFramesPointers)
-	ld c, BANK(UnownsFrames)
-	ld hl, UnownFramesPointers
-	jr z, .got_frames
-	ld a, [wPokeAnimSpecies]
-	cp JOHTO_POKEMON
-	ld b, BANK(FramesPointers)
-	ld c, BANK(KantoFrames)
-	ld hl, FramesPointers
-	jr c, .got_frames
-	ld c, BANK(JohtoFrames)
-.got_frames
-	ld a, c
+	ld hl, FramesPointers - 3
+	ld a, BANK(FramesPointers)
+	ld c, 3
+	jr nz, .got_frames
+	ld a, BANK(UnownsFrames)
 	ld [wPokeAnimFramesBank], a
+	ld hl, UnownFramesPointers - 2
+	ld a, BANK(UnownFramesPointers)
+	ld c, 2
+.got_frames
 
+	push af
+	push hl
 	ld a, [wPokeAnimSpeciesOrUnown]
-	dec a
-	ld e, a
-	ld d, 0
-	add hl, de
-	add hl, de
-	ld a, b
+	ld l, a
+	ld h, 0
+	call nz, GetPokemonIndexFromID
+	ld a, c
+	ld c, l
+	ld b, h
+	pop hl
+	call AddNTimes
+	pop af
+	jr z, .no_bank
+	ld c, a
+	call GetFarByte
+	ld [wPokeAnimFramesBank], a
+	inc hl
+	ld a, c
+.no_bank
 	call GetFarWord
 	ld a, l
 	ld [wPokeAnimFramesAddr], a
@@ -988,13 +1012,11 @@ GetMonFramesPointer:
 	ret
 
 .egg
-	ld hl, EggFrames
-	ld c, BANK(EggFrames)
-	ld a, c
+	ld a, BANK(EggFrames)
 	ld [wPokeAnimFramesBank], a
-	ld a, l
+	ld a, LOW(EggFrames)
 	ld [wPokeAnimFramesAddr], a
-	ld a, h
+	ld a, HIGH(EggFrames)
 	ld [wPokeAnimFramesAddr + 1], a
 	ret
 
@@ -1004,18 +1026,18 @@ GetMonBitmaskPointer:
 
 	call PokeAnim_IsUnown
 	ld a, BANK(UnownBitmasksPointers)
-	ld hl, UnownBitmasksPointers
+	ld de, UnownBitmasksPointers - 2
 	jr z, .unown
 	ld a, BANK(BitmasksPointers)
-	ld hl, BitmasksPointers
+	ld de, BitmasksPointers - 2
 .unown
 	ld [wPokeAnimBitmaskBank], a
 
 	ld a, [wPokeAnimSpeciesOrUnown]
-	dec a
-	ld e, a
-	ld d, 0
-	add hl, de
+	ld l, a
+	ld h, 0
+	call nz, GetPokemonIndexFromID
+	add hl, hl
 	add hl, de
 	ld a, [wPokeAnimBitmaskBank]
 	call GetFarWord

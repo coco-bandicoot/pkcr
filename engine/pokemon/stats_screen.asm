@@ -415,18 +415,24 @@ StatsScreen_InitUpperHalf:
 	call .PlaceHPBar
 	xor a
 	ldh [hBGMapMode], a
-	ld a, [wBaseDexNo]
-	ld [wTextDecimalByte], a
+	ld a, [wBaseSpecies]
 	ld [wCurSpecies], a
+	call GetPokemonIndexFromID
+	ld a, h
+	ld h, l
+	ld l, a
+	push hl
+	ld hl, sp + 0
+	ld d, h
+	ld e, l
 	hlcoord 8, 0
-	ld [hl], "№"
-	inc hl
-	ld [hl], "."
-	inc hl
-	hlcoord 10, 0
-	lb bc, PRINTNUM_LEADINGZEROS | 1, 3
-	ld de, wTextDecimalByte
+	ld a, "№"
+	ld [hli], a
+	ld a, "."
+	ld [hli], a
+	lb bc, PRINTNUM_LEADINGZEROS | 2, 3
 	call PrintNum
+	add sp, 2
 	hlcoord 14, 0
 	call PrintLevel
 	ld hl, .NicknamePointers
@@ -439,7 +445,7 @@ StatsScreen_InitUpperHalf:
 	hlcoord 9, 4
 	ld a, "/"
 	ld [hli], a
-	ld a, [wBaseDexNo]
+	ld a, [wBaseSpecies]
 	ld [wNamedObjectIndex], a
 	call GetPokemonName
 	call PlaceString
@@ -522,7 +528,7 @@ StatsScreen_PlaceShinyIcon:
 	ret
 
 StatsScreen_LoadGFX:
-	ld a, [wBaseDexNo]
+	ld a, [wBaseSpecies]
 	ld [wTempSpecies], a
 	ld [wCurSpecies], a
 	xor a
@@ -633,14 +639,6 @@ LoadPinkPage:
 	hlcoord 13, 10
 	lb bc, 3, 7
 	ld de, wTempMonExp
-	ld a, [de]
-	and EXP_MASK
-	ld [wStringBuffer1], a
-	ld a, [wTempMonExp + 1]
-	ld [wStringBuffer1 + 1], a
-	ld a, [wTempMonExp + 2]
-	ld [wStringBuffer1 + 2], a
-	ld de, wStringBuffer1
 	call PrintNum
 	call .CalcExpToNextLevel
 	hlcoord 13, 13
@@ -685,6 +683,7 @@ LoadPinkPage:
 	ld d, a
 	farcall CalcExpAtLevel
 	ld hl, wTempMonExp + 2
+	ld hl, wTempMonExp + 2
 	ldh a, [hQuotient + 3]
 	sub [hl]
 	dec hl
@@ -694,14 +693,7 @@ LoadPinkPage:
 	dec hl
 	ld [wExpToNextLevel + 1], a
 	ldh a, [hQuotient + 1]
-	push af
-	ld e, a
-	ld a, [hl]
-	and EXP_MASK
-	ld d, a
-	pop af
-	ld a, e
-	sbc d
+	sbc [hl]
 	ld [wExpToNextLevel], a
 	ret
 
@@ -867,33 +859,49 @@ StatsScreen_PlaceFrontpic:
 	ld hl, wStatsScreenFlags
 	set 5, [hl]
 	ld a, [wCurPartySpecies]
-	cp UNOWN
-	jr z, .unown
+	call GetPokemonIndexFromID
+	ld a, l
+	cp LOW(UNOWN)
+	ld a, h
 	hlcoord 0, 0
-	call PrepMonFrontpic
-	ret
-
-.unown
+	jp nz, PrepMonFrontpic
+	if HIGH(UNOWN) == 0
+		and a
+	elif HIGH(UNOWN) == 1
+		dec a
+	else
+		cp HIGH(UNOWN)
+	endc
+	jp nz, PrepMonFrontpic
 	xor a
 	ld [wBoxAlignment], a
-	hlcoord 0, 0
-	call _PrepMonFrontpic
-	ret
+	jp _PrepMonFrontpic
 
 .AnimateEgg:
 	ld a, [wCurPartySpecies]
-	cp UNOWN
+	push hl
+	call GetPokemonIndexFromID
+	ld a, l
+	cp LOW(UNOWN)
+	ld a, h
+	pop hl
+	jr nz, .not_unown_egg
+	if HIGH(UNOWN) == 0
+		and a
+	elif HIGH(UNOWN) == 1
+		dec a
+	else
+		cp HIGH(UNOWN)
+	endc
 	jr z, .unownegg
+.not_unown_egg
 	ld a, TRUE
 	ld [wBoxAlignment], a
-	call .get_animation
-	ret
-
+	jr .get_animation
 .unownegg
 	xor a
 	ld [wBoxAlignment], a
-	call .get_animation
-	ret
+	; fallthrough
 
 .get_animation
 	ld a, [wCurPartySpecies]

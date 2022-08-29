@@ -193,34 +193,27 @@ ItemEffects:
 	dw PokeBallEffect      ; PARK_BALL
 	dw NoEffect            ; RAINBOW_WING
 	dw NoEffect            ; ITEM_B3
-	dw NoEffect            ; BRICK_PIECE
-	dw NoEffect            ; SURF_MAIL
-	dw NoEffect            ; LITEBLUEMAIL
-	dw NoEffect            ; PORTRAITMAIL
-	dw NoEffect            ; LOVELY_MAIL
-	dw NoEffect            ; EON_MAIL
-	dw NoEffect            ; MORPH_MAIL
-	dw NoEffect            ; BLUESKY_MAIL
-	dw NoEffect            ; MUSIC_MAIL
-	dw NoEffect            ; MIRAGE_MAIL
-	dw NoEffect            ; ITEM_BE
-	dw NoEffect            ; ITEM_BF
-	dw NoEffect            ; ITEM_C0
-	dw NoEffect            ; ITEM_C1
-	dw NoEffect            ; ITEM_C2
-	dw NoEffect            ; ITEM_C3
-	dw NoEffect            ; ITEM_C4
-	dw NoEffect            ; ITEM_C5
-	assert_table_length NUM_ITEMS
+	assert_table_length ITEM_B3
+; The items past ITEM_B3 do not have effect entries:
+;	BRICK_PIECE
+;	SURF_MAIL
+;	LITEBLUEMAIL
+;	PORTRAITMAIL
+;	LOVELY_MAIL
+;	EON_MAIL
+;	MORPH_MAIL
+;	BLUESKY_MAIL
+;	MUSIC_MAIL
+;	MIRAGE_MAIL
+;	ITEM_BE
+; They all have the ITEMMENU_NOUSE attribute so they can't be used anyway.
+; NoEffect would be appropriate, with the table then being NUM_ITEMS long.
 
 PokeBallEffect:
+; BUG: The Dude's catching tutorial may crash if his Poké Ball can't be used (see docs/bugs_and_glitches.md)
 	ld a, [wBattleMode]
 	dec a
 	jp nz, UseBallInTrainerBattle
-	
-	ld a, [wBattleType]
-	cp BATTLETYPE_TUTORIAL
-	jr z, .room_in_party
 
 	ld a, [wPartyCount]
 	cp PARTY_LENGTH
@@ -234,10 +227,11 @@ PokeBallEffect:
 	jp z, Ball_BoxIsFullMessage
 
 .room_in_party
+; BUG: Using a Park Ball in non-Contest battles has a corrupt animation (see docs/bugs_and_glitches.md)
 	xor a
 	ld [wWildMon], a
-	ld a, [wBattleType]
-	cp BATTLETYPE_CONTEST
+	ld a, [wCurItem]
+	cp PARK_BALL
 	call nz, ReturnToBattle_UseBall
 
 	ld hl, wOptions
@@ -342,12 +336,12 @@ PokeBallEffect:
 	jr nz, .statuscheck
 	ld a, 1
 .statuscheck
+; BUG: BRN/PSN/PAR do not affect catch rate (see docs/bugs_and_glitches.md)
 	ld b, a
 	ld a, [wEnemyMonStatus]
 	and 1 << FRZ | SLP_MASK
 	ld c, 10
 	jr nz, .addstatus
-	ld a, [wEnemyMonStatus]
 	and a
 	ld c, 5
 	jr nz, .addstatus
@@ -359,10 +353,10 @@ PokeBallEffect:
 	ld a, $ff
 .max_1
 
+; BUG: HELD_CATCH_CHANCE has no effect (see docs/bugs_and_glitches.md)
 	ld d, a
 	push de
 	ld a, [wBattleMonItem]
-	ld b, a
 	farcall GetItemHeldEffect
 	ld a, b
 	cp HELD_CATCH_CHANCE
@@ -449,7 +443,6 @@ PokeBallEffect:
 	bit SUBSTATUS_TRANSFORMED, a
 	jr nz, .load_data
 
-.ditto
 	ld hl, wEnemyBackupDVs
 	ld a, [wEnemyMonDVs]
 	ld [hli], a
@@ -508,13 +501,11 @@ PokeBallEffect:
 	call ClearSprites
 
 	ld a, [wTempSpecies]
-	dec a
 	call CheckCaughtMon
 
 	ld a, c
 	push af
 	ld a, [wTempSpecies]
-	dec a
 	call SetSeenAndCaughtMon
 	pop af
 	and a
@@ -757,14 +748,14 @@ HeavyBallMultiplier:
 ; else add 30 to catch rate if weight < 409.6 kg
 ; else add 40 to catch rate
 	ld a, [wEnemyMonSpecies]
-	ld hl, PokedexDataPointerTable
-	dec a
-	ld e, a
-	ld d, 0
+	call GetPokemonIndexFromID
+	dec hl
+	ld d, h
+	ld e, l
+	add hl, hl
 	add hl, de
+	ld de, PokedexDataPointerTable
 	add hl, de
-	add hl, de
-	; d = bank, hl = address
 	ld a, BANK(PokedexDataPointerTable)
 	call GetFarByte
 	push af
@@ -876,35 +867,31 @@ LureBallMultiplier:
 	ret
 
 MoonBallMultiplier:
+; Multiply catch rate by 4 if mon evolves with moon stone
+	push de
 	push bc
 	ld a, [wTempEnemyMonSpecies]
-	dec a
-	ld c, a
-	ld b, 0
+	call GetPokemonIndexFromID
+	ld b, h
+	ld c, l
 	ld hl, EvosAttacksPointers
-	add hl, bc
-	add hl, bc
 	ld a, BANK(EvosAttacksPointers)
-	call GetFarWord
-	pop bc
+	call LoadDoubleIndirectPointer
 
-	push bc
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte
-	cp EVOLVE_ITEM
+	ld a, [wCurItem]
+	ld c, a
+	ld a, MOON_STONE
+	ld [wCurItem], a
+	ld d, h
+	ld e, l
+	farcall DetermineEvolutionItemResults
+	ld a, c
+	ld [wCurItem], a
+	ld a, d
+	or e
 	pop bc
-	ret nz
-
-	inc hl
-	inc hl
-	inc hl
-
-	push bc
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte
-	cp MOON_STONE
-	pop bc
-	ret nz
+	pop de
+	ret z
 
 	sla b
 	jr c, .max
@@ -954,11 +941,12 @@ LoveBallMultiplier:
 	inc d   ; female
 .got_wild_gender
 
+; BUG: Love Ball boosts catch rate for the wrong gender (see docs/bugs_and_glitches.md)
 	ld a, d
 	pop de
 	cp d
 	pop bc
-	ret z
+	ret nz
 
 	sla b
 	jr c, .max
@@ -978,34 +966,49 @@ LoveBallMultiplier:
 	ret
 
 FastBallMultiplier:
+; multiply catch rate by 4 if the enemy mon is in the FleeMons tables
 	ld a, [wTempEnemyMonSpecies]
-	ld c, a
+	call GetPokemonIndexFromID
+	ld d, h
+	ld e, l
 	ld hl, FleeMons
-	ld d, 3
+	ld c, 3
+	push bc
 
 .loop
+; BUG: Fast Ball only boosts catch rate for three Pokémon (see docs/bugs_and_glitches.md)
 	ld a, BANK(FleeMons)
 	call GetFarByte
-
+	ld c, a
 	inc hl
-	cp -1
-	jr z, .next
-	cp c
+	ld a, BANK(FleeMons)
+	call GetFarByte
+	ld b, a
+	and c
+	inc a
+	jr z, .next_list
+	ld a, b
+	cp d
 	jr nz, .loop
+	ld a, c
+	cp e
+	jr nz, .loop
+
+	pop bc
 	sla b
 	jr c, .max
-
 	sla b
 	ret nc
-
 .max
 	ld b, $ff
 	ret
 
-.next
-	dec d
-	jr nz, .loop
-	ret
+.next_list
+	pop bc
+	dec c
+	ret z
+	push bc
+	jr .loop
 
 LevelBallMultiplier:
 ; multiply catch rate by 8 if player mon level / 4 > enemy mon level
@@ -1278,14 +1281,7 @@ RareCandyEffect:
 	ld a, MON_EXP
 	call GetPartyParamLocation
 
-	push de
-	ld a, [hl]
-	and CAUGHT_TIME_MASK
-	ld d, a
 	ldh a, [hMultiplicand + 0]
-	and EXP_MASK
-	or d
-	pop de
 	ld [hli], a
 	ldh a, [hMultiplicand + 1]
 	ld [hli], a
@@ -2323,8 +2319,20 @@ RestorePPEffect:
 	jp nz, Not_PP_Up
 
 	ld a, [hl]
-	cp SKETCH
+	push hl
+	call GetMoveIndexFromID
+	ld a, h
+	if HIGH(SKETCH)
+		cp HIGH(SKETCH)
+	else
+		and a
+	endc
+	ld a, l
+	pop hl
+	jr nz, .not_sketch
+	cp LOW(SKETCH)
 	jr z, .CantUsePPUpOnSketch
+.not_sketch
 
 	ld bc, MON_PP - MON_MOVES
 	add hl, bc
@@ -2854,14 +2862,11 @@ GetMaxPPOfMove:
 
 .gotdatmove
 	ld a, [hl]
-	dec a
 
 	push hl
-	ld hl, Moves + MOVE_PP
-	ld bc, MOVE_LENGTH
-	call AddNTimes
-	ld a, BANK(Moves)
-	call GetFarByte
+	ld l, a
+	ld a, MOVE_PP
+	call GetMoveAttribute
 	ld b, a
 	ld de, wStringBuffer1
 	ld [de], a

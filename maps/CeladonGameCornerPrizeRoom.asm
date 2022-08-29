@@ -151,7 +151,7 @@ CeladonGameCornerPrizeRoomPokemonVendor:
 	playsound SFX_TRANSACTION
 	writetext CeladonPrizeRoom_HereYouGoText
 	waitbutton
-	setval PIKACHU
+	loadmonindex 1, PIKACHU
 	special GameCornerPrizeMonCheckDex
 	givepoke PIKACHU, 25
 	takecoins CELADONGAMECORNERPRIZEROOM_PIKACHU_COINS
@@ -169,7 +169,7 @@ CeladonGameCornerPrizeRoomPokemonVendor:
 	playsound SFX_TRANSACTION
 	writetext CeladonPrizeRoom_HereYouGoText
 	waitbutton
-	setval PORYGON
+	loadmonindex 2, PORYGON
 	special GameCornerPrizeMonCheckDex
 	givepoke PORYGON, 15
 	takecoins CELADONGAMECORNERPRIZEROOM_PORYGON_COINS
@@ -187,7 +187,7 @@ CeladonGameCornerPrizeRoomPokemonVendor:
 	playsound SFX_TRANSACTION
 	writetext CeladonPrizeRoom_HereYouGoText
 	waitbutton
-	setval LARVITAR
+	loadmonindex 3, LARVITAR
 	special GameCornerPrizeMonCheckDex
 	givepoke LARVITAR, 40
 	takecoins CELADONGAMECORNERPRIZEROOM_LARVITAR_COINS
@@ -214,11 +214,6 @@ CeladonGameCornerPrizeRoomGentlemanText:
 	done
 
 CeladonGameCornerPrizeRoomPharmacistText:
-if DEF(_CRYSTAL_AU)
-	text "I don't want to"
-	line "lose my coins."
-	done
-else
 	text "Whew…"
 
 	para "I've got to stay"
@@ -228,7 +223,6 @@ else
 	line "cool, or I'll lose"
 	cont "all my money…"
 	done
-endc
 
 CeladonPrizeRoom_PrizeVendorIntroText:
 	text "Welcome!"

@@ -11,8 +11,9 @@ BattleCommand_Sketch:
 ; If the opponent has a substitute up, fail.
 	call CheckSubstituteOpp
 	jp nz, .fail
-; If the user is transformed, fail.
-	ld a, BATTLE_VARS_SUBSTATUS5
+; If the opponent is transformed, fail.
+; BUG: A Transformed Pokémon can use Sketch and learn otherwise unobtainable moves (see docs/bugs_and_glitches.md)
+	ld a, BATTLE_VARS_SUBSTATUS5_OPP
 	call GetBattleVarAddr
 	bit SUBSTATUS_TRANSFORMED, [hl]
 	jp nz, .fail
@@ -37,7 +38,10 @@ BattleCommand_Sketch:
 ; Fail if move is invalid or is Struggle.
 	and a
 	jr z, .fail
-	cp STRUGGLE
+	push bc
+	ld bc, STRUGGLE
+	call CompareMove
+	pop bc
 	jr z, .fail
 ; Fail if user already knows that move
 	ld c, NUM_MOVES
@@ -49,23 +53,25 @@ BattleCommand_Sketch:
 	jr nz, .does_user_already_know_move
 ; Find Sketch in the user's moveset.
 ; Pointer in hl, and index in c.
-	dec hl
+	push hl
+	ld hl, SKETCH
+	call GetMoveIDFromIndex
+	pop hl
 	ld c, NUM_MOVES
 .find_sketch
 	dec c
-	ld a, [hld]
-	cp SKETCH
+	dec hl
+	cp [hl]
 	jr nz, .find_sketch
-	inc hl
 ; The Sketched move is loaded to that slot.
 	ld a, b
 	ld [hl], a
 ; Copy the base PP from that move.
 	push bc
 	push hl
-	dec a
-	ld hl, Moves + MOVE_PP
-	call GetMoveAttr
+	ld l, a
+	ld a, MOVE_PP
+	call GetMoveAttribute
 	pop hl
 	ld bc, wBattleMonPP - wBattleMonMoves
 	add hl, bc

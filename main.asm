@@ -126,9 +126,7 @@ INCLUDE "engine/events/kurt_selectquantity_interpretjoypad.asm"
 
 SECTION "bankA", ROMX
 
-INCLUDE "engine/link/link.asm"
 INCLUDE "engine/overworld/wildmons.asm"
-INCLUDE "engine/battle/link_result.asm"
 
 
 SECTION "bankB", ROMX
@@ -241,7 +239,6 @@ INCLUDE "engine/events/basement_key.asm"
 INCLUDE "engine/events/sacred_ash.asm"
 INCLUDE "engine/pokemon/tempmon.asm"
 INCLUDE "engine/pokemon/types.asm"
-INCLUDE "engine/battle/getgen1trainerclassname.asm"
 INCLUDE "engine/pokemon/mon_stats.asm"
 INCLUDE "engine/link/init_list.asm"
 INCLUDE "engine/pokemon/experience.asm"
@@ -250,7 +247,6 @@ INCLUDE "engine/gfx/load_pics.asm"
 INCLUDE "engine/pokemon/move_mon_wo_mail.asm"
 INCLUDE "data/pokemon/base_stats.asm"
 INCLUDE "data/pokemon/names.asm"
-INCLUDE "data/pokemon/unused_pic_banks.asm"
 
 
 SECTION "Crystal Phone Text", ROMX
@@ -277,7 +273,6 @@ INCLUDE "engine/overworld/player_movement.asm"
 INCLUDE "engine/events/engine_flags.asm"
 INCLUDE "engine/overworld/variables.asm"
 INCLUDE "data/text/battle.asm"
-INCLUDE "engine/debug/color_picker.asm"
 
 
 SECTION "bank21", ROMX
@@ -318,7 +313,7 @@ INCLUDE "engine/rtc/timeset.asm"
 INCLUDE "engine/pokegear/pokegear.asm"
 INCLUDE "engine/events/fish.asm"
 INCLUDE "engine/games/slot_machine.asm"
-
+INCLUDE "data/pokemon/first_stages.asm"
 
 SECTION "Phone Scripts 1", ROMX
 
@@ -512,7 +507,6 @@ INCLUDE "mobile/mobile_42.asm"
 
 SECTION "Title", ROMX
 
-INCLUDE "engine/movie/unused_title.asm"
 INCLUDE "engine/movie/title.asm"
 
 
@@ -538,6 +532,8 @@ SECTION "bank5B", ROMX
 
 INCLUDE "mobile/mobile_5b.asm"
 INCLUDE "engine/link/link_trade.asm"
+INCLUDE "engine/link/link.asm"
+INCLUDE "engine/battle/link_result.asm"
 
 
 SECTION "mobile5C", ROMX
@@ -695,4 +691,9 @@ SECTION "Stadium 2 Checksums", ROMX[$7DE0], BANK[$7F]
 ; This SECTION reserves space for those checksums.
 ; If it is removed, also remove the "tools/stadium" command in the Makefile.
 
-	ds $220
+SECTION "16-bit ID stuff", ROMX
+
+INCLUDE "engine/16/table_functions.asm"
+
+; own section
+INCLUDE "data/trainers/parties.asm"

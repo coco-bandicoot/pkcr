@@ -1,50 +1,66 @@
-# Pokémon Crystal [![Build Status][ci-badge]][ci]
+# 16-bit index expansion for Crystal
 
-This is a disassembly of Pokémon Crystal.
+This repository contains a modified Pokémon Crystal game, updated to handle 16-bit indexes. The main goal of this
+project is to create a reusable system that ROM hacks can use to bring 16-bit indexes into their games.  
+It is *not* within scope to create a new game, or to add additional features beyond 16-bit indexes.
 
-It builds the following ROMs:
+The `master` branch of this repository is intended to perform identically to the original Pokémon Crystal, with
+minimal changes to support further development on it. Other branches will implement more features on top of it; the
+intention is that the necessary changes can be readily seen by comparing said branches to `master` (or between each
+other). Therefore, these other branches will never be merged into `master`, even though they will always be directly
+descended from it (i.e., in Git terminology, a merge would be a fast-forward).
 
-- Pokemon - Crystal Version (UE) (V1.0) [C][!].gbc `sha1: f4cd194bdee0d04ca4eac29e09b8e4e9d818c133`
-- Pokemon - Crystal Version (UE) (V1.1) [C][!].gbc `sha1: f2f52230b536214ef7c9924f483392993e226cfb`
-- Pokemon - Crystal Version (A) [C][!].gbc `sha1: a0fc810f1d4e124434f7be2c989ab5b5892ddf36`
-- CRYSTAL_ps3_010328d.bin `sha1: c60d57a24bbe8ecf7cba54ab3f90669f97bd330d`
-- CRYSTAL_ps3_us_revise_010710d.bin `sha1: 391ae86b1d5a26db712ffe6c28bbf2a1f804c3c4`
-- CGBBYTE1.784.patch `sha1: a25517f60ca0e887d39ec698aa56a0040532a4b3`
+Since this repository is intended to be used as a reference, the commit history is intentionally kept clean to make
+changes clearly visible. Therefore, modifications (such as bug fixes) will often be merged into whichever commit is
+more suitable for them, with the remainder of the commit tree rebased on top of the updated commit. **Please do not
+fork this repository to build a new game on top** (unless you intend to contribute to it), as the publicly-visible
+history will be repeatedly rewritten, making merges impossible. If you do want to contribute to the repository, let
+me know in advance so I can notify you of history rewrites.
 
-To set up the repository, see [INSTALL.md](INSTALL.md).
+For further documentation, check out the [wiki].
 
+## Branches
 
-## See also
+* `master`: (status: **stable**, last update: **2020-08-03**) Base branch. This branch contains a slightly modified
+  version of Pokémon Crystal, with some quality-of-life improvements intended to make development easier. These
+  improvements have been taken from the documentation in the [main disassembly repository][pokecrystal]. This branch
+  contains no 16-bit features and it is only intended as a reference.
+* `base-components`: (status: **stable**, last update: **2020-06-19**) This branch defines the basic components that
+  will comprise the 16-bit index table system, on top of which the remaining branches will be built. Since it only
+  defines macros (and a handful of WRAM locations to be shared by all index tables), it should build the same ROM as
+  `master`.
+* `expand-mon-ID`: (status: **stable**, last update: **2020-08-03**) This branch implements 16-bit indexes for Pokémon
+  species, thus allowing more than 253 species to be included in a single game.
+* `expand-move-ID`: (status: **stable**, last update: **2020-08-31**) This branch implements 16-bit indexes for moves,
+  on top of the existing 16-bit support for Pokémon species from the previous branch. (Interaction between the
+  branches is kept to a minimum, though.)
 
-- [**FAQ**](FAQ.md)
-- [**Documentation**][docs]
-- [**Wiki**][wiki] (includes [tutorials][tutorials])
-- **Discord:** [pret][discord]
-- **IRC:** [libera#pret][irc]
+To view the differences between any two branches (or any two commits in the repository), you can use GitHub's [tree
+comparison][compare] tool.
 
-Other disassembly projects:
+## FAQs
 
-- [**Pokémon Red/Blue**][pokered]
-- [**Pokémon Yellow**][pokeyellow]
-- [**Pokémon Gold/Silver**][pokegold]
-- [**Pokémon Pinball**][pokepinball]
-- [**Pokémon TCG**][poketcg]
-- [**Pokémon Ruby**][pokeruby]
-- [**Pokémon FireRed**][pokefirered]
-- [**Pokémon Emerald**][pokeemerald]
+**Q1:** Will this engine include \<insert additional feature here\>?  
+**A1:** Unless the feature is specifically related to 16-bit indexing (or otherwise extending the range of possible
+index values), the answer is almost certainly "no". This repository's scope is limited to 16-bit indexes. If you
+already have a ROM hack that includes the features you like and you'd want it to have 16-bit indexes, the right course
+of action would be to port this engine to it. Otherwise, you can use this engine as a base to make your own ROM hack
+with all the features you want.
 
-[pokered]: https://github.com/pret/pokered
-[pokeyellow]: https://github.com/pret/pokeyellow
-[pokegold]: https://github.com/pret/pokegold
-[pokepinball]: https://github.com/pret/pokepinball
-[poketcg]: https://github.com/pret/poketcg
-[pokeruby]: https://github.com/pret/pokeruby
-[pokefirered]: https://github.com/pret/pokefirered
-[pokeemerald]: https://github.com/pret/pokeemerald
-[docs]: https://pret.github.io/pokecrystal/
-[wiki]: https://github.com/pret/pokecrystal/wiki
-[tutorials]: https://github.com/pret/pokecrystal/wiki/Tutorials
-[discord]: https://discord.gg/d5dubZ3
-[irc]: https://web.libera.chat/?#pret
-[ci]: https://github.com/pret/pokecrystal/actions
-[ci-badge]: https://github.com/pret/pokecrystal/actions/workflows/main.yml/badge.svg
+**Q2:** Can I use this engine for my own ROM hack?  
+**A2:** Of course; that's what it was made for. I will try make it as easy as possible to port to existing or new ROM
+hacks; instructions to do so will be in the [wiki]. All I can ask you for is that, just like this engine was openly
+available for you to use, you make your hack's code openly available as well — quoting some of the text in
+[SQLite](https://sqlite.org)'s copyright disclaimer, "may you share freely, never taking more than you give".
+
+**Q3:** What's this engine's new limit on indexes?  
+**A3:** The theoretical limit is 65,534, minus a couple of "special" indexes used by the game for specific purposes
+(such as the value that indicates that a Pokémon is inside an egg). However, there are several limitations that will
+probably prevent you from ever reaching that limit. For starters, you can't fit 65,534 of _anything_ inside a ROM
+bank! The index work is done, and I'll try to remove any hurdles that would render that work useless; however, if you
+want to push the limits of the hardware and add 20,000 new Pokémon, you'll find yourself against a technical challenge
+that will go beyond indexes.
+
+[compare]: https://github.com/aaaaaa123456789/pokecrystal16/compare
+[pokecrystal]: https://github.com/pret/pokecrystal/
+[wiki]: https://github.com/aaaaaa123456789/pokecrystal16/wiki
