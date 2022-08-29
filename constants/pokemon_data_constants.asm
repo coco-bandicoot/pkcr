@@ -9,6 +9,10 @@ DEF BASE_DEF         rb
 DEF BASE_SPD         rb
 DEF BASE_SAT         rb
 DEF BASE_SDF         rb
+BASE_EVS         rw
+rsset BASE_EVS
+BASE_HP_ATK_DEF_SPD_EVS  rb
+BASE_SAT_SDF_EVS         rb
 DEF BASE_TYPES       rw
 rsset BASE_TYPES
 DEF BASE_TYPE_1      rb
@@ -20,9 +24,7 @@ rsset BASE_ITEMS
 DEF BASE_ITEM_1      rb
 DEF BASE_ITEM_2      rb
 DEF BASE_GENDER      rb
-                     rb_skip
 DEF BASE_EGG_STEPS   rb
-                     rb_skip
 DEF BASE_PIC_SIZE    rb
 DEF BASE_FRONTPIC    rw
 DEF BASE_BACKPIC     rw
@@ -76,13 +78,15 @@ DEF MON_ITEM               rb
 DEF MON_MOVES              rb NUM_MOVES
 DEF MON_ID                 rw
 DEF MON_EXP                rb 3
-DEF MON_STAT_EXP           rw NUM_EXP_STATS
-rsset MON_STAT_EXP
-DEF MON_HP_EXP             rw
-DEF MON_ATK_EXP            rw
-DEF MON_DEF_EXP            rw
-DEF MON_SPD_EXP            rw
-DEF MON_SPC_EXP            rw
+DEF MON_EVS                rb NUM_STATS
+rsset MON_EVS
+DEF MON_HP_EV              rb
+DEF MON_ATK_EV             rb
+DEF MON_DEF_EV             rb
+DEF MON_SPD_EV             rb
+DEF MON_SAT_EV             rb
+DEF MON_SDF_EV             rb
+                           rb_skip 4
 DEF MON_DVS                rw
 DEF MON_PP                 rb NUM_MOVES
 DEF MON_HAPPINESS          rb
@@ -143,6 +147,10 @@ DEF HOF_MON_LENGTH EQU 2 + 2 + 2 + 1 + (MON_NAME_LENGTH - 1)
 ; hall_of_fame: win count, party, terminator
 DEF HOF_LENGTH EQU 1 + HOF_MON_LENGTH * PARTY_LENGTH + 2
 DEF NUM_HOF_TEAMS EQU 30
+
+; significant EV values
+DEF MAX_EV EQU 252
+DEF MAX_TOTAL_EV EQU 510
 
 ; evolution types (used in data/pokemon/evos_attacks.asm)
 	const_def 1
