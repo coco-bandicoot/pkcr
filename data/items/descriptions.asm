@@ -104,7 +104,7 @@ ItemDescriptions:
 	dw PnkApricornDesc
 	dw BlackGlassesDesc
 	dw SlowpokeTailDesc
-	dw PinkBowDesc
+	dw SilkScarfDesc
 	dw StickDesc
 	dw SmokeBallDesc
 	dw NeverMeltIceDesc
@@ -170,7 +170,7 @@ ItemDescriptions:
 	dw NormalBoxDesc
 	dw GorgeousBoxDesc
 	dw SunStoneDesc
-	dw PolkadotBowDesc
+	dw PinkBowDesc
 	dw QuestionMarkDesc
 	dw UpGradeDesc
 	dw BerryDesc
@@ -643,7 +643,7 @@ SlowpokeTailDesc:
 	next "high.@"
 
 PinkBowDesc:
-	db   "Powers up normal-"
+	db   "Powers up fairy-"
 	next "type moves. (HOLD)@"
 
 StickDesc:
@@ -849,7 +849,7 @@ SunStoneDesc:
 	db   "Evolves certain"
 	next "kinds of #MON.@"
 
-PolkadotBowDesc:
+SilkScarfDesc:
 	db   "Powers up normal-"
 	next "type moves. (HOLD)@"
 
