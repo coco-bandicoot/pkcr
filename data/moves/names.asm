@@ -254,6 +254,7 @@ MoveNames::
 	li "SIGNAL BEAM"
 	li "SILVER WIND"
 	li "BUG BITE"
+; rolls past $ff
 	li "BUG BUZZ"
 	li "TAIL GLOW"
 	li "LUNGE"

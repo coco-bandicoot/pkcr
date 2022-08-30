@@ -364,8 +364,7 @@ BattleAnimations::
 	dw BattleAnim_BeatUp
 	dw BattleAnim_AuroraBeam
 	dw BattleAnim_Mist
-	dw BattleAnim_Thief
-	dw BattleAnim_Thief
+	dw BattleAnim_Mist
 	assert_table_length NUM_ATTACKS + 1
 	dw BattleAnim_SweetScent2
 
