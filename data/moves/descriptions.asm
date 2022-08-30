@@ -256,6 +256,92 @@ MoveDescriptions1:
 	dw RockSmashDescription
 	dw WhirlpoolDescription
 	dw BeatUpDescription
+;  Start of new moves
+	dw SignalBeamDescription
+	dw SilverWindDescription
+	dw ThiefDescription ; $ff
+; Rolls over past $ff
+	dw FlailDescription
+	dw Conversion2Description
+	dw AeroblastDescription
+	dw CottonSporeDescription
+	dw ReversalDescription
+	dw SpiteDescription
+	dw PowderSnowDescription
+	dw ProtectDescription
+	dw MachPunchDescription
+	dw ScaryFaceDescription
+	dw FaintAttackDescription
+	dw SweetKissDescription
+	dw BellyDrumDescription
+	dw SludgeBombDescription
+	dw MudSlapDescription
+	dw OctazookaDescription
+	dw SpikesDescription
+	dw ZapCannonDescription
+	dw ForesightDescription
+	dw DestinyBondDescription
+	dw PerishSongDescription
+	dw IcyWindDescription
+	dw DetectDescription
+	dw BoneRushDescription
+	dw LockOnDescription
+	dw OutrageDescription
+	dw SandstormDescription
+	dw GigaDrainDescription
+	dw EndureDescription
+	dw CharmDescription
+	dw RolloutDescription
+	dw FalseSwipeDescription
+	dw SwaggerDescription
+	dw MilkDrinkDescription
+	dw SparkDescription
+	dw FuryCutterDescription
+	dw SteelWingDescription
+	dw MeanLookDescription
+	dw AttractDescription
+	dw SleepTalkDescription
+	dw HealBellDescription
+	dw ReturnDescription
+	dw PresentDescription
+	dw FrustrationDescription
+	dw SafeguardDescription
+	dw PainSplitDescription
+	dw PainSplitDescription
+	dw SacredFireDescription
+	dw MagnitudeDescription
+	dw DynamicpunchDescription
+	dw MegahornDescription
+	dw DragonbreathDescription
+	dw BatonPassDescription
+	dw EncoreDescription
+	dw PursuitDescription
+	dw RapidSpinDescription
+	dw SweetScentDescription
+	dw IronTailDescription
+	dw MetalClawDescription
+	dw VitalThrowDescription
+	dw MorningSunDescription
+	dw SynthesisDescription
+	dw MoonlightDescription
+	dw HiddenPowerDescription
+	dw CrossChopDescription
+	dw TwisterDescription
+	dw RainDanceDescription
+	dw SunnyDayDescription
+	dw CrunchDescription
+	dw MirrorCoatDescription
+	dw PsychUpDescription
+	dw ExtremespeedDescription
+	dw AncientpowerDescription
+	dw ShadowBallDescription
+	dw FutureSightDescription
+	dw RockSmashDescription
+	dw WhirlpoolDescription
+	dw BeatUpDescription
+	dw SignalBeamDescription
+	dw SilverWindDescription
+	dw ThiefDescription
 .IndirectEnd::
 
 InvalidMoveDescription:
@@ -1264,3 +1350,11 @@ WhirlpoolDescription:
 BeatUpDescription:
 	db   "Party #MON join"
 	next "in the attack.@"
+
+SignalBeamDescription:
+	db   "An attack that may"
+	next "cause confusion.@"
+
+SilverWindDescription:
+	db   "An attack that may"
+	next "raise all stats.@"

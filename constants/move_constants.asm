@@ -257,9 +257,94 @@
 	const ROCK_SMASH   ; f9
 	const WHIRLPOOL    ; fa
 	const BEAT_UP      ; fb
+	const SIGNAL_BEAM  ; fc
+	const SILVER_WIND  ; fd
+	const BUG_BITE     ; ff
+	const BUG_BUZZ
+	const TAIL_GLOW    
+	const LUNGE		   
+	const ATK_ORDER
+	const DARK_PULSE
+	const NASTY_PLOT
+	const NIGHT_SLASH
+	const NIGHT_DAZE
+	const NUZZLE
+	const PARABOLIC_CH
+	const DISCHARGE
+	const THUNDER_FANG
+	const AURA_SPHERE
+	const DRAIN_PUNCH
+	const FORCE_PALM
+	const SPIRIT_WAVE
+	const FIRE_FANG
+	const WILL_O_WISP
+	const FLARE_BLITZ
+	const BLAZE_KICK
+	const FIERY_DANCE
+	const AERIAL_ACE
+	const AIR_CUTTER
+	const AIR_SLASH
+	const PLUCK
+	const ROOST
+	const ACROBATICS
+	const SHADOW_CLAW
+	const SHADOW_PUNCH
+	const SHADOW_SNEAK
+	const LEAF_BLADE
+	const ENERGY_BALL
+	const SEED_BOMB
+	const HORN_LEECH
+	const LEAF_STORM
+	const LEAF_TORNADO
+	const PETAL_BLITZ
+	const EARTH_POWER
+	const MUD_BOMB
+	const DRILL_RUN
+	const AVALANCHE
+	const ICE_BALL
+	const ICE_SHARD
+	const ICICLE_SPEAR
+	const ICE_FANG
+	const COVET
+	const SLACK_OFF
+	const TEETER_DANCE
+	const WEATHER_BALL
+	const CROSS_POISON
+	const POISON_TAIL
+	const POISON_JAB
+	const POISON_FANG
+	const EXTRASENSORY
+	const ZEN_HEADBUTT
+	const PSYCHO_CUT
+	const PSYSHOCK
+	const PSYSTRIKE
+	const POWER_GEM
+	const STONE_EDGE
+	const ACCELEROCK
+	const BULLET_PUNCH
+	const IRON_HEAD
+	const MAGNET_BOMB
+	const METEOR_MASH
+	const MIRROR_SHOT
+	const FLASH_CANNON
+	const GYRO_BALL
+	const SMART_STRIKE
+	const AQUA_JET
+	const AQUA_TAIL
+	const MUDDY_WATER
+	const WATER_PULSE
+	const LIQUIDATION
+	const RAZOR_SHELL
+	const SCALD
+	const FAIRY_VOICE
+	const DRAIN_KISS
+	const FAIRY_GLEAM
+	const PLAY_ROUGH
+	const MOONBLAST
 DEF NUM_ATTACKS EQU const_value - 1
 
 	if NUM_ATTACKS > $3fff
+	; if NUM_ATTACKS > $ff
 		fail "Too many moves defined!"
 	endc
 

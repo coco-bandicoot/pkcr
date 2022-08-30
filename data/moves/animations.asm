@@ -228,6 +228,7 @@ BattleAnimations::
 	dw BattleAnim_BoneRush
 	dw BattleAnim_LockOn
 	dw BattleAnim_Outrage
+	dw BattleAnim_Outrage
 	dw BattleAnim_Sandstorm
 	dw BattleAnim_GigaDrain
 	dw BattleAnim_Endure
@@ -279,6 +280,92 @@ BattleAnimations::
 	dw BattleAnim_RockSmash
 	dw BattleAnim_Whirlpool
 	dw BattleAnim_BeatUp
+; Start of New Moves
+	dw BattleAnim_AuroraBeam
+	dw BattleAnim_Mist
+	dw BattleAnim_Thief ; $ff
+; Rolls over $ff
+	dw BattleAnim_Flail
+	dw BattleAnim_Conversion2
+	dw BattleAnim_Aeroblast
+	dw BattleAnim_CottonSpore
+	dw BattleAnim_Reversal
+	dw BattleAnim_Spite
+	dw BattleAnim_PowderSnow
+	dw BattleAnim_Protect
+	dw BattleAnim_MachPunch
+	dw BattleAnim_ScaryFace
+	dw BattleAnim_FaintAttack
+	dw BattleAnim_SweetKiss
+	dw BattleAnim_BellyDrum
+	dw BattleAnim_SludgeBomb
+	dw BattleAnim_MudSlap
+	dw BattleAnim_Octazooka
+	dw BattleAnim_Spikes
+	dw BattleAnim_ZapCannon
+	dw BattleAnim_Foresight
+	dw BattleAnim_DestinyBond
+	dw BattleAnim_PerishSong
+	dw BattleAnim_IcyWind
+	dw BattleAnim_Detect
+	dw BattleAnim_BoneRush
+	dw BattleAnim_LockOn
+	dw BattleAnim_Outrage
+	dw BattleAnim_Sandstorm
+	dw BattleAnim_GigaDrain
+	dw BattleAnim_Endure
+	dw BattleAnim_Charm
+	dw BattleAnim_Rollout
+	dw BattleAnim_FalseSwipe
+	dw BattleAnim_Swagger
+	dw BattleAnim_MilkDrink
+	dw BattleAnim_Spark
+	dw BattleAnim_FuryCutter
+	dw BattleAnim_SteelWing
+	dw BattleAnim_MeanLook
+	dw BattleAnim_Attract
+	dw BattleAnim_SleepTalk
+	dw BattleAnim_HealBell
+	dw BattleAnim_Return
+	dw BattleAnim_Present
+	dw BattleAnim_Frustration
+	dw BattleAnim_Safeguard
+	dw BattleAnim_PainSplit
+	dw BattleAnim_SacredFire
+	dw BattleAnim_Magnitude
+	dw BattleAnim_Dynamicpunch
+	dw BattleAnim_Megahorn
+	dw BattleAnim_Dragonbreath
+	dw BattleAnim_BatonPass
+	dw BattleAnim_Encore
+	dw BattleAnim_Pursuit
+	dw BattleAnim_RapidSpin
+	dw BattleAnim_SweetScent
+	dw BattleAnim_IronTail
+	dw BattleAnim_MetalClaw
+	dw BattleAnim_VitalThrow
+	dw BattleAnim_MorningSun
+	dw BattleAnim_Synthesis
+	dw BattleAnim_Moonlight
+	dw BattleAnim_HiddenPower
+	dw BattleAnim_CrossChop
+	dw BattleAnim_Twister
+	dw BattleAnim_RainDance
+	dw BattleAnim_SunnyDay
+	dw BattleAnim_Crunch
+	dw BattleAnim_MirrorCoat
+	dw BattleAnim_PsychUp
+	dw BattleAnim_Extremespeed
+	dw BattleAnim_Ancientpower
+	dw BattleAnim_ShadowBall
+	dw BattleAnim_FutureSight
+	dw BattleAnim_RockSmash
+	dw BattleAnim_Whirlpool
+	dw BattleAnim_BeatUp
+	dw BattleAnim_AuroraBeam
+	dw BattleAnim_Mist
+	dw BattleAnim_Thief
+	dw BattleAnim_Thief
 	assert_table_length NUM_ATTACKS + 1
 	dw BattleAnim_SweetScent2
 
