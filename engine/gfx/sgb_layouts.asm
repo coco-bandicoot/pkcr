@@ -25,8 +25,10 @@ SGBLayoutJumptable:
 	table_width 2, SGBLayoutJumptable
 	dw .SGB_BattleGrayscale
 	dw .SGB_BattleColors
+	dw .SGB_BattleColors_MoveInfo
 	dw .SGB_PokegearPals
 	dw .SGB_StatsScreenHPPals
+	dw .SGB_StatsScreenHPPals_MoveInfo
 	dw .SGB_Pokedex
 	dw .SGB_SlotMachine
 	dw .SGB_BetaTitleScreen
@@ -45,6 +47,7 @@ SGBLayoutJumptable:
 	dw .SGB_MagnetTrain
 	dw .SGB_PackPals
 	dw .SGB_TrainerCard
+	dw .SGB_TrainerCardKanto
 	dw .SGB_PokedexUnownMode
 	dw .SGB_BillsPC
 	dw .SGB_UnownPuzzle
@@ -61,6 +64,7 @@ SGBLayoutJumptable:
 	ld de, BlkPacket_Battle
 	ret
 
+.SGB_BattleColors_MoveInfo:
 .SGB_BattleColors:
 	ld hl, BlkPacket_Battle
 	call PushSGBPals
@@ -158,6 +162,7 @@ SGBLayoutJumptable:
 	ld de, BlkPacket_AllPal0
 	ret
 
+.SGB_StatsScreenHPPals_MoveInfo:
 .SGB_StatsScreenHPPals:
 	ld hl, PalPacket_Pal01
 	ld de, wSGBPals
@@ -401,6 +406,7 @@ endr
 
 .SGB_Unused0D:
 .SGB_TrainerCard:
+.SGB_TrainerCardKanto:
 	ld hl, PalPacket_Diploma
 	ld de, BlkPacket_AllPal0
 	ret
