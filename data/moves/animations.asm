@@ -281,91 +281,107 @@ BattleAnimations::
 	dw BattleAnim_Whirlpool
 	dw BattleAnim_BeatUp
 ; Start of New Moves
-	dw BattleAnim_AuroraBeam
-	dw BattleAnim_Mist
-	dw BattleAnim_Thief ; $ff
-; Rolls over $ff
-	dw BattleAnim_Flail
-	dw BattleAnim_Conversion2
-	dw BattleAnim_Aeroblast
-	dw BattleAnim_CottonSpore
-	dw BattleAnim_Reversal
-	dw BattleAnim_Spite
-	dw BattleAnim_PowderSnow
-	dw BattleAnim_Protect
-	dw BattleAnim_MachPunch
-	dw BattleAnim_ScaryFace
-	dw BattleAnim_FaintAttack
-	dw BattleAnim_SweetKiss
-	dw BattleAnim_BellyDrum
-	dw BattleAnim_SludgeBomb
-	dw BattleAnim_MudSlap
-	dw BattleAnim_Octazooka
-	dw BattleAnim_Spikes
-	dw BattleAnim_ZapCannon
-	dw BattleAnim_Foresight
-	dw BattleAnim_DestinyBond
-	dw BattleAnim_PerishSong
-	dw BattleAnim_IcyWind
-	dw BattleAnim_Detect
-	dw BattleAnim_BoneRush
-	dw BattleAnim_LockOn
-	dw BattleAnim_Outrage
-	dw BattleAnim_Sandstorm
-	dw BattleAnim_GigaDrain
-	dw BattleAnim_Endure
-	dw BattleAnim_Charm
-	dw BattleAnim_Rollout
-	dw BattleAnim_FalseSwipe
-	dw BattleAnim_Swagger
-	dw BattleAnim_MilkDrink
-	dw BattleAnim_Spark
-	dw BattleAnim_FuryCutter
-	dw BattleAnim_SteelWing
-	dw BattleAnim_MeanLook
-	dw BattleAnim_Attract
-	dw BattleAnim_SleepTalk
-	dw BattleAnim_HealBell
-	dw BattleAnim_Return
-	dw BattleAnim_Present
-	dw BattleAnim_Frustration
-	dw BattleAnim_Safeguard
-	dw BattleAnim_PainSplit
-	dw BattleAnim_SacredFire
-	dw BattleAnim_Magnitude
-	dw BattleAnim_Dynamicpunch
-	dw BattleAnim_Megahorn
-	dw BattleAnim_Dragonbreath
-	dw BattleAnim_BatonPass
-	dw BattleAnim_Encore
-	dw BattleAnim_Pursuit
-	dw BattleAnim_RapidSpin
-	dw BattleAnim_SweetScent
-	dw BattleAnim_IronTail
-	dw BattleAnim_MetalClaw
-	dw BattleAnim_VitalThrow
-	dw BattleAnim_MorningSun
-	dw BattleAnim_Synthesis
-	dw BattleAnim_Moonlight
-	dw BattleAnim_HiddenPower
-	dw BattleAnim_CrossChop
-	dw BattleAnim_Twister
-	dw BattleAnim_RainDance
-	dw BattleAnim_SunnyDay
-	dw BattleAnim_Crunch
-	dw BattleAnim_MirrorCoat
-	dw BattleAnim_PsychUp
-	dw BattleAnim_Extremespeed
-	dw BattleAnim_Ancientpower
-	dw BattleAnim_ShadowBall
-	dw BattleAnim_FutureSight
-	dw BattleAnim_RockSmash
-	dw BattleAnim_Whirlpool
-	dw BattleAnim_BeatUp
-	dw BattleAnim_AuroraBeam
-	dw BattleAnim_Mist
-	dw BattleAnim_Mist
-	assert_table_length NUM_ATTACKS + 1
+	dw BattleAnim_AuroraBeam ; SIGNAL BEAM
+	dw BattleAnim_Mist ; SILVER WIND
+	dw BattleAnim_Thief ; BUG BITE $fe
+	dw BattleAnim_PsychicM ; BUG BUZZ
+	dw BattleAnim_MorningSun ; TAIL GLOW
+	dw BattleAnim_Slam ; LUNGE
+	dw BattleAnim_PoisonSting ; ATK ORDER
+; Dark Moves
+	dw BattleAnim_ShadowBall ; DARK PULSE
+	dw BattleAnim_Amnesia ; NASTY PLOT
+	dw BattleAnim_FaintAttack ; NIGHT SLASH
+	dw BattleAnim_Smokescreen ; NIGHT DAZE
+; Electric Moves
+	dw BattleAnim_SweetKiss ; NUZZLE
+	dw BattleAnim_CottonSpore ; PARABOLIC CH
+	dw BattleAnim_Spark ; DISCHARGE
+	dw BattleAnim_Bite ; THUNDER FANG
+; Fighting moves
+	dw BattleAnim_Psywave ; AURA SPHERE
+	dw BattleAnim_MegaPunch ; DRAIN PUNCH
+	dw BattleAnim_KarateChop ; FORCE PALM
+	dw BattleAnim_MachPunch ; SPIRIT WAVE
+; Fire moves
+	dw BattleAnim_Bite ; FIRE FANG
+	dw BattleAnim_ConfuseRay ; WILL O WISP
+	dw BattleAnim_FlameWheel ; FLARE BLITZ
+	dw BattleAnim_MegaKick ; BLAZE KICK
+	dw BattleAnim_SacredFire ; FIERY DANCE
+; Flying moves
+	dw BattleAnim_Vicegrip ;AERIAL_ACE
+	dw BattleAnim_Gust ;AIR_CUTTER
+	dw BattleAnim_Aeroblast ;AIR_SLASH
+	dw BattleAnim_Thief ;PLUCK
+	dw BattleAnim_Recover ;ROOST
+	dw BattleAnim_Vicegrip ;ACROBATICS
+; Ghost moves
+	dw BattleAnim_MetalClaw ; SHADOW CLAW
+	dw BattleAnim_MegaPunch ; SHADOW PUNCH
+	dw BattleAnim_QuickAttack ; SHADOW SNEAK
+; Grass moves
+	dw BattleAnim_RazorLeaf ; LEAF BLADE
+	dw BattleAnim_ShadowBall ; ENERGY BALL
+	dw BattleAnim_EggBomb ; SEED BOMB
+	dw BattleAnim_LeechLife ; HORN LEECH
+	dw BattleAnim_RazorLeaf ; LEAF STORM
+	dw BattleAnim_RazorLeaf ; LEAF TORNADO
+	dw BattleAnim_PetalDance ; PETAL BLITZ
+; Ground moves
+	dw BattleAnim_Earthquake ; EARTH POWER
+	dw BattleAnim_MudSlap ; MUD BOMB
+	dw BattleAnim_DrillPeck ; DRILL RUN
+; Ice moves
+	dw BattleAnim_IcyWind ; AVALANCHE
+	dw BattleAnim_Rollout ; ICE BALL
+	dw BattleAnim_QuickAttack ; ICE SHARD
+	dw BattleAnim_SpikeCannon ; ICICLE SPEAR
+	dw BattleAnim_Bite ; ICE FANGE
+; Normal Moves
+	dw BattleAnim_Thief ; COVET
+	dw BattleAnim_Recover ; SLACK OFF
+	dw BattleAnim_PetalDance ; TEETER DANCE
+	dw BattleAnim_ShadowBall ; WEATHER BALL
+; Poison Moves
+	dw BattleAnim_PoisonSting ; CROSS POISON
+	dw BattleAnim_PoisonSting ; POISON TAIL
+	dw BattleAnim_MegaPunch ; POISON JAB
+	dw BattleAnim_Bite ; POISON FANG
+; Psychic moves
+	dw BattleAnim_Confusion ; EXTRASENSORY
+	dw BattleAnim_Headbutt ; ZEN HEADBUTT
+	dw BattleAnim_Cut ; PSYCHO CUT
+	dw BattleAnim_Psybeam ; PSYSHOCK
+	dw BattleAnim_MegaPunch ;PSYSTRIKE
+; Rock Moves
+	dw BattleAnim_Ancientpower ;POWER GEM
+	dw BattleAnim_RockSlide ; STONE EDGE
+	dw BattleAnim_QuickAttack ; ACCELEROCK
+; Steel Moves
+	dw BattleAnim_MachPunch ;BULLET PUNCH
+	dw BattleAnim_IronTail ;IRON HEAD
+	dw BattleAnim_EggBomb ;MAGNET BOMB
+	dw BattleAnim_IronTail ;METEOR MASH
+	dw BattleAnim_AuroraBeam ;MIRROR SHOT
+	dw BattleAnim_HyperBeam ;FLASH CANNON
+	dw BattleAnim_IronTail ; GYRO_BALL
+	dw BattleAnim_HornAttack ; SMART STRIKE
+; Water Moves
+	dw BattleAnim_QuickAttack ;AQUA JET
+	dw BattleAnim_Slam ; AQUA TAIL
+	dw BattleAnim_Surf ; MUDDY WATER
+	dw BattleAnim_Bubblebeam ; WATER PULSE
+	dw BattleAnim_BodySlam ; LIQUIDATION
+	dw BattleAnim_Crabhammer ; RAZOR SHELL
+	dw BattleAnim_Crabhammer ; SCALD
+; Fairy moves
+	dw BattleAnim_Sing ;FAIRY VOICE
+	dw BattleAnim_LovelyKiss ;DRAIN KISS
+	dw BattleAnim_Flash ; FAIRY GLEAM
+	dw BattleAnim_Attract ; PLAY ROUGH
+	dw BattleAnim_Moonlight ;MOON BLAST
+	assert_table_length NUM_ATTACKS + 2
 	dw BattleAnim_SweetScent2
 
 BattleAnim_0:

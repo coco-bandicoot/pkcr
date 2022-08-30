@@ -259,96 +259,117 @@ MoveDescriptions1::
 	dw WhirlpoolDescription
 	dw BeatUpDescription
 ;  Start of new moves
-	dw SignalBeamDescription
-	dw SilverWindDescription
-	dw ThiefDescription ; $fe
+	dw SignalBeamDescription ; SIGNAL BEAM
+	dw SilverWindDescription ; SILVER WIND
+	dw ThiefDescription ; $fe ; BUG BITE
 .IndirectEnd::
 MoveDescriptions2::
-	dw FlailDescription
-	dw Conversion2Description
-	dw AeroblastDescription
-	dw CottonSporeDescription
-	dw ReversalDescription
-	dw SpiteDescription
-	dw PowderSnowDescription
-	dw ProtectDescription
-	dw MachPunchDescription
-	dw ScaryFaceDescription
-	dw FaintAttackDescription
-	dw SweetKissDescription
-	dw BellyDrumDescription
-	dw SludgeBombDescription
-	dw MudSlapDescription
-	dw OctazookaDescription
-	dw SpikesDescription
-	dw ZapCannonDescription
-	dw ForesightDescription
-	dw DestinyBondDescription
-	dw PerishSongDescription
-	dw IcyWindDescription
-	dw DetectDescription
-	dw BoneRushDescription
-	dw LockOnDescription
-	dw OutrageDescription
-	dw SandstormDescription
-	dw GigaDrainDescription
-	dw EndureDescription
-	dw CharmDescription
-	dw RolloutDescription
-	dw FalseSwipeDescription
-	dw SwaggerDescription
-	dw MilkDrinkDescription
-	dw SparkDescription
-	dw FuryCutterDescription
-	dw SteelWingDescription
-	dw MeanLookDescription
-	dw AttractDescription
-	dw SleepTalkDescription
-	dw HealBellDescription
-	dw ReturnDescription
-	dw PresentDescription
-	dw FrustrationDescription
-	dw SafeguardDescription
-	dw PainSplitDescription
-	dw PainSplitDescription
-	dw SacredFireDescription
-	dw MagnitudeDescription
-	dw DynamicpunchDescription
-	dw MegahornDescription
-	dw DragonbreathDescription
-	dw BatonPassDescription
-	dw EncoreDescription
-	dw PursuitDescription
-	dw RapidSpinDescription
-	dw SweetScentDescription
-	dw IronTailDescription
-	dw MetalClawDescription
-	dw VitalThrowDescription
-	dw MorningSunDescription
-	dw SynthesisDescription
-	dw MoonlightDescription
-	dw HiddenPowerDescription
-	dw CrossChopDescription
-	dw TwisterDescription
-	dw RainDanceDescription
-	dw SunnyDayDescription
-	dw CrunchDescription
-	dw MirrorCoatDescription
-	dw PsychUpDescription
-	dw ExtremespeedDescription
-	dw AncientpowerDescription
-	dw ShadowBallDescription
-	dw FutureSightDescription
-	dw RockSmashDescription
-	dw WhirlpoolDescription
-	dw BeatUpDescription
-	dw SignalBeamDescription
-	dw SilverWindDescription
-	dw ThiefDescription
+	dw PsychicMDescription ; BUG BUZZ
+	dw NastyPlotDescription ; TAIL GLOW
+	dw LungeDescription ; LUNGE
+	dw KarateChopDescription ; ATK ORDER
+; Dark Moves
+	dw StompDescription ; DARK PULSE
+	dw NastyPlotDescription ; NASTY PLOT
+	dw KarateChopDescription ; NIGHT SLASH
+	dw OctazookaDescription ; NIGHT DAZE
+; Electric Moves
+	dw ThunderWaveDescription ; NUZZLE
+	dw LeechLifeDescription ; PARABOLIC CH
+	dw ThundershockDescription ; DISCHARGE
+	dw StompDescription ; THUNDER FANG
+; Fighting moves
+	dw SwiftDescription ; AURA SPHERE
+	dw LeechLifeDescription ; DRAIN PUNCH
+	dw ThundershockDescription ; FORCE PALM
+	dw MachPunchDescription ; SPIRIT WAVE
+; Fire moves
+	dw StompDescription ; FIRE FANG
+	dw WillOWispDescription ; WILL O WISP
+	dw DoubleEdgeDescription ; FLARE BLITZ
+	dw KarateChopDescription ; BLAZE KICK
+	dw PlaceholderDescription ; FIERY DANCE
+; Flying moves
+	dw SwiftDescription ;AERIAL_ACE
+	dw KarateChopDescription ;AIR_CUTTER
+	dw StompDescription ;AIR_SLASH
+	dw ThiefDescription ;PLUCK
+	dw RecoverDescription ;ROOST
+	dw PlaceholderDescription ;ACROBATICS
+; Ghost moves
+	dw KarateChopDescription ; SHADOW CLAW
+	dw SwiftDescription ; SHADOW PUNCH
+	dw QuickAttackDescription ; SHADOW SNEAK
+; Grass moves
+	dw KarateChopDescription ; LEAF BLADE
+	dw PsychicMDescription ; ENERGY BALL
+	dw SeedBombDescription ; SEED BOMB
+	dw LeechLifeDescription ; HORN LEECH
+	dw PlaceholderDescription ; LEAF STORM
+	dw PlaceholderDescription ; LEAF TORNADO
+	dw PlaceholderDescription ; PETAL BLITZ
+; Ground moves
+	dw PsychicMDescription ; EARTH POWER
+	dw OctazookaDescription ; MUD BOMB
+	dw StompDescription ; DRILL RUN
+; Ice moves
+	dw PlaceholderDescription ; AVALANCHE
+	dw RolloutDescription ; ICE BALL
+	dw QuickAttackDescription ; ICE SHARD
+	dw SpikeCannonDescription ; ICICLE SPEAR
+	dw StompDescription ; ICE FANGE
+; Normal Moves
+	dw ThiefDescription ; COVET
+	dw RecoverDescription ; SLACK OFF
+	dw ConfuseRayDescription ; TEETER DANCE
+	dw PlaceholderDescription ; WEATHER BALL
+; Poison Moves
+	dw KarateChopDescription ; CROSS POISON
+	dw KarateChopDescription ; POISON TAIL
+	dw PoisonStingDescription ; POISON JAB
+	dw StompDescription ; POISON FANG
+; Psychic moves
+	dw StompDescription ; EXTRASENSORY
+	dw StompDescription ; ZEN HEADBUTT
+	dw KarateChopDescription ; PSYCHO CUT
+	dw PlaceholderDescription ; PSYSHOCK
+	dw PlaceholderDescription ;PSYSTRIKE
+; Rock Moves
+	dw OctazookaDescription ;POWER GEM
+	dw KarateChopDescription ; STONE EDGE
+	dw QuickAttackDescription ; ACCELEROCK
+; Steel Moves
+	dw MachPunchDescription ;BULLET PUNCH
+	dw StompDescription ;IRON HEAD
+	dw SwiftDescription ;MAGNET BOMB
+	dw MetalClawDescription ;METEOR MASH
+	dw OctazookaDescription ;MIRROR SHOT
+	dw PsychicMDescription ;FLASH CANNON
+	dw PlaceholderDescription ; GYRO_BALL
+	dw SwiftDescription ; SMART STRIKE
+; Water Moves
+	dw QuickAttackDescription ;AQUA JET
+	dw SlamDescription ; AQUA TAIL
+	dw OctazookaDescription ; MUDDY WATER
+	dw ConfusionDescription ; WATER PULSE
+	dw AcidDescription ; LIQUIDATION
+	dw AcidDescription ; RAZOR SHELL
+	dw FlamethrowerDescription ; SCALD
+; Fairy moves
+	dw SwiftDescription ;FAIRY VOICE
+	dw LeechLifeDescription ;DRAIN KISS
+	dw OctazookaDescription ; FAIRY GLEAM
+	dw LungeDescription ; PLAY ROUGH
+	dw PsychicMDescription ;MOON BLAST
+
 .IndirectEnd::
 
 InvalidMoveDescription:
 	db "?@"
+
+PlaceholderDescription:
+	db   "Haven't made this"
+	next "move's effect yet.@"
 
 PoundDescription:
 	db   "Pounds with fore-"
@@ -554,6 +575,9 @@ AcidDescription:
 	db   "An attack that may"
 	next "lower DEFENSE.@"
 
+LungeDescription:
+	db   "Attack that lowers"
+	next "foe's ATTACK.@"
 EmberDescription:
 	db   "An attack that may"
 	next "inflict a burn.@"
@@ -693,6 +717,10 @@ ThunderboltDescription:
 ThunderWaveDescription:
 	db   "A move that may"
 	next "cause paralysis.@"
+
+WillOWispDescription:
+	db   "A move that"
+	next "causes a burn.@"
 
 ThunderDescription:
 	db   "An attack that may"
@@ -834,6 +862,10 @@ EggBombDescription:
 	db   "Eggs are hurled at"
 	next "the foe.@"
 
+SeedBombDescription:
+	db   "Seeds are hurled"
+	next "at the foe.@"
+
 LickDescription:
 	db   "An attack that may"
 	next "cause paralysis.@"
@@ -881,6 +913,10 @@ ConstrictDescription:
 AmnesiaDescription:
 	db   "Sharply raises the"
 	next "user's SPCL.DEF.@"
+
+NastyPlotDescription:
+	db   "Sharply raises the"
+	next "user's SPCL.ATK.@"
 
 KinesisDescription:
 	db   "Reduces the foe's"
