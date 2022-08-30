@@ -1,10 +1,12 @@
 MoveDescriptions::
 ; entries correspond to move ids (see constants/move_constants.asm)
 	indirect_table 2, 1
-	indirect_entries NUM_ATTACKS, MoveDescriptions1
+	; indirect_entries NUM_ATTACKS, MoveDescriptions1
+	indirect_entries FULL_INDIRECT_TABLE, MoveDescriptions1
+	indirect_entries NUM_ATTACKS,     MoveDescriptions2
 	indirect_table_end
 
-MoveDescriptions1:
+MoveDescriptions1::
 	dw PoundDescription
 	dw KarateChopDescription
 	dw DoubleslapDescription
@@ -259,8 +261,9 @@ MoveDescriptions1:
 ;  Start of new moves
 	dw SignalBeamDescription
 	dw SilverWindDescription
-	dw ThiefDescription ; $ff
-; Rolls over past $ff
+	dw ThiefDescription ; $fe
+.IndirectEnd::
+MoveDescriptions2::
 	dw FlailDescription
 	dw Conversion2Description
 	dw AeroblastDescription

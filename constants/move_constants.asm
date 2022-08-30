@@ -347,6 +347,7 @@ DEF NUM_ATTACKS EQU const_value - 1
 	; if NUM_ATTACKS > $ff
 		fail "Too many moves defined!"
 	endc
+DEF FULL_INDIRECT_TABLE EQU $fe
 
 ; Battle animations use the same constants as the moves
 	const ANIM_SWEET_SCENT_2     ; fc

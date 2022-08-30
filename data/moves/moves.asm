@@ -14,7 +14,9 @@ ENDM
 Moves::
 ; entries correspond to constants/move_constants.asm
 	indirect_table MOVE_LENGTH - 1, 1
-	indirect_entries NUM_ATTACKS, Moves1
+	; indirect_entries NUM_ATTACKS, Moves1
+	indirect_entries FULL_INDIRECT_TABLE, Moves1
+	indirect_entries NUM_ATTACKS, Moves2
 	indirect_table_end
 
 Moves1:
@@ -273,7 +275,9 @@ Moves1:
 	move EFFECT_CONFUSE_HIT,        75, BUG,           SPECIAL, 100, 15,  10      ;SIGNAL_BEAM
 	move EFFECT_ALL_UP_HIT,         60, BUG,           SPECIAL, 100,  5,  10      ;SILVER_WIND
 	move EFFECT_THIEF,              60, BUG,           PHYSICAL,100, 20, 100      ;BUG_BITE
-; ROLLS PAST $ff
+
+.IndirectEnd::
+Moves2:
 	move EFFECT_SP_DEF_DOWN_HIT,    90, BUG,           SPECIAL, 100, 10,  10      ;BUG_BUZZ
 	move EFFECT_SP_ATK_UP_2,         0, BUG,           STATUS,  100, 20, 100      ;TAIL_GLOW
 	move EFFECT_DEFENSE_DOWN_HIT,   80, BUG,           PHYSICAL,100, 15, 100      ;LUNGE
