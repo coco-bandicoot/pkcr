@@ -185,17 +185,17 @@ MonMenuIconPals::
 	icon_pals BLUE, PURPLE ; MAREEP
 	icon_pals PINK, RED ; FLAAFFY
 	icon_pals BROWN, RED ; AMPHAROS
-	icon_pals GREEN, RED ; BELLOSSOM
+	icon_pals PINK, RED ; BELLOSSOM
 	icon_pals GREEN, RED ; SUDOWOODO
 	icon_pals GREEN, TEAL ; POLITOED
-	icon_pals GREEN, BROWN ; SUNKERN
-	icon_pals GREEN, BROWN ; SUNFLORA
+	icon_pals BLUE, BROWN ; SUNKERN
+	icon_pals TEAL, BROWN ; SUNFLORA
 	icon_pals RED, BLUE ; YANMA
 	icon_pals RED, BLUE ; YANMEGA
 	icon_pals BLUE, RED ; WOOPER
 	icon_pals BLUE, RED ; QUAGSIRE
 	icon_pals PURPLE, GREEN ; ESPEON
-	icon_pals PURPLE, GREEN ; UMBREON
+	icon_pals BLUE, TEAL ; UMBREON
 	icon_pals BLUE, PURPLE ; MURKROW
 	icon_pals BLUE, PURPLE ; HONCHKROW
 	icon_pals PINK, PURPLE ; SLOWKING

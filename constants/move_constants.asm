@@ -259,7 +259,7 @@
 	const BEAT_UP      ; fb
 	const SIGNAL_BEAM  ; fc
 	const SILVER_WIND  ; fd
-	const BUG_BITE     ; ff
+	const BUG_BITE     ; fe
 	const BUG_BUZZ
 	const TAIL_GLOW    
 	const LUNGE		   

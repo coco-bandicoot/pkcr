@@ -228,7 +228,6 @@ BattleAnimations::
 	dw BattleAnim_BoneRush
 	dw BattleAnim_LockOn
 	dw BattleAnim_Outrage
-	dw BattleAnim_Outrage
 	dw BattleAnim_Sandstorm
 	dw BattleAnim_GigaDrain
 	dw BattleAnim_Endure
@@ -284,7 +283,6 @@ BattleAnimations::
 	dw BattleAnim_AuroraBeam ; SIGNAL BEAM
 	dw BattleAnim_Mist ; SILVER WIND
 	dw BattleAnim_Thief ; BUG BITE $fe
-	dw BattleAnim_0
 	dw BattleAnim_PsychicM ; BUG BUZZ
 	dw BattleAnim_MorningSun ; TAIL GLOW
 	dw BattleAnim_Slam ; LUNGE
@@ -382,7 +380,7 @@ BattleAnimations::
 	dw BattleAnim_Flash ; FAIRY GLEAM
 	dw BattleAnim_Attract ; PLAY ROUGH
 	dw BattleAnim_Moonlight ;MOON BLAST
-	assert_table_length NUM_ATTACKS + 2
+	assert_table_length NUM_ATTACKS + 1
 	dw BattleAnim_SweetScent2
 
 BattleAnim_0:

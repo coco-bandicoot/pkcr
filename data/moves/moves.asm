@@ -15,7 +15,7 @@ Moves::
 ; entries correspond to constants/move_constants.asm
 	indirect_table MOVE_LENGTH - 1, 1
 	; indirect_entries NUM_ATTACKS, Moves1
-	indirect_entries FULL_INDIRECT_TABLE, Moves1
+	indirect_entries $fe, Moves1
 	indirect_entries NUM_ATTACKS, Moves2
 	indirect_table_end
 
@@ -268,16 +268,16 @@ Moves1:
 	move EFFECT_ALL_UP_HIT,         60, ROCK,          SPECIAL, 100,  5,  10      ;ANCIENTPOWER
 	move EFFECT_SP_DEF_DOWN_HIT,    80, GHOST,         SPECIAL, 100, 15,  20      ;SHADOW_BALL
 	move EFFECT_FUTURE_SIGHT,       80, PSYCHIC_TYPE,  SPECIAL,  90, 15,   0      ;FUTURE_SIGHT
-	move EFFECT_DEFENSE_DOWN_HIT,   20, FIGHTING,      PHYSICAL,100, 15,  50      ;ROCK_SMASH
+	move EFFECT_DEFENSE_DOWN_HIT,   75, FIGHTING,      PHYSICAL,100, 15,  50      ;ROCK_SMASH
 	move EFFECT_TRAP_TARGET,        15, WATER,         SPECIAL,  70, 15,   0      ;WHIRLPOOL
 	move EFFECT_BEAT_UP,            10, DARK,          PHYSICAL,100, 10,   0      ;BEAT_UP
-; NEW MOVES
 	move EFFECT_CONFUSE_HIT,        75, BUG,           SPECIAL, 100, 15,  10      ;SIGNAL_BEAM
 	move EFFECT_ALL_UP_HIT,         60, BUG,           SPECIAL, 100,  5,  10      ;SILVER_WIND
 	move EFFECT_THIEF,              60, BUG,           PHYSICAL,100, 20, 100      ;BUG_BITE
-
+	
 .IndirectEnd::
 Moves2:
+; NEW MOVES
 	move EFFECT_SP_DEF_DOWN_HIT,    90, BUG,           SPECIAL, 100, 10,  10      ;BUG_BUZZ
 	move EFFECT_SP_ATK_UP_2,         0, BUG,           STATUS,  100, 20, 100      ;TAIL_GLOW
 	move EFFECT_DEFENSE_DOWN_HIT,   80, BUG,           PHYSICAL,100, 15, 100      ;LUNGE

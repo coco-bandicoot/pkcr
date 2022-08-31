@@ -111,10 +111,13 @@ GetMenuMonIconPalette:
 GetMenuMonIconPalette_PredeterminedShininess:
 	push af
 	ld a, [wCurPartySpecies]
-	dec a
-	ld c, a
-	ld b, 0
-	ld hl, MonMenuIconPals
+	call GetPokemonIndexFromID
+	; dec a
+	; ld c, a
+	; ld b, 0
+	dec hl
+	; ld hl, MonMenuIconPals
+	ld bc, MonMenuIconPals
 	add hl, bc
 	ld e, [hl]
 	pop af

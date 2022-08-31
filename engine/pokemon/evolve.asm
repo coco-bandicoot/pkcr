@@ -1,3 +1,5 @@
+INCLUDE "data/pokemon/evolution_moves.asm"
+
 EvolvePokemon:
 	ld hl, wEvolvableFlags
 	xor a
@@ -356,31 +358,47 @@ EvolveAfterBattle_MasterLoop:
 LearnEvolutionMove:
 	ld a, [wTempSpecies]
 	ld [wCurPartySpecies], a
-	dec a
-	ld c, a
-	ld b, 0
-	ld hl, EvolutionMoves
+	call GetPokemonIndexFromID
+	dec hl
+	ld bc, EvolutionMoves
+	add hl, hl
 	add hl, bc
-	ld a, [hl]
-	and a
+	ld b,b
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	ld a, d
+	add e
 	ret z
 
-	push hl
+	push de
 	ld d, a
 	ld hl, wPartyMon1Moves
 	ld a, [wCurPartyMon]
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call AddNTimes
-
-	ld b, NUM_MOVES
+	ld b, NUM_MOVES ; 4
+	pop de ; the EVO Move ID
 .check_move
+	; hl contains the address of the mon's 1st move
 	ld a, [hli]
-	cp d
+	push hl 
+	; GetMoveIndexFromID will clobber hl
+	call GetMoveIndexFromID
+	ld a, e
+	cp l
+	jr nz, .doesnt_have_move
+	ld a, d
+	cp h
 	jr z, .has_move
+.doesnt_have_move
+	pop hl
 	dec b
 	jr nz, .check_move
-
-	ld a, d
+	ld h, d
+	ld l, e
+	; GetMoveName expects the Movde Index not the ID
+	call GetMoveIDFromIndex
 	ld [wPutativeTMHMMove], a
 	ld [wNamedObjectIndex], a
 	call GetMoveName
@@ -388,6 +406,7 @@ LearnEvolutionMove:
 	predef LearnMove
 	ld a, [wCurPartySpecies]
 	ld [wTempSpecies], a
+	ret
 
 .has_move
 	pop hl

@@ -311,6 +311,7 @@ CaterpieEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, TACKLE
 	dbw 1, STRING_SHOT
+	dbw 5, BUG_BITE
 	db 0 ; no more level-up moves
 
 MetapodEvosAttacks:
@@ -337,6 +338,7 @@ WeedleEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, POISON_STING
 	dbw 1, STRING_SHOT
+	dbw 5, BUG_BITE
 	db 0 ; no more level-up moves
 
 KakunaEvosAttacks:
@@ -1931,8 +1933,10 @@ EeveeEvosAttacks:
 	dbbw EVOLVE_ITEM, THUNDERSTONE, JOLTEON
 	dbbw EVOLVE_ITEM, WATER_STONE, VAPOREON
 	dbbw EVOLVE_ITEM, FIRE_STONE, FLAREON
-	dbbw EVOLVE_HAPPINESS, TR_MORNDAY, ESPEON
-	dbbw EVOLVE_HAPPINESS, TR_NITE, UMBREON
+	dbbw EVOLVE_ITEM, SUN_STONE, ESPEON
+	dbbw EVOLVE_ITEM, MOON_STONE, UMBREON
+	; dbbw EVOLVE_HAPPINESS, TR_MORNDAY, ESPEON
+	; dbbw EVOLVE_HAPPINESS, TR_NITE, UMBREON
 	db 0 ; no more evolutions
 	dbw 1, TACKLE
 	dbw 1, TAIL_WHIP
