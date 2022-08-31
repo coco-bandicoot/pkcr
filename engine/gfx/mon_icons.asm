@@ -355,6 +355,9 @@ NamingScreen_InitAnimatedMonIcon:
 	ret
 
 MoveList_InitAnimatedMonIcon:
+	ld a, MON_DVS
+	call GetPartyParamLocation
+	call SetMenuMonIconColor
 	ld a, [wTempIconSpecies]
 	call ReadMonMenuIcon
 	ld [wCurIcon], a
