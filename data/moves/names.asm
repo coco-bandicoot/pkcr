@@ -259,32 +259,39 @@ MoveNames::
 	li "TAIL GLOW"
 	li "LUNGE"
 	li "ATK ORDER"
+
 	li "DARK PULSE"
 	li "NASTY PLOT"
 	li "NIGHT SLASH"
 	li "NIGHT DAZE"
+
 	li "NUZZLE"
 	li "PARABOLIC CH"
 	li "DISCHARGE"
 	li "THUNDER FANG"
+
 	li "AURA SPHERE"
 	li "DRAIN PUNCH"
 	li "FORCE PALM"
 	li "SPIRIT WAVE"
+
 	li "FIRE FANG"
 	li "WILL O WISP"
 	li "FLARE BLITZ"
 	li "BLAZE KICK"
 	li "FIERY DANCE"
+
 	li "AERIAL ACE"
 	li "AIR CUTTER"
 	li "AIR SLASH"
 	li "PLUCK"
 	li "ROOST"
 	li "ACROBATICS"
+
 	li "SHADOW CLAW"
 	li "SHADOW PUNCH"
 	li "SHADOW SNEAK"
+
 	li "LEAF BLADE"
 	li "ENERGY BALL"
 	li "SEED BOMB"
@@ -292,30 +299,37 @@ MoveNames::
 	li "LEAF STORM"
 	li "LEAF TORNADO"
 	li "PETAL BLITZ"
+
 	li "EARTH POWER"
 	li "MUD BOMB"
 	li "DRILL RUN"
+
 	li "AVALANCHE"
 	li "ICE BALL"
 	li "ICE SHARD"
 	li "ICICLE SPEAR"
 	li "ICE FANG"
+
 	li "COVET"
 	li "SLACK OFF"
 	li "TEETER DANCE"
 	li "WEATHER BALL"
+
 	li "CROSS POISON"
 	li "POISON TAIL"
 	li "POISON JAB"
 	li "POISON FANG"
+
 	li "EXTRASENSORY"
 	li "ZEN HEADBUTT"
 	li "PSYCHO CUT"
 	li "PSYSHOCK"
 	li "PSYSTRIKE"
+
 	li "POWER GEM"
 	li "STONE EDGE"
 	li "ACCELEROCK"
+
 	li "BULLET PUNCH"
 	li "IRON HEAD"
 	li "MAGNET BOMB"
@@ -324,6 +338,7 @@ MoveNames::
 	li "FLASH CANNON"
 	li "GYRO BALL"
 	li "SMART STRIKE"
+
 	li "AQUA JET"
 	li "AQUA TAIL"
 	li "MUDDY WATER"
@@ -331,6 +346,7 @@ MoveNames::
 	li "LIQUIDATION"
 	li "RAZOR SHELL"
 	li "SCALD"
+	
 	li "FAIRY VOICE"
 	li "DRAIN KISS"
 	li "FAIRY GLEAM"

@@ -284,6 +284,7 @@ BattleAnimations::
 	dw BattleAnim_AuroraBeam ; SIGNAL BEAM
 	dw BattleAnim_Mist ; SILVER WIND
 	dw BattleAnim_Thief ; BUG BITE $fe
+	dw BattleAnim_0
 	dw BattleAnim_PsychicM ; BUG BUZZ
 	dw BattleAnim_MorningSun ; TAIL GLOW
 	dw BattleAnim_Slam ; LUNGE
