@@ -80,7 +80,7 @@ PokefanF_SnoreFarmer:
 FarmerFScript_GiveSnore:
 	writetext FarmerFText_HealedMiltank
 	promptbutton
-	verbosegiveitem TM_SNORE
+	verbosegiveitem TM_ICE_BEAM
 	iffalse FarmerFScript_NoRoomForSnore
 	setevent EVENT_GOT_TM13_SNORE_FROM_MOOMOO_FARM
 FarmerFScript_GotSnore:
@@ -172,20 +172,15 @@ FarmerFText_HealedMiltank:
 	line "fer your trouble."
 	done
 
-Text_ReceivedTM13: ; unreferenced
-	text "<PLAYER> received"
-	line "TM13."
-	done
-
 FarmerFText_SnoreSpeech:
 	text "That there's"
-	line "SNORE."
+	line "ICE BEAM."
 
 	para "It's a rare move"
-	line "that only works"
+	line "that has y'ur #MON"
 
-	para "while the #MON"
-	line "is asleep."
+	para "shoot a freezin'"
+	line "crystal beam."
 
 	para "You best think how"
 	line "you ought to use"

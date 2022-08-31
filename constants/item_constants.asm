@@ -232,7 +232,7 @@ DEF TM01 EQU const_value
 	add_tm HIDDEN_POWER ; cb
 	add_tm SUNNY_DAY    ; cc
 	add_tm SWEET_SCENT  ; cd
-	add_tm SNORE        ; ce
+	add_tm ICE_BEAM        ; ce
 	add_tm BLIZZARD     ; cf
 	add_tm HYPER_BEAM   ; d0
 	add_tm ICY_WIND     ; d1
@@ -259,18 +259,17 @@ DEF TM01 EQU const_value
 	add_tm SANDSTORM    ; e6
 	add_tm FIRE_BLAST   ; e7
 	add_tm SWIFT        ; e8
-	add_tm DEFENSE_CURL ; e9
+	add_tm TELEPORT 	; e9
 	add_tm THUNDERPUNCH ; ea
 	add_tm DREAM_EATER  ; eb
-	add_tm DETECT       ; ec
+	add_tm FLAMETHROWER ; ec
 	add_tm REST         ; ed
 	add_tm ATTRACT      ; ee
 	add_tm THIEF        ; ef
 	add_tm STEEL_WING   ; f0
 	add_tm FIRE_PUNCH   ; f1
 	add_tm FURY_CUTTER  ; f2
-	add_tm NIGHTMARE    ; f3
-	add_tm TELEPORT		; f4
+	add_tm THUNDERBOLT  ; f3
 DEF NUM_TMS EQU __tmhm_value__ - 1
 
 MACRO add_hm
@@ -304,9 +303,9 @@ MACRO add_mt
 ENDM
 
 DEF MT01 EQU const_value
-	add_mt FLAMETHROWER
-	add_mt THUNDERBOLT
-	add_mt ICE_BEAM
+	add_mt AEROBLAST
+	add_mt SACRED_FIRE
+	add_mt HYDRO_PUMP
 DEF NUM_TUTORS = __tmhm_value__ - NUM_TMS - NUM_HMS - 1
 
 DEF NUM_TM_HM_TUTOR EQU NUM_TMS + NUM_HMS + NUM_TUTORS

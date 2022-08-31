@@ -33,21 +33,13 @@ GoldenrodCityFlypointAndFloriaCallback:
 
 GoldenrodCityMoveTutorCallback:
 	checkevent EVENT_BEAT_ELITE_FOUR
-	iffalse .MoveTutorDone
+	iffalse .MoveTutorDisappear
 	checkitem COIN_CASE
 	iffalse .MoveTutorDisappear
-	readvar VAR_WEEKDAY
-	ifequal WEDNESDAY, .MoveTutorAppear
-	ifequal SATURDAY, .MoveTutorAppear
+	appear GOLDENRODCITY_MOVETUTOR
+	endcallback
 .MoveTutorDisappear:
 	disappear GOLDENRODCITY_MOVETUTOR
-	endcallback
-
-.MoveTutorAppear:
-	checkflag ENGINE_DAILY_MOVE_TUTOR
-	iftrue .MoveTutorDone
-	appear GOLDENRODCITY_MOVETUTOR
-.MoveTutorDone:
 	endcallback
 
 MoveTutorScript:
@@ -60,7 +52,7 @@ MoveTutorScript:
 	writetext GoldenrodCityMoveTutorAsk4000CoinsOkayText
 	yesorno
 	iffalse .Refused2
-	checkcoins 4000
+	checkcoins 100
 	ifequal HAVE_LESS, .NotEnoughMoney
 	writetext GoldenrodCityMoveTutorWhichMoveShouldITeachText
 	loadmenu .MoveMenuHeader
@@ -101,9 +93,9 @@ MoveTutorScript:
 .MenuData:
 	db STATICMENU_CURSOR ; flags
 	db 4 ; items
-	db "FLAMETHROWER@"
-	db "THUNDERBOLT@"
-	db "ICE BEAM@"
+	db "AEROBLAST@"
+	db "SACRED FIRE@"
+	db "HYDRO PUMP@"
 	db "CANCEL@"
 
 .Refused:
@@ -121,7 +113,7 @@ MoveTutorScript:
 .TeachMove:
 	writetext GoldenrodCityMoveTutorIfYouUnderstandYouveMadeItText
 	promptbutton
-	takecoins 4000
+	takecoins 100
 	waitsfx
 	playsound SFX_TRANSACTION
 	special DisplayCoinCaseBalance
@@ -499,7 +491,7 @@ GoldenrodCityMoveTutorAskTeachAMoveText:
 
 GoldenrodCityMoveTutorAsk4000CoinsOkayText:
 	text "It will cost you"
-	line "4000 coins. Okay?"
+	line "100 coins. Okay?"
 	done
 
 GoldenrodCityMoveTutorAwwButTheyreAmazingText:

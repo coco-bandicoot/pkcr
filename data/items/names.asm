@@ -244,7 +244,6 @@ ItemNames::
 	li "TM48"
 	li "TM49"
 	li "TM50"
-	li "TM51"
 	assert_list_length NUM_ITEMS + NUM_TMS
 	li "HM01"
 	li "HM02"
@@ -254,6 +253,7 @@ ItemNames::
 	li "HM06"
 	li "HM07"
 	assert_list_length NUM_ITEMS + NUM_TMS + NUM_HMS
+	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
