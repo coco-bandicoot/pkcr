@@ -1,9 +1,9 @@
-DEF CELADONGAMECORNERPRIZEROOM_TM32_COINS     EQU 1500
-DEF CELADONGAMECORNERPRIZEROOM_TM29_COINS     EQU 3500
-DEF CELADONGAMECORNERPRIZEROOM_TM15_COINS     EQU 7500
-DEF CELADONGAMECORNERPRIZEROOM_PIKACHU_COINS  EQU 2222
-DEF CELADONGAMECORNERPRIZEROOM_PORYGON_COINS  EQU 5555
-DEF CELADONGAMECORNERPRIZEROOM_LARVITAR_COINS EQU 8888
+DEF CELADONGAMECORNERPRIZEROOM_TM32_COINS     EQU 500
+DEF CELADONGAMECORNERPRIZEROOM_TM29_COINS     EQU 1000
+DEF CELADONGAMECORNERPRIZEROOM_TM15_COINS     EQU 1000
+DEF CELADONGAMECORNERPRIZEROOM_PIKACHU_COINS  EQU 222
+DEF CELADONGAMECORNERPRIZEROOM_PORYGON_COINS  EQU 333
+DEF CELADONGAMECORNERPRIZEROOM_LARVITAR_COINS EQU 444
 
 	object_const_def
 	const CELADONGAMECORNERPRIZEROOM_GENTLEMAN
@@ -39,6 +39,8 @@ CeladonPrizeRoom_tmcounterloop:
 	sjump CeladonPrizeRoom_CancelPurchaseScript
 
 .DoubleTeam:
+	checkitem TM_DOUBLE_TEAM
+	iftrue CeladonPrizeRoom_alreadyhavetm
 	checkcoins CELADONGAMECORNERPRIZEROOM_TM32_COINS
 	ifequal HAVE_LESS, CeladonPrizeRoom_notenoughcoins
 	getitemname STRING_BUFFER_3, TM_DOUBLE_TEAM
@@ -50,6 +52,8 @@ CeladonPrizeRoom_tmcounterloop:
 	sjump CeladonPrizeRoom_purchased
 
 .Psychic:
+	checkitem TM_PSYCHIC_M
+	iftrue CeladonPrizeRoom_alreadyhavetm
 	checkcoins CELADONGAMECORNERPRIZEROOM_TM29_COINS
 	ifequal HAVE_LESS, CeladonPrizeRoom_notenoughcoins
 	getitemname STRING_BUFFER_3, TM_PSYCHIC_M
@@ -61,6 +65,8 @@ CeladonPrizeRoom_tmcounterloop:
 	sjump CeladonPrizeRoom_purchased
 
 .HyperBeam:
+	checkitem TM_HYPER_BEAM
+	iftrue CeladonPrizeRoom_alreadyhavetm
 	checkcoins CELADONGAMECORNERPRIZEROOM_TM15_COINS
 	ifequal HAVE_LESS, CeladonPrizeRoom_notenoughcoins
 	getitemname STRING_BUFFER_3, TM_HYPER_BEAM
@@ -207,6 +213,11 @@ CeladonGameCornerPrizeRoomPokemonVendor:
 	db "LARVITAR   {d:CELADONGAMECORNERPRIZEROOM_LARVITAR_COINS}@"
 	db "CANCEL@"
 
+CeladonPrizeRoom_alreadyhavetm:
+	writetext CeladonPrizeRoom_AlreadyHaveTMText
+	waitbutton
+	sjump CeladonPrizeRoom_tmcounterloop
+
 CeladonGameCornerPrizeRoomGentlemanText:
 	text "I wanted PORYGON,"
 	line "but I was short by"
@@ -230,6 +241,11 @@ CeladonPrizeRoom_PrizeVendorIntroText:
 	para "We exchange your"
 	line "coins for fabulous"
 	cont "prizes!"
+	done
+
+CeladonPrizeRoom_AlreadyHaveTMText:
+	text "You already have"
+	line "that TM."
 	done
 
 CeladonPrizeRoom_AskWhichPrizeText:

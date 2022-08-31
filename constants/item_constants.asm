@@ -270,6 +270,7 @@ DEF TM01 EQU const_value
 	add_tm FIRE_PUNCH   ; f1
 	add_tm FURY_CUTTER  ; f2
 	add_tm NIGHTMARE    ; f3
+	add_tm TELEPORT		; f4
 DEF NUM_TMS EQU __tmhm_value__ - 1
 
 MACRO add_hm
