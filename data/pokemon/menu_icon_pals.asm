@@ -123,8 +123,6 @@ MonMenuIconPals::
 	icon_pals BLUE, PURPLE ; SEADRA
 	icon_pals RED, BROWN ; GOLDEEN
 	icon_pals RED, BROWN ; SEAKING
-	icon_pals RED, BLUE ; TOGEPI
-	icon_pals RED, BLUE ; TOGETIC
 	icon_pals BROWN, BLUE ; STARYU
 	icon_pals PURPLE, BLUE ; STARMIE
 	icon_pals PINK, GREEN ; MR__MIME
@@ -180,6 +178,8 @@ MonMenuIconPals::
 	icon_pals RED, BLUE ; PICHU
 	icon_pals PINK, GREEN ; CLEFFA
 	icon_pals PINK, BLUE ; IGGLYBUFF
+	icon_pals RED, BLUE ; TOGEPI
+	icon_pals RED, BLUE ; TOGETIC	
 	icon_pals GREEN, RED ; NATU
 	icon_pals GREEN, RED ; XATU
 	icon_pals BLUE, PURPLE ; MAREEP
@@ -194,8 +194,8 @@ MonMenuIconPals::
 	icon_pals GREEN, RED ; SKIPLOOM
 	icon_pals BLUE, TEAL ; JUMPLUFF
 	icon_pals PURPLE, TEAL ; AIPOM
-	icon_pals BLUE, BROWN ; SUNKERN
-	icon_pals TEAL, BROWN ; SUNFLORA
+	icon_pals GREEN, RED ; SUNKERN
+	icon_pals GREEN, RED ; SUNFLORA
 	icon_pals RED, BLUE ; YANMA
 	icon_pals BLUE, RED ; WOOPER
 	icon_pals BLUE, RED ; QUAGSIRE
