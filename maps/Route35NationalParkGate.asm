@@ -35,9 +35,13 @@ Route35NationalParkBugContestIsRunningScript:
 
 Route35NationalParkGateCheckIfContestAvailableCallback:
 	readvar VAR_WEEKDAY
+	ifequal MONDAY, .SetContestOfficer
 	ifequal TUESDAY, .SetContestOfficer
+	ifequal WEDNESDAY, .SetContestOfficer
 	ifequal THURSDAY, .SetContestOfficer
+	ifequal FRIDAY, .SetContestOfficer
 	ifequal SATURDAY, .SetContestOfficer
+	ifequal SUNDAY, .SetContestOfficer
 	checkflag ENGINE_BUG_CONTEST_TIMER
 	iftrue Route35NationalParkBugContestIsRunningScript
 	disappear ROUTE35NATIONALPARKGATE_OFFICER1
