@@ -25,10 +25,8 @@ SGBLayoutJumptable:
 	table_width 2, SGBLayoutJumptable
 	dw .SGB_BattleGrayscale
 	dw .SGB_BattleColors
-	dw .SGB_BattleColors_MoveInfo
 	dw .SGB_PokegearPals
 	dw .SGB_StatsScreenHPPals
-	dw .SGB_StatsScreenHPPals_MoveInfo
 	dw .SGB_Pokedex
 	dw .SGB_SlotMachine
 	dw .SGB_BetaTitleScreen
