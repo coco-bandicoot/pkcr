@@ -24,7 +24,6 @@ INCLUDE "engine/overworld/player_object.asm"
 INCLUDE "engine/math/sine.asm"
 INCLUDE "engine/predef.asm"
 INCLUDE "engine/gfx/color.asm"
-; INCLUDE "data/pokemon/evolution_moves.asm"
 
 SECTION "bank3", ROMX
 
@@ -639,7 +638,7 @@ INCLUDE "engine/overworld/landmarks.asm"
 SECTION "Print Party", ROMX
 
 INCLUDE "engine/printer/print_party.asm"
-
+INCLUDE "data/pokemon/evolution_moves.asm"
 
 SECTION "bank77", ROMX
 

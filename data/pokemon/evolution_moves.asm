@@ -1,4 +1,4 @@
-;SECTION "Evolution Moves", ROMX
+SECTION "Evolution Moves", ROMX
 EvolutionMoves::
 	table_width 2, EvolutionMoves
 	dw NO_MOVE      ; BULBASAUR

@@ -1,5 +1,3 @@
-INCLUDE "data/pokemon/evolution_moves.asm"
-
 EvolvePokemon:
 	ld hl, wEvolvableFlags
 	xor a
@@ -363,7 +361,8 @@ LearnEvolutionMove:
 	ld bc, EvolutionMoves
 	add hl, hl
 	add hl, bc
-	ld b,b
+	ld a, BANK("Evolution Moves")
+	call GetFarWord
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
