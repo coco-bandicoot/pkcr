@@ -79,20 +79,32 @@ DoDexSearchSlowpokeFrame:
 DisplayDexEntry:
 	call Dex_PrintMonTypeTiles
 	call GetPokemonName
-	hlcoord 9, 3
+	hlcoord 9, 4
 	call PlaceString ; mon species
 	ld a, [wTempSpecies]
 	ld b, a
 	call GetDexEntryPointer
 	ld a, b
 	push af
-	hlcoord 9, 5
-	call PlaceFarString ; dex species
+	hlcoord 2, 9
+	call PlaceFarString ; dex species nickname
 	ld h, b
 	ld l, c
 	push de
+
+	hlcoord 12, 9
+.check_tile
+	ld a, [hld]
+	cp $7f ; empty tile
+	jr z, .check_tile
+	inc hl
+	inc hl
+	inc hl
+	ld [hl], $e1
+	inc hl
+	ld [hl], $e2 
 ; Print dex number
-	hlcoord 2, 8
+	hlcoord 9, 2
 	ld a, $5c ; No
 	ld [hli], a
 	ld a, $5d ; .
@@ -112,69 +124,72 @@ DisplayDexEntry:
 	ld [wCurSpecies], a
 	inc hl
 	ld a, b
-	push af
-	push hl
-	call GetFarWord
-	ld d, l
-	ld e, h
-	pop hl
-	inc hl
-	inc hl
-	ld a, d
-	or e
-	jr z, .skip_height
-	push hl
-	push de
-; Print the height, with two of the four digits in front of the decimal point
-	ld hl, sp+0
-	ld d, h
-	ld e, l
-	hlcoord 12, 7
-	lb bc, 2, (2 << 4) | 4
-	call PrintNum
-; Replace the decimal point with a ft symbol
-	hlcoord 14, 7
-	ld [hl], $5e
-	pop af
-	pop hl
+; push af
+; 	push hl
+; 	call GetFarWord
+; 	ld d, l
+; 	ld e, h
+; 	pop hl
+; 	inc hl
+; 	inc hl
+; 	ld a, d
+; 	or e
+; 	jr z, .skip_height
+; 	push hl
+; 	push de
+; ; Print the height, with two of the four digits in front of the decimal point
+; 	ld hl, sp+0
+; 	ld d, h
+; 	ld e, l
+; 	hlcoord 12, 7
+; 	lb bc, 2, (2 << 4) | 4
+; 	call PrintNum
+; ; Replace the decimal point with a ft symbol
+; 	hlcoord 14, 7
+; 	ld [hl], $5e
+; 	pop af
+; 	pop hl
 
-.skip_height
-	pop af
+; .skip_height
+; 	pop af
 	push af
 	inc hl
+	inc hl
+	inc hl
 	push hl
-	dec hl
-	call GetFarWord
-	ld d, l
-	ld e, h
-	ld a, e
-	or d
-	jr z, .skip_weight
-	push de
-; Print the weight, with four of the five digits in front of the decimal point
-	ld hl, sp+0
-	ld d, h
-	ld e, l
-	hlcoord 11, 9
-	lb bc, 2, (4 << 4) | 5
-	call PrintNum
-	pop de
+	; dec hl
+; 	call GetFarWord
+; 	ld d, l
+; 	ld e, h
+; 	ld a, e
+; 	or d
+; 	jr z, .skip_weight
+; 	push de
+; ; Print the weight, with four of the five digits in front of the decimal point
+; 	ld hl, sp+0
+; 	ld d, h
+; 	ld e, l
+; 	hlcoord 11, 9
+; 	lb bc, 2, (4 << 4) | 5
+; 	call PrintNum
+; 	pop de
 
-.skip_weight
+; .skip_weight
 ; Page 1
-	lb bc, 5, SCREEN_WIDTH - 2
-	hlcoord 2, 11
+	lb bc, 6, SCREEN_WIDTH - 2
+	hlcoord 2, 10
 	call ClearBox
-	hlcoord 1, 10
+
+	lb bc, 1, SCREEN_WIDTH - 2
+	hlcoord 2, 8
+	call ClearBox
+
+	hlcoord 1, 8
 	ld bc, SCREEN_WIDTH - 1
-	ld a, $61 ; horizontal divider
+	ld a, $55 ; horizontal divider
 	call ByteFill
 	; page number
-	hlcoord 1, 9
-	ld [hl], $55
-	inc hl
-	ld [hl], $55
-	hlcoord 1, 10
+	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
 	ld [hl], $57 ; 1
@@ -192,19 +207,20 @@ DisplayDexEntry:
 ; Page 2
 	push bc
 	push de
-	lb bc, 5, SCREEN_WIDTH - 2
-	hlcoord 2, 11
+	lb bc, 6, SCREEN_WIDTH - 2
+	hlcoord 2, 10
 	call ClearBox
-	hlcoord 1, 10
+
+	lb bc, 1, SCREEN_WIDTH - 2
+	hlcoord 2, 8
+	call ClearBox
+
+	hlcoord 1, 8
 	ld bc, SCREEN_WIDTH - 1
-	ld a, $61
+	ld a, $55
 	call ByteFill
 	; page number
-	hlcoord 1, 9
-	ld [hl], $55
-	inc hl
-	ld [hl], $55
-	hlcoord 1, 10
+	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
 	ld [hl], $58 ; 2

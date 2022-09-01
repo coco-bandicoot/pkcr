@@ -423,16 +423,18 @@ Pokedex_ReinitDexEntryScreen:
 	ret
 
 DexEntryScreen_ArrowCursorData:
-	db D_RIGHT | D_LEFT, 4
-	dwcoord 1, 17  ; PAGE
-	dwcoord 6, 17  ; AREA
-	dwcoord 11, 17 ; CRY
-	dwcoord 15, 17 ; PRNT
+	db D_RIGHT | D_LEFT, 5
+	dwcoord 1, 17  ; INFO
+	dwcoord 4, 17  ; STAT
+	dwcoord 8, 17  ; MOVES
+	dwcoord 12, 17 ; AREA
+	dwcoord 15, 17 ; EVO
 
 DexEntryScreen_MenuActionJumptable:
 	dw Pokedex_Page
 	dw .Area
 	dw .Cry
+	dw .Print
 	dw .Print
 
 .Area:
@@ -1146,34 +1148,35 @@ Pokedex_DrawDexEntryScreenBG:
 	ld b, 15
 	call Pokedex_FillColumn
 	ld [hl], $39
-	hlcoord 1, 10
+	hlcoord 1, 8
 	ld bc, 19
-	ld a, $61
+	ld a, $55
 	call ByteFill
 	hlcoord 1, 17
 	ld bc, 18
 	ld a, " "
 	call ByteFill
-	hlcoord 9, 7
-	ld de, .Height
-	call Pokedex_PlaceString
-	hlcoord 9, 9
-	ld de, .Weight
-	call Pokedex_PlaceString
+
+	; hlcoord 9, 7
+	; ld de, .Height
+	; call Pokedex_PlaceString
+	; hlcoord 9, 9
+	; ld de, .Weight
+	; call Pokedex_PlaceString
+
 	hlcoord 0, 17
 	ld de, .MenuItems
 	call Pokedex_PlaceString
 	call Pokedex_PlaceFrontpicTopLeftCorner
 	ret
 
-.Number: ; unreferenced
-	db $5c, $5d, -1 ; No.
 .Height:
 	db "HT  ?", $5e, "??", $5f, -1 ; HT  ?'??"
 .Weight:
 	db "WT   ???lb", -1
 .MenuItems:
-	db $3b, " PAGE AREA CRY PRNT", -1
+	db $3b, " ", $79, $7a, " ", $71, $72, $73, " ", $74, $75, $76, \
+	        " ", $77, $78, " ", $7d, $7e, $31, $31, -1
 
 Pokedex_DrawOptionScreenBG:
 	call Pokedex_FillBackgroundColor2
@@ -1563,12 +1566,12 @@ Pokedex_PlaceDefaultStringIfNotSeen:
 
 Pokedex_DrawFootprint:
 	hlcoord 18, 1
-	ld a, $62
+	ld a, $6d ; $62
 	ld [hli], a
 	inc a
 	ld [hl], a
 	hlcoord 18, 2
-	ld a, $64
+	ld a, $6f ; $64
 	ld [hli], a
 	inc a
 	ld [hl], a
@@ -2399,7 +2402,7 @@ Pokedex_LoadAnyFootprint:
 
 	ld e, l
 	ld d, h
-	ld hl, vTiles2 tile $62
+	ld hl, vTiles2 tile $6d ; $62
 	lb bc, BANK(Footprints), 4
 	call Request1bpp
 	ret
@@ -2423,6 +2426,7 @@ Pokedex_LoadGFX:
 .LoadPokedexLZ:
 	ld hl, PokedexLZ
 	ld de, vTiles2 tile $31
+	;ld bc, $20 ;tiles
 	call Decompress
 
 .LoadPokedexSlowpokeLZ:
@@ -2451,7 +2455,8 @@ Pokedex_InvertTiles:
 	ret
 
 PokedexLZ:
-INCBIN "gfx/pokedex/pokedex.2bpp.lz"
+INCBIN "gfx/pokedex/pokedex_new.2bpp.lz"
+; INCBIN "gfx/pokedex/pokedex.2bpp.lz"
 
 PokedexSlowpokeLZ:
 INCBIN "gfx/pokedex/slowpoke.2bpp.lz"
