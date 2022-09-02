@@ -481,8 +481,13 @@ DexEntryScreen_MenuActionJumptable:
 	dw .Evos
 
 .BaseStats:
+	call Pokedex_GetSelectedMon
+	farcall DisplayDexMonStats
+	ret
 	ret
 .Moves:
+	call Pokedex_GetSelectedMon
+	farcall DisplayDexMonMoves
 	ret
 .Area:
 	call Pokedex_BlackOutBG
@@ -516,6 +521,8 @@ DexEntryScreen_MenuActionJumptable:
 	ret
 
 .Evos:
+	call Pokedex_GetSelectedMon
+	farcall DisplayDexMonEvos
 	ret
 
 Pokedex_RedisplayDexEntry:
