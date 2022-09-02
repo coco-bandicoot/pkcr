@@ -2897,7 +2897,9 @@ wGameTimeFrames::  db
 
 wCurDay:: db
 
-	ds 1
+wPokedexShinyToggle::
+; bit 0: set if displaying shiny palettes
+	db
 
 wObjectFollow_Leader:: db
 wObjectFollow_Follower:: db
@@ -2935,8 +2937,8 @@ wTimeOfDayPalFlags:: db
 wTimeOfDayPalset:: db
 wCurTimeOfDay:: db
 
-	ds 1
-
+	;ds 1
+wPokedexPagePos2:: db
 wSecretID:: dw
 wStatusFlags::
 ; bit 0: pokedex
@@ -3002,7 +3004,8 @@ wPokegearFlags::
 	db
 wRadioTuningKnob:: db
 wLastDexMode:: db
-	ds 1
+	;ds 1
+wPokedexPagePos1:: db
 wWhichRegisteredItem:: db
 wRegisteredItem:: db
 
