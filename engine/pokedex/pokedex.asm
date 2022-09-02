@@ -1290,34 +1290,37 @@ Pokedex_DrawDexEntryScreenBG:
 	ld b, 15
 	call Pokedex_FillColumn
 	ld [hl], $39
+	
 	hlcoord 1, 8
 	ld bc, 19
-	ld a, $55
+	ld a, $39 ; $55
 	call ByteFill
+
+	hlcoord 1, 10
+	ld bc, 19
+	ld a, $34 ; $55
+	call ByteFill
+
 	hlcoord 1, 17
 	ld bc, 18
 	ld a, " "
 	call ByteFill
 
-	; hlcoord 9, 7
-	; ld de, .Height
-	; call Pokedex_PlaceString
-	; hlcoord 9, 9
-	; ld de, .Weight
-	; call Pokedex_PlaceString
-
 	hlcoord 0, 17
 	ld de, .MenuItems
 	call Pokedex_PlaceString
+
+	hlcoord 0, 8
+	ld [hl], $38
+	hlcoord 0, 9
+	ld [hl], $32
+	hlcoord 0, 10
+	ld [hl], $33	
+
+
 	call Pokedex_PlaceFrontpicTopLeftCorner
 	ret
 
-; .Number: ; unreferenced
-; 	db $5c, $5d, -1 ; No.
-; .Height:
-; 	db "HT  ?", $5e, "??", $5f, -1 ; HT  ?'??"
-; .Weight:
-; 	db "WT   ???lb", -1
 .MenuItems:
 	db $3b, " ", $79, $7a, " ", $71, $72, $73, " ", $74, $75, $76, \
 	        " ", $77, $78, " ", $7d, $7e, $31, $31, -1
