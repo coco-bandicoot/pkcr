@@ -61,6 +61,10 @@ Pokedex:
 	ld a, [wCurDexMode]
 	ld [wLastDexMode], a
 
+	ld a, [wPokedexShinyToggle]
+	xor a
+	ld [wPokedexShinyToggle], a
+	
 	pop af
 	ldh [hInMenu], a
 	pop af
@@ -362,6 +366,12 @@ Pokedex_UpdateDexEntryScreen:
 	ld a, [hl]
 	and A_BUTTON
 	jr nz, .do_menu_action
+	ld a, [hl]
+	and SELECT ;
+	jr nz, .toggle_shininess ;
+	ld a, [hl] ;
+	and START ;
+	jr nz, .toCry ;
 	call Pokedex_NextOrPreviousDexEntry
 	ret nc
 	call Pokedex_IncrementDexPointer
@@ -384,6 +394,39 @@ Pokedex_UpdateDexEntryScreen:
 	call MaxVolume
 	ld a, [wPrevDexEntryJumptableIndex]
 	ld [wJumptableIndex], a
+	ret
+
+.toggle_shininess ;;;
+; toggle the current shininess setting
+	ld hl, wPokedexShinyToggle
+	bit 0, [hl]
+	jr z, .set
+	; already set, so clear it
+	res 0, [hl]
+	jr .update_palettes
+.set ; bit is not set, so set it
+	set 0, [hl]
+.update_palettes
+; refresh palettes
+	ld a, SCGB_POKEDEX
+	call Pokedex_GetSGBLayout	
+; play sound based on setting
+	ld de, SFX_BUMP
+	ld a, [wPokedexShinyToggle]
+	bit 0, a
+	jr z, .got_sound
+	ld de, SFX_SHINE
+.got_sound
+	call PlaySFX
+	jp WaitSFX
+
+.toCry:
+	call Pokedex_GetSelectedMon
+	ld a, [wTempSpecies]
+	call GetCryIndex
+	ld e, c
+	ld d, b
+	call PlayCry
 	ret
 
 Pokedex_Page:
@@ -432,11 +475,15 @@ DexEntryScreen_ArrowCursorData:
 
 DexEntryScreen_MenuActionJumptable:
 	dw Pokedex_Page
+	dw .BaseStats
+	dw .Moves
 	dw .Area
-	dw .Cry
-	dw .Print
-	dw .Print
+	dw .Evos
 
+.BaseStats:
+	ret
+.Moves:
+	ret
 .Area:
 	call Pokedex_BlackOutBG
 	xor a
@@ -468,37 +515,7 @@ DexEntryScreen_MenuActionJumptable:
 	call Pokedex_GetSGBLayout
 	ret
 
-.Cry:
-	ld a, [wCurPartySpecies]
-	call PlayMonCry
-	ret
-
-.Print:
-	call Pokedex_ApplyPrintPals
-	xor a
-	ldh [hSCX], a
-	ld a, [wPrevDexEntryBackup]
-	push af
-	ld a, [wPrevDexEntryJumptableIndex]
-	push af
-	ld a, [wJumptableIndex]
-	push af
-	farcall PrintDexEntry
-	pop af
-	ld [wJumptableIndex], a
-	pop af
-	ld [wPrevDexEntryJumptableIndex], a
-	pop af
-	ld [wPrevDexEntryBackup], a
-	call ClearBGPalettes
-	call DisableLCD
-	call Pokedex_LoadInvertedFont
-	call Pokedex_RedisplayDexEntry
-	call EnableLCD
-	call WaitBGMap
-	ld a, POKEDEX_SCX
-	ldh [hSCX], a
-	call Pokedex_ApplyUsualPals
+.Evos:
 	ret
 
 Pokedex_RedisplayDexEntry:
