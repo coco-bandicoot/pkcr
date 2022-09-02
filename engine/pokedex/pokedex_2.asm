@@ -77,6 +77,9 @@ DoDexSearchSlowpokeFrame:
 	db -1
 
 DisplayDexEntry:
+	ld a, [wTempSpecies]
+	ld [wCurSpecies], a
+	call DisplayDexMonType
 	call GetPokemonName
 	hlcoord 9, 4
 	call PlaceString ; mon species
@@ -267,3 +270,47 @@ endr
 	ret
 
 INCLUDE "data/pokemon/dex_entry_pointers.asm"
+DisplayDexMonStats:
+	ret
+DisplayDexMonMoves:
+	ret
+DisplayDexMonEvos:
+	ret
+DisplayDexMonType:
+	call GetBaseData
+; Print type b at hl.
+	ld a, [wBaseType1]
+	ld b, a
+	ld a, [wBaseType2]
+	cp b
+	jr z, .SingleType
+.DualType
+	ld a, [wBaseType2]
+	add a
+	ld e, a
+	ld d, 0
+	ld a, BANK(TypeNames)
+	ld hl, TypeNames
+	add hl, de
+	call GetFarWord
+	ld d, h
+	ld e, l
+	hlcoord 10,7
+	ld a, BANK(TypeNames)
+	call FarPlaceString
+.SingleType
+	;ld a, b
+	ld a, [wBaseType1]
+	add a
+	ld e, a
+	ld d, 0
+	ld a, BANK(TypeNames)
+	ld hl, TypeNames
+	add hl, de
+	call GetFarWord
+	ld d, h
+	ld e, l
+	hlcoord 10,6
+	ld a, BANK(TypeNames)
+	call FarPlaceString
+	ret
