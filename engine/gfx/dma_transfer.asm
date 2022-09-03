@@ -407,7 +407,7 @@ _LoadHDMAParameters:
 	ret
 
 PadTilemapForHDMATransfer:
-	ld c, " "
+	ld c, $37 ; " "
 	jr PadMapForHDMATransfer
 
 PadAttrmapForHDMATransfer:
@@ -438,6 +438,13 @@ PadMapForHDMATransfer:
 	ldh a, [hMapObjectIndex]
 	ld b, BG_MAP_WIDTH - SCREEN_WIDTH
 .loop3
+	ld a, c
+	cp $12
+	jr z, .fix1
+	cp $a
+	jr z, .fix2
+	ldh a, [hMapObjectIndex]
+.resume_padding
 	ld [hli], a
 	dec b
 	jr nz, .loop3
@@ -449,7 +456,12 @@ PadMapForHDMATransfer:
 	pop af
 	ldh [hMapObjectIndex], a
 	ret
-
+.fix1
+	ld a, $35
+	jr .resume_padding
+.fix2
+	ld a, $3a
+	jr .resume_padding
 HDMATransfer2bpp::
 	; 2bpp when [rLCDC] & $80
 	; switch to WRAM bank 6

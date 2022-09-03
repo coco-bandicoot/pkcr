@@ -402,6 +402,7 @@ Pokedex_InitDexEntryScreen:
 	call Pokedex_LoadCurrentFootprint
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_InitArrowCursor
+	
 	call Pokedex_GetSelectedMon
 	ld a, l
 	ld [wPrevDexEntry], a
@@ -416,10 +417,48 @@ Pokedex_InitDexEntryScreen:
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
-	ld a, [wCurPartySpecies]
-	call PlayMonCry
+;;;;;;;;;;;;;;;;;;;;;;;
+	xor a
+	ld [wPokedexPagePos2], a
+.loop
+	call Pokedex_WaitAnim
+	call PokedexWaitCry
+	ld a, [wPokedexPagePos2]
+	bit 6, a
+	jr z, .loop
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	call Pokedex_IncrementDexPointer
 	ret
+
+PokedexWaitCry:
+	; call IsSFXPlaying
+	; ret nc
+	ld a, [wPokedexPagePos2]
+	inc a
+	ld [wPokedexPagePos2], a
+	ret
+
+Pokedex_WaitAnim:
+	ld hl, wStatsScreenFlags
+	bit 6, [hl]
+	jr nz, .try_anim
+	bit 5, [hl]
+	jr nz, .finish
+	call DelayFrame
+	ret
+
+.try_anim
+	farcall SetUpPokeAnim
+	jr nc, .finish
+	ld hl, wStatsScreenFlags
+	res 6, [hl]
+.finish
+	ld hl, wStatsScreenFlags
+	res 5, [hl]
+	ld b,b
+	farcall HDMATransferTilemapToWRAMBank3
+	ret
+
 
 Pokedex_UpdateDexEntryScreen:
 	ld de, DexEntryScreen_ArrowCursorData
@@ -532,7 +571,22 @@ Pokedex_ReinitDexEntryScreen:
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
 	ld a, [wCurPartySpecies]
-	call PlayMonCry
+	; call PlayMonCry
+;;;;;;;;;;;;;;;;;;;;;;;;
+	xor a
+	ld [wPokedexPagePos2], a
+	; ld [wStatsScreenFlags], a ; PINK_PAGE
+.loop
+	; ld a, [wPokedexPagePos2]
+	; and ~(1 << 7)
+	; ld hl, StatsScreenPointerTable
+	; rst JumpTable
+	call Pokedex_WaitAnim
+	call PokedexWaitCry
+	ld a, [wPokedexPagePos2]
+	bit 7, a
+	jr z, .loop
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	ld hl, wJumptableIndex
 	dec [hl]
 	ret
@@ -1330,12 +1384,122 @@ Pokedex_DrawDexEntryScreenBG:
 	ld [hl], $33	
 
 
-	call Pokedex_PlaceFrontpicTopLeftCorner
+	; call Pokedex_PlaceFrontpicTopLeftCorner
+	call Pokedex_PlaceAnimatedFrontpic
+	call SetPalettes
 	ret
 
 .MenuItems:
 	db $3b, " ", $79, $7a, " ", $71, $72, $73, " ", $74, $75, $76, \
 	        " ", $77, $78, " ", $7d, $7e, $31, $31, -1
+
+
+Pokedex_PlaceAnimatedFrontpic:
+	call Pokedex_GetSelectedMon
+	ld hl, wTempMonDVs
+	predef GetUnownLetter
+	
+	; call StatsScreen_GetAnimationParam
+	ld bc, wTempSpecies
+	; ld a, [wCurPartySpecies]
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+
+
+
+	call SetPalettes
+	call .AnimateMon
+	call SetPalettes
+	; ; ld a, [wCurPartySpecies]
+	; ld a, [wTempSpecies]
+	; ld b,b
+	; call PlayMonCry2
+	ret
+
+.AnimateMon:
+	ld hl, wStatsScreenFlags
+	set 5, [hl]
+	; ld a, [wCurPartySpecies]
+	ld a, [wTempSpecies]
+	; ld b,b
+	
+	; call GetPokemonIndexFromID
+	; ;ld a, l
+	; ld [wTempSpecies], a
+	ld [wCurPartySpecies], a
+	; cp LOW(UNOWN)
+	; ld a, h
+	hlcoord 1, 1
+	
+;;; Taken from _PrepMonFrontPic
+	push hl
+	ld de, vTiles2
+	predef GetMonFrontpic
+	pop hl
+	xor a
+	ldh [hGraphicStartTile], a
+	lb bc, 7, 7
+	predef PlaceGraphic
+	xor a
+	ld [wBoxAlignment], a
+
+
+	; call _PrepMonFrontpic
+	; if HIGH(UNOWN) == 0
+	; 	and a
+	; elif HIGH(UNOWN) == 1
+	; 	dec a
+	; else
+	; 	cp HIGH(UNOWN)
+	; endc
+	; call nz, PrepMonFrontpic
+	; xor a
+	; ld [wBoxAlignment], a
+	;  _PrepMonFrontpic
+	; fallthrough
+
+.get_animation
+	; ld a, [wCurPartySpecies]
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+
+	; call IsAPokemon
+	; ret c
+	call Pokedex_LoadTextboxSpaceGFX
+	; ld b,b
+	ld de, vTiles2 tile $00
+
+	predef GetAnimatedFrontpic
+	hlcoord 1, 1
+	ld d, $0
+	ld e, ANIM_MON_MENU
+	predef LoadMonAnimation
+	ld hl, wStatsScreenFlags
+	set 6, [hl]
+	ret
+
+Pokedex_LoadTextboxSpaceGFX:
+	nop
+	push hl
+	push de
+	push bc
+	push af
+	call DelayFrame
+	ldh a, [rVBK]
+	push af
+	ld a, $1
+	ldh [rVBK], a
+	ld de, TextboxSpaceGFX
+	lb bc, BANK(TextboxSpaceGFX), 1
+	ld hl, vTiles2 tile " "
+	call Get2bpp
+	pop af
+	ldh [rVBK], a
+	pop af
+	pop bc
+	pop de
+	pop hl
+	ret
 
 Pokedex_DrawOptionScreenBG:
 	call Pokedex_FillBackgroundColor2
