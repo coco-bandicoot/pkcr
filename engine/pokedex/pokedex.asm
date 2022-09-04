@@ -331,6 +331,8 @@ Pokedex_InitDexEntryScreen:
 	call LowVolume
 	xor a ; page 1
 	ld [wPokedexStatus], a
+	ld [wPokedexPagePos1], a
+	ld [wPokedexPagePos2], a
 	xor a
 	ldh [hBGMapMode], a
 	call ClearSprites
@@ -372,7 +374,7 @@ Pokedex_PlayMonCry_AnimateFrontpic:
 	ld [wPokedexPagePos2], a
 	call WaitBGMap
 	ret
-	
+
 .PokedexWaitCry:
 	ld a, [wPokedexPagePos2]
 	inc a
@@ -488,7 +490,8 @@ Pokedex_ReinitDexEntryScreen:
 	call Pokedex_BlackOutBG
 	xor a ; page 1
 	ld [wPokedexStatus], a
-	xor a
+	ld [wPokedexPagePos1], a
+	ld [wPokedexPagePos2], a
 	ldh [hBGMapMode], a
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_InitArrowCursor
@@ -2418,7 +2421,6 @@ Pokedex_MoveArrowCursor:
 	jr .update_cursor_pos
 
 Pokedex_GetArrowCursorPos:
-	ld b,b
 	ld a, [wDexArrowCursorPosIndex]
 	add a
 	ld l, a

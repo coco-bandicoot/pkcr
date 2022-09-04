@@ -263,9 +263,96 @@ endr
 
 INCLUDE "data/pokemon/dex_entry_pointers.asm"
 
-Dex_PrintMonTypeTiles:
+Pokedex_setup_HLCoord: ; Y coord in b, X in c
+	push bc
+	ld hl, hMultiplicand
+	ld a, 0
+	ld [hli], a
+	ld [hli], a
+	ld a, b ;Y Coord in B, X in C
+	ld [hl], a
+	ld a, SCREEN_WIDTH
+	ld [hMultiplier], a
+	call Multiply
+	ld hl, hProduct
+	inc hl
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld c, [hl]
+	ld hl, wTilemap
+	add hl, bc
+	pop bc
+	ld b, 0
+	;ld c, ; X Coord thanks to popped bc
+	add hl, bc
+	;ld \1, (\3) * SCREEN_WIDTH + (\2) + wTilemap
+	ret
+Pokedex_Clearbox:
+	;clear Area BC @ HL
+	lb bc, 6, SCREEN_WIDTH - 1
+	hlcoord 1, 10
+	call ClearBox
+	ret
+Pokedex_PrintPageNum:
+	and %00001111
+	; a = page num
+	push bc
+	push hl
+	ld b, 0
+	ld c, a
+	ld hl, .PgNumPtrs
+	add hl, bc
+	ld a, [hl]
+	pop hl
+	ld [hl], $56
+	inc hl 
+	ld [hl], a
+	pop bc
+	ret
+.PgNumPtrs
+	db $57, $58, $61, $62, $63, $64, $65, $6B, $6C
+
+DisplayDexMonStats:
+	ret
+
+DisplayDexMonMoves:
 	ld a, [wTempSpecies]
-	ld [wCurSpecies], a	
+	ld [wCurSpecies], a
+
+; Step 1 ClearBox, Page Num
+	call Pokedex_Clearbox
+	ld a, [wPokedexPagePos2]
+	cp 0
+	jr z, .LvlUpLearnset
+	jr .Done
+.LvlUpLearnset
+	call .print_page_num
+	call Pokedex_Calc_LvlMovesPtr
+	call Pokedex_Print_NextLvlMoves
+.Done
+	; We want to reset the Dex Entry back to 1 when we click "Page"
+	ld a, 1
+	ld [wPokedexStatus], a
+	ld a, [wPokedexPagePos2]
+	cp 0
+	call nz, .Restart_loop
+	ret
+.Restart_loop:
+	xor a
+	ld [wPokedexPagePos1], a
+	ld [wPokedexPagePos2], a
+	ret
+.print_page_num:
+	ld a, [wPokedexPagePos1]
+	hlcoord 1, 9
+	call Pokedex_PrintPageNum
+	ret
+
+DisplayDexMonEvos:
+	ret
+
+DisplayDexMonType:
 	call GetBaseData
 	ld a, [wBaseType1]
 ; Skip Bird
@@ -343,4 +430,130 @@ Dex_PrintMonTypeTiles:
 	ld [hl], $76
 	inc hl
 	ld [hl], $77
+	ret
+
+Pokedex_Calc_LvlMovesPtr:
+	ld a, [wTempSpecies]
+	call GetPokemonIndexFromID
+	ld b, h
+	ld c, l
+	ld hl, EvosAttacksPointers
+	ld a, BANK(EvosAttacksPointers)
+	call LoadDoubleIndirectPointer
+	push af ; bank
+	ld d, 0
+	ld e, 0
+.loop_tru_evos
+	pop af ; bank num
+	push af
+	call GetFarByte
+	cp 0
+	inc hl
+	inc de ; the byte offset
+	jr nz, .loop_tru_evos
+; check for double zero, since mon indexes add 00 in most cases
+	pop af
+	push af
+	call GetFarByte
+	cp 0
+	jr nz, .CalcPageoffset
+	inc de
+	inc hl
+.CalcPageoffset
+	ld a, [wPokedexPagePos1]
+	ld c, 5
+	call SimpleMultiply 
+	; double this num and add to first byte after Evo's 0
+	; for p16, triple the num
+	ld b, 0
+	ld c, a
+	add hl, bc
+	add hl, bc
+	add hl, bc
+	pop af ; bank
+	ld [wStatsScreenFlags], a ; bank
+	ret
+
+Pokedex_Print_NextLvlMoves:
+; Print No more than 5 moves
+; check the next byte
+; if 0, set Lvl Up Done flag, or zero out
+; else, inc Page Counter wPokedexPagePos1 before exit
+; Start at 1, 11
+; LXX:@@
+	ld b, 0
+	ld c, 0 ; our move counter, max of 5
+	push bc ; our move counter
+	push hl ; our offset for the start of Moves
+	ld de, .lvl_moves_text
+	hlcoord 2, 10
+	call PlaceString ; TEXT for 'LVL - Move'
+	pop hl
+	pop bc
+.learnset_loop
+	ld a, [wStatsScreenFlags]
+	call GetFarByte
+	cp 0
+	jr z, .FoundEnd
+	push hl
+	ld [wTextDecimalByte], a
+	hlcoord 1, 11
+	call .adjusthlcoord
+	ld de, wTextDecimalByte
+	push bc
+	; lb bc, PRINTNUM_LEFTALIGN | 1, 2
+	lb bc, 1, 2
+	call PrintNum
+	pop bc 
+	pop hl
+	inc hl
+	push hl
+	ld a, [wStatsScreenFlags]
+	call GetFarWord ; our move index
+	
+	call GetMoveIDFromIndex
+	ld [wNamedObjectIndex], a
+	call GetMoveName
+	hlcoord 4, 11
+	call .adjusthlcoord
+	push bc
+	call PlaceString
+	pop bc
+	pop hl
+	inc hl
+	inc hl
+	inc bc
+	ld a, 5
+	cp c
+	jr nz, .learnset_loop
+	jr .MaxedPage
+
+.FoundEnd ; Set the LvlUp Learnset DONE bit (5?)
+	; DEBUG just zero-out to test effect
+	ld a, [wPokedexPagePos2]
+	;xor %00010000 ; setting the "egg" bit
+	set 1, a
+	ld [wPokedexPagePos2], a
+.MaxedPage ; Printed 5 moves. Moves are still left. Inc the Page counter
+	; Shouldn't NEED to, but added check to make sure doesnt go over 8 rn
+	ld a, [wPokedexPagePos1]
+	inc a
+	ld [wPokedexPagePos1], a
+	ret
+
+.lvl_moves_text:
+	db "LVL Move@"
+.moveslvl_colon_Text:
+	;db "<COLON> @"
+	db ": @"	
+.adjusthlcoord:
+	push de
+	ld a, 20
+	; the num of moves already printed should still be in bc
+	call SimpleMultiply
+	; result in a
+	ld d, 0
+	ld e, a
+	add hl, de ; allows us to print on the proper row lol
+	pop de
 	ret
