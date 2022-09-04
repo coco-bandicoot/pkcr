@@ -78,71 +78,71 @@ ReloadMapPart::
 	ret
 
 Mobile_ReloadMapPart:
-	ld hl, ReloadMapPart ; useless
-	ld hl, .Function
-	jp CallInSafeGFXMode
+; 	ld hl, ReloadMapPart ; useless
+; 	ld hl, .Function
+; 	jp CallInSafeGFXMode
 
-.Function:
-	decoord 0, 0, wAttrmap
-	ld hl, wScratchAttrmap
-	call PadAttrmapForHDMATransfer
-	decoord 0, 0
-	ld hl, wScratchTilemap
-	call PadTilemapForHDMATransfer
-	call DelayFrame
+; .Function:
+; 	decoord 0, 0, wAttrmap
+; 	ld hl, wScratchAttrmap
+; 	call PadAttrmapForHDMATransfer
+; 	decoord 0, 0
+; 	ld hl, wScratchTilemap
+; 	call PadTilemapForHDMATransfer
+; 	call DelayFrame
 
-	di
-	ldh a, [rVBK]
-	push af
-	ld a, $1
-	ldh [rVBK], a
-	ld hl, wScratchAttrmap
-	call HDMATransfer_NoDI
-	ld a, $0
-	ldh [rVBK], a
-	ld hl, wScratchTilemap
-	call HDMATransfer_NoDI
-	pop af
-	ldh [rVBK], a
-	ei
+; 	di
+; 	ldh a, [rVBK]
+; 	push af
+; 	ld a, $1
+; 	ldh [rVBK], a
+; 	ld hl, wScratchAttrmap
+; 	call HDMATransfer_NoDI
+; 	ld a, $0
+; 	ldh [rVBK], a
+; 	ld hl, wScratchTilemap
+; 	call HDMATransfer_NoDI
+; 	pop af
+; 	ldh [rVBK], a
+; 	ei
 
 	ret
 
-Function1040d4: ; unreferenced
-	ld hl, .Function
-	jp CallInSafeGFXMode
+; Function1040d4: ; unreferenced
+; 	ld hl, .Function
+; 	jp CallInSafeGFXMode
 
-.Function
-	ld a, $1
-	ldh [rVBK], a
-	ld a, BANK(w3_d800)
-	ldh [rSVBK], a
-	ld de, w3_d800
-	ldh a, [hBGMapAddress + 1]
-	ldh [rHDMA1], a
-	ldh a, [hBGMapAddress]
-	ldh [rHDMA2], a
-	ld a, d
-	ldh [rHDMA3], a
-	ld a, e
-	ldh [rHDMA4], a
-	ld a, $23
-	ldh [hDMATransfer], a
-	call WaitDMATransfer
-	ret
+; .Function
+; 	ld a, $1
+; 	ldh [rVBK], a
+; 	ld a, BANK(w3_d800)
+; 	ldh [rSVBK], a
+; 	ld de, w3_d800
+; 	ldh a, [hBGMapAddress + 1]
+; 	ldh [rHDMA1], a
+; 	ldh a, [hBGMapAddress]
+; 	ldh [rHDMA2], a
+; 	ld a, d
+; 	ldh [rHDMA3], a
+; 	ld a, e
+; 	ldh [rHDMA4], a
+; 	ld a, $23
+; 	ldh [hDMATransfer], a
+; 	call WaitDMATransfer
+; 	ret
 
-Function1040fb: ; unreferenced
-	ld hl, .Function
-	jp CallInSafeGFXMode
+; Function1040fb: ; unreferenced
+; 	ld hl, .Function
+; 	jp CallInSafeGFXMode
 
-.Function
-	ld a, $1
-	ldh [rVBK], a
-	ld a, BANK(w3_d800)
-	ldh [rSVBK], a
-	ld hl, w3_d800
-	call HDMATransferToWRAMBank3
-	ret
+; .Function
+; 	ld a, $1
+; 	ldh [rVBK], a
+; 	ld a, BANK(w3_d800)
+; 	ldh [rSVBK], a
+; 	ld hl, w3_d800
+; 	call HDMATransferToWRAMBank3
+; 	ret
 
 OpenAndCloseMenu_HDMATransferTilemapAndAttrmap::
 ; OpenText
@@ -407,7 +407,7 @@ _LoadHDMAParameters:
 	ret
 
 PadTilemapForHDMATransfer:
-	ld c, $37 ; " "
+	ld c, " "
 	jr PadMapForHDMATransfer
 
 PadAttrmapForHDMATransfer:
@@ -438,13 +438,6 @@ PadMapForHDMATransfer:
 	ldh a, [hMapObjectIndex]
 	ld b, BG_MAP_WIDTH - SCREEN_WIDTH
 .loop3
-	ld a, c
-	cp $12
-	jr z, .fix1
-	cp $a
-	jr z, .fix2
-	ldh a, [hMapObjectIndex]
-.resume_padding
 	ld [hli], a
 	dec b
 	jr nz, .loop3
@@ -456,12 +449,7 @@ PadMapForHDMATransfer:
 	pop af
 	ldh [hMapObjectIndex], a
 	ret
-.fix1
-	ld a, $35
-	jr .resume_padding
-.fix2
-	ld a, $3a
-	jr .resume_padding
+
 HDMATransfer2bpp::
 	; 2bpp when [rLCDC] & $80
 	; switch to WRAM bank 6
