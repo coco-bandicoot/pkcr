@@ -440,25 +440,8 @@ Pokedex_Calc_LvlMovesPtr:
 	ld hl, EvosAttacksPointers
 	ld a, BANK(EvosAttacksPointers)
 	call LoadDoubleIndirectPointer
-	push af ; bank
-	ld d, 0
-	ld e, 0
-.loop_tru_evos
-	pop af ; bank num
-	push af
-	call GetFarByte
-	cp 0
-	inc hl
-	inc de ; the byte offset
-	jr nz, .loop_tru_evos
-; check for double zero, since mon indexes add 00 in most cases
-	pop af
-	push af
-	call GetFarByte
-	cp 0
-	jr nz, .CalcPageoffset
-	inc de
-	inc hl
+	ld [wStatsScreenFlags], a ; bank
+	call FarSkipEvolutions
 .CalcPageoffset
 	ld a, [wPokedexPagePos1]
 	ld c, 5
@@ -470,8 +453,6 @@ Pokedex_Calc_LvlMovesPtr:
 	add hl, bc
 	add hl, bc
 	add hl, bc
-	pop af ; bank
-	ld [wStatsScreenFlags], a ; bank
 	ret
 
 Pokedex_Print_NextLvlMoves:
