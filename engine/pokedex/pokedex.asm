@@ -426,8 +426,8 @@ Pokedex_InitDexEntryScreen:
 Pokedex_PlayMonCry_AnimateFrontpic:
 	xor a
 	ld [wPokedexPagePos2], a
-	ld a, 1
-	ld [wPokedexPagePos1], a
+	; ld a, 1
+	; ld [wPokedexPagePos1], a
 .loop
 	call .Pokedex_WaitAnim
 	call .PokedexWaitCry
@@ -437,15 +437,8 @@ Pokedex_PlayMonCry_AnimateFrontpic:
 	xor a
 	ld [wPokedexPagePos2], a
 	call WaitBGMap
-; Re-draw Border	
-	ld hl, .Function
-	jp CallInSafeGFXMode
-
-.Function:
-	ld hl, wScratchAttrmap
-	ld [hl], $ed
 	ret
-
+	
 .PokedexWaitCry:
 	ld a, [wPokedexPagePos2]
 	inc a
@@ -473,7 +466,6 @@ Pokedex_PlayMonCry_AnimateFrontpic:
 
 
 Pokedex_UpdateDexEntryScreen:
-	ld b,b
 	ld de, DexEntryScreen_ArrowCursorData
 	call Pokedex_MoveArrowCursor
 	ld hl, hJoyPressed
