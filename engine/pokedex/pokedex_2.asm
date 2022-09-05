@@ -88,10 +88,7 @@ DisplayDexEntry:
 	call GetDexEntryPointer
 	ld a, b
 	push af
-	hlcoord 1, 9
-	ld [hl], $3b
-	inc hl
-	inc hl
+	hlcoord 3, 9
 	call PlaceFarString ; dex species nickname
 	ld h, b
 	ld l, c
@@ -100,10 +97,6 @@ DisplayDexEntry:
 	hlcoord 12, 9
 .check_tile
 	ld a, [hld]
-	cp $3c
-	jr z, .print_dex_num
-	cp $32
-	jr z, .print_dex_num
 	cp $e2
 	jr z, .print_dex_num
 	cp $7f ; empty tile
@@ -116,18 +109,6 @@ DisplayDexEntry:
 	ld [hl], $e1
 	inc hl
 	ld [hl], $e2 
-	
-	inc hl
-	inc hl
-	ld [hl], $3c
-	hlcoord 19, 9
-	; push hl
-.check_tile2
-	ld [hl], $32
-	dec hl
-	ld a, [hl]
-	cp $3c
-	jr nz, .check_tile2
 
 .print_dex_num
 ; Print dex number
@@ -158,21 +139,11 @@ DisplayDexEntry:
 	inc hl
 	push hl
 
-	hlcoord 1, 8
-	ld bc, 19
-	ld a, $39 ; $55
-	call ByteFill
-	hlcoord 1, 10
-	ld bc, 19
-	ld a, $34 ; $55
-	call ByteFill
-
-
 ; Page 1
 	lb bc, 5, SCREEN_WIDTH - 2
 	hlcoord 2, 11
 	call ClearBox
-	hlcoord 18, 10
+	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
 	ld [hl], $57 ; 1
@@ -193,7 +164,7 @@ DisplayDexEntry:
 	lb bc, 5, SCREEN_WIDTH - 2
 	hlcoord 2, 11
 	call ClearBox
-	hlcoord 18, 10
+	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
 	ld [hl], $58 ; 2
@@ -263,31 +234,6 @@ endr
 
 INCLUDE "data/pokemon/dex_entry_pointers.asm"
 
-Pokedex_setup_HLCoord: ; Y coord in b, X in c
-	push bc
-	ld hl, hMultiplicand
-	ld a, 0
-	ld [hli], a
-	ld [hli], a
-	ld a, b ;Y Coord in B, X in C
-	ld [hl], a
-	ld a, SCREEN_WIDTH
-	ld [hMultiplier], a
-	call Multiply
-	ld hl, hProduct
-	inc hl
-	inc hl
-	ld b, [hl]
-	inc hl
-	ld c, [hl]
-	ld hl, wTilemap
-	add hl, bc
-	pop bc
-	ld b, 0
-	;ld c, ; X Coord thanks to popped bc
-	add hl, bc
-	;ld \1, (\3) * SCREEN_WIDTH + (\2) + wTilemap
-	ret
 Pokedex_Clearbox:
 	;clear Area BC @ HL
 	lb bc, 6, SCREEN_WIDTH - 1
@@ -325,6 +271,8 @@ DisplayDexMonMoves:
 	ld a, [wPokedexPagePos2]
 	cp 0
 	jr z, .LvlUpLearnset
+	; cp 1
+	; jr z, .EggMoves
 	jr .Done
 .LvlUpLearnset
 	call .print_page_num
@@ -335,7 +283,7 @@ DisplayDexMonMoves:
 	ld a, 1
 	ld [wPokedexStatus], a
 	ld a, [wPokedexPagePos2]
-	cp 0
+	bit 7, a
 	call nz, .Restart_loop
 	ret
 .Restart_loop:
@@ -345,7 +293,7 @@ DisplayDexMonMoves:
 	ret
 .print_page_num:
 	ld a, [wPokedexPagePos1]
-	hlcoord 1, 9
+	hlcoord 1, 8
 	call Pokedex_PrintPageNum
 	ret
 
@@ -513,7 +461,7 @@ Pokedex_Print_NextLvlMoves:
 	; DEBUG just zero-out to test effect
 	ld a, [wPokedexPagePos2]
 	;xor %00010000 ; setting the "egg" bit
-	set 1, a
+	set 7, a
 	ld [wPokedexPagePos2], a
 .MaxedPage ; Printed 5 moves. Moves are still left. Inc the Page counter
 	; Shouldn't NEED to, but added check to make sure doesnt go over 8 rn
@@ -538,3 +486,18 @@ Pokedex_Print_NextLvlMoves:
 	add hl, de ; allows us to print on the proper row lol
 	pop de
 	ret
+
+EggMenuHeader:
+	db MENU_BACKUP_TILES ; flags
+	menu_coords 7, 1, SCREEN_WIDTH - 1, TEXTBOX_Y - 1
+	dw .MenuData
+	db 1 ; default option
+
+.MenuData:
+	db STATICMENU_ENABLE_SELECT | STATICMENU_ENABLE_LEFT_RIGHT | STATICMENU_ENABLE_START | STATICMENU_WRAP | STATICMENU_CURSOR ; flags
+	db 5, 8 ; rows, columns
+	db SCROLLINGMENU_ITEMS_QUANTITY ; item format
+	dbw 0, wNumItems
+	dba PlaceMenuItemName
+	dba PlaceMenuItemQuantity
+	dba UpdateItemDescription
