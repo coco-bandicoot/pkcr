@@ -419,53 +419,10 @@ Pokedex_InitDexEntryScreen:
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
-	; ld a, [wCurPartySpecies]
-	; call PlayMonCry
-	call Pokedex_PlayMonCry_AnimateFrontpic
+	ld a, [wCurPartySpecies]
+	call PlayMonCry
 	call Pokedex_IncrementDexPointer
 	ret
-
-Pokedex_PlayMonCry_AnimateFrontpic:
-	xor a
-	ld [wPokedexPagePos2], a
-	; ld a, 1
-	; ld [wPokedexPagePos1], a
-.loop
-	call .Pokedex_WaitAnim
-	call .PokedexWaitCry
-	ld a, [wPokedexPagePos2]
-	bit 7, a
-	jr z, .loop
-	xor a
-	ld [wPokedexPagePos2], a
-	call WaitBGMap
-	ret
-
-.PokedexWaitCry:
-	ld a, [wPokedexPagePos2]
-	inc a
-	ld [wPokedexPagePos2], a
-	ret
-
-.Pokedex_WaitAnim:
-	ld hl, wStatsScreenFlags
-	bit 6, [hl]
-	jr nz, .try_anim
-	bit 5, [hl]
-	jr nz, .finish
-	call DelayFrame
-	ret
-.try_anim
-	farcall SetUpPokeAnim
-	jr nc, .finish
-	ld hl, wStatsScreenFlags
-	res 6, [hl]
-.finish
-	ld hl, wStatsScreenFlags
-	res 5, [hl]
-	farcall HDMATransferTilemapToWRAMBank3
-	ret
-
 
 Pokedex_UpdateDexEntryScreen:
 	ld de, DexEntryScreen_ArrowCursorData
@@ -578,9 +535,8 @@ Pokedex_ReinitDexEntryScreen:
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
-	; ld a, [wCurPartySpecies]
-	; call PlayMonCry
-	call Pokedex_PlayMonCry_AnimateFrontpic
+	ld a, [wCurPartySpecies]
+	call PlayMonCry
 	ld hl, wJumptableIndex
 	dec [hl]
 	ret
@@ -599,6 +555,7 @@ DexEntryScreen_MenuActionJumptable:
 	dw .Moves
 	dw .Area
 	dw .Evos
+	dw .SpriteAnim
 
 .BaseStats:
 	call Pokedex_GetSelectedMon
@@ -644,6 +601,72 @@ DexEntryScreen_MenuActionJumptable:
 	call Pokedex_GetSelectedMon
 	farcall DisplayDexMonEvos
 	ret
+
+.SpriteAnim:
+	call Pokedex_BlackOutBG
+	hlcoord 8, 0
+	lb bc, SCREEN_HEIGHT, 12
+	call ClearBox
+	hlcoord 0, 8
+	lb bc, 12, SCREEN_WIDTH
+	call ClearBox
+	hlcoord 0, 0
+	lb bc, 9, 1
+	call ClearBox
+	hlcoord 0, 0
+	lb bc, 1, 9
+	call ClearBox
+	farcall HDMATransferTilemapToWRAMBank3
+	call WaitBGMap
+	call DelayFrame
+
+	ld a, SCGB_POKEDEX
+	call Pokedex_GetSGBLayout
+
+
+	call Pokedex_GetSelectedMon
+	call Pokedex_PlaceAnimatedFrontpic
+	call Pokedex_PlayMonCry_AnimateFrontpic
+	call WaitBGMap
+.loop
+	call JoyTextDelay
+	ld hl, hJoyPressed
+	ld a, [hl]
+	and A_BUTTON | B_BUTTON
+	jr nz, .a_b
+	ldh a, [hJoypadDown]
+	; and SELECT
+	; jr nz, .select
+.next
+	call DelayFrame
+	jr .loop
+; .select
+; 	call .HideNestsShowPlayer
+.a_b
+	call ClearSprites
+	call Pokedex_BlackOutBG
+	call DelayFrame
+	xor a
+	ldh [hBGMapMode], a
+	ld a, $90
+	ldh [hWY], a
+	ld a, POKEDEX_SCX
+	ldh [hSCX], a
+	call DelayFrame
+	farcall DrawDexEntryScreenRightEdge
+	call Pokedex_ResetBGMapMode
+
+	call Pokedex_RedisplayDexEntry
+	call Pokedex_LoadSelectedMonTiles
+	call WaitBGMap
+	call Pokedex_GetSelectedMon
+	ld [wCurPartySpecies], a
+	ld a, SCGB_POKEDEX
+	call Pokedex_GetSGBLayout
+	ret
+
+
+
 
 Pokedex_RedisplayDexEntry:
 	call Pokedex_DrawDexEntryScreenBG
@@ -1353,12 +1376,7 @@ Pokedex_DrawDexEntryScreenBG:
 	
 	hlcoord 1, 8
 	ld bc, 19
-	ld a, $39 ; $55
-	call ByteFill
-
-	hlcoord 1, 10
-	ld bc, 19
-	ld a, $34 ; $55
+	ld a, $55
 	call ByteFill
 
 	hlcoord 1, 17
@@ -1368,71 +1386,14 @@ Pokedex_DrawDexEntryScreenBG:
 
 	hlcoord 0, 17
 	ld de, .MenuItems
-	call Pokedex_PlaceString
+	call Pokedex_PlaceString	
 
-	hlcoord 0, 8
-	ld [hl], $38
-	hlcoord 0, 9
-	ld [hl], $32
-	hlcoord 0, 10
-	ld [hl], $33	
-
-	; call Pokedex_PlaceFrontpicTopLeftCorner
-	call Pokedex_PlaceAnimatedFrontpic
-	call SetPalettes
+	call Pokedex_PlaceFrontpicTopLeftCorner
 	ret
 
 .MenuItems:
 	db $3b, " ", $79, $7a, " ", $71, $72, $73, " ", $74, $75, $76, \
 	        " ", $77, $78, " ", $7d, $7e, $31, $31, -1
-
-
-Pokedex_PlaceAnimatedFrontpic:
-	call Pokedex_GetSelectedMon
-	ld hl, wTempMonDVs
-	predef GetUnownLetter
-	ld bc, wTempSpecies
-	ld a, [wTempSpecies]
-	ld [wCurPartySpecies], a
-	call SetPalettes
-	call .AnimateMon
-	call SetPalettes
-	ret
-
-.AnimateMon:
-	ld hl, wStatsScreenFlags
-	set 5, [hl]
-	ld a, [wTempSpecies]
-	ld [wCurPartySpecies], a
-	hlcoord 1, 1
-	
-;;; Taken from _PrepMonFrontPic
-	push hl
-	ld de, vTiles2
-	predef GetMonFrontpic
-	pop hl
-	xor a
-	ldh [hGraphicStartTile], a
-	lb bc, 7, 7
-	predef PlaceGraphic
-	xor a
-	ld [wBoxAlignment], a
-
-.get_animation
-	ld a, [wTempSpecies]
-	ld [wCurPartySpecies], a
-
-	call Pokedex_LoadTextboxSpaceGFX
-	ld de, vTiles2 tile $00
-
-	predef GetAnimatedFrontpic
-	hlcoord 1, 1
-	ld d, $0
-	ld e, ANIM_MON_MENU
-	predef LoadMonAnimation
-	ld hl, wStatsScreenFlags
-	set 6, [hl]
-	ret
 
 Pokedex_LoadTextboxSpaceGFX:
 	nop
@@ -3035,4 +2996,93 @@ Pokedex_SetBGMapMode_3ifDMG_4ifCGB:
 Pokedex_ResetBGMapMode:
 	xor a
 	ldh [hBGMapMode], a
+	ret
+
+Pokedex_PlaceAnimatedFrontpic:
+	call Pokedex_GetSelectedMon
+	ld hl, wTempMonDVs
+	predef GetUnownLetter
+	ld bc, wTempSpecies
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+	call SetPalettes
+	call .AnimateMon
+	call SetPalettes
+	ret
+
+.AnimateMon:
+	ld hl, wStatsScreenFlags
+	set 5, [hl]
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+	hlcoord 1, 1
+	
+;;; Taken from _PrepMonFrontPic
+	push hl
+	ld de, vTiles2
+	predef GetMonFrontpic
+	pop hl
+	xor a
+	ldh [hGraphicStartTile], a
+	lb bc, 7, 7
+	predef PlaceGraphic
+	xor a
+	ld [wBoxAlignment], a
+
+.get_animation
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+
+	call Pokedex_LoadTextboxSpaceGFX
+	ld de, vTiles2 tile $00
+
+	predef GetAnimatedFrontpic
+	hlcoord 1, 1
+	ld d, $0
+	ld e, ANIM_MON_MENU
+	predef LoadMonAnimation
+	ld hl, wStatsScreenFlags
+	set 6, [hl]
+	ret
+
+Pokedex_PlayMonCry_AnimateFrontpic:
+	xor a
+	ld [wPokedexPagePos2], a
+	; ld a, 1
+	; ld [wPokedexPagePos1], a
+.loop
+	call .Pokedex_WaitAnim
+	call .PokedexWaitCry
+	ld a, [wPokedexPagePos2]
+	bit 7, a
+	jr z, .loop
+	xor a
+	ld [wPokedexPagePos2], a
+
+	call WaitBGMap
+	ret
+
+.PokedexWaitCry:
+	ld a, [wPokedexPagePos2]
+	inc a
+	ld [wPokedexPagePos2], a
+	ret
+
+.Pokedex_WaitAnim:
+	ld hl, wStatsScreenFlags
+	bit 6, [hl]
+	jr nz, .try_anim
+	bit 5, [hl]
+	jr nz, .finish
+	call DelayFrame
+	ret
+.try_anim
+	farcall SetUpPokeAnim
+	jr nc, .finish
+	ld hl, wStatsScreenFlags
+	res 6, [hl]
+.finish
+	ld hl, wStatsScreenFlags
+	res 5, [hl]
+	farcall HDMATransferTilemapToWRAMBank3
 	ret
