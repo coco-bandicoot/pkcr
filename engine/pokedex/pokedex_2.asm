@@ -77,8 +77,13 @@ DoDexSearchSlowpokeFrame:
 	db -1
 
 DisplayDexEntry:
-
 	call Dex_PrintMonTypeTiles
+
+	lb bc, 8, SCREEN_WIDTH - 1
+	hlcoord 1, 8
+	call ClearBox
+	ld a, [wTempSpecies]
+	ld [wCurSpecies], a
 
 	call GetPokemonName
 	hlcoord 9, 4
@@ -90,10 +95,14 @@ DisplayDexEntry:
 	push af
 	hlcoord 3, 9
 	call PlaceFarString ; dex species nickname
+	hlcoord 1, 8
+	ld bc, 19
+	ld a, $55
+	call ByteFill
+	
 	ld h, b
 	ld l, c
 	push de
-
 	hlcoord 12, 9
 .check_tile
 	ld a, [hld]
@@ -140,9 +149,6 @@ DisplayDexEntry:
 	push hl
 
 ; Page 1
-	lb bc, 5, SCREEN_WIDTH - 2
-	hlcoord 2, 11
-	call ClearBox
 	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
@@ -161,9 +167,7 @@ DisplayDexEntry:
 ; Page 2
 	push bc
 	push de
-	lb bc, 5, SCREEN_WIDTH - 2
-	hlcoord 2, 11
-	call ClearBox
+
 	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
@@ -297,10 +301,8 @@ DisplayDexMonMoves:
 	call Pokedex_PrintPageNum
 	ret
 
-DisplayDexMonEvos:
-	ret
-
 DisplayDexMonType:
+	push hl
 	call GetBaseData
 	ld a, [wBaseType1]
 ; Skip Bird
@@ -501,3 +503,173 @@ EggMenuHeader:
 	dba PlaceMenuItemName
 	dba PlaceMenuItemQuantity
 	dba UpdateItemDescription
+
+DisplayDexMonEvos:
+	xor a
+	ld [wPokedexPagePos1], a
+	ld [wPokedexPagePos2], a
+	call DisableSpriteUpdates
+	callfar InitPartyMenuPalettes
+	callfar ClearSpriteAnims2
+
+	farcall Pokedex_GetSelectedMon
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+	callfar GetLowestEvolutionStage
+	ld hl, wPokedexPagePos1
+	ld [hl], 0 ; evo stage
+	ld [wCurPartySpecies], a
+	ld [wCurSpecies], a
+	call GetBaseData
+	ld a, [wTempSpecies]
+	call GetPokemonIndexFromID
+;;;; loops?
+.loop
+
+	ld b, h
+	ld c, l
+	call GetPokemonIDFromIndex
+	ld [wTempSpecies], a
+	ld [wCurSpecies], a
+	ld hl, EvosAttacksPointers
+	ld a, BANK(EvosAttacksPointers)
+	call LoadDoubleIndirectPointer
+	ld [wStatsScreenFlags], a ; bank
+	call GetFarByte ; if zero, no evos
+	push hl ; rn pointing to 1st EevoAttkPtr byte
+	push af
+;;;; print info
+	hlcoord 6, 2
+	call EVO_adjusthlcoord
+	call DisplayDexMonType
+	call GetPokemonName
+	hlcoord 5, 1
+	call EVO_adjusthlcoord
+	call PlaceString ; mon species
+	pop af
+	and a
+	jr z, .evoline_done
+	; get and print Evo method
+	pop hl
+	inc hl
+	cp EVOLVE_LEVEL
+	call z, EVO_level
+	cp EVOLVE_ITEM
+	call z, EVO_item
+	cp EVOLVE_TRADE
+	call z, EVO_trade
+	cp EVOLVE_HAPPINESS
+	call z, EVO_happiness
+	cp EVOLVE_STAT
+	call z, EVO_stats
+	; cp EVOLVE_LOCATION ; TODO
+.get_evo_species
+	; hl points to species word
+	ld a, [wStatsScreenFlags]
+	call GetFarWord ; mon species index
+	;call GetPokemonIDFromIndex
+	ld a, [wPokedexPagePos1]
+	inc a ; evo stage
+	ld [wPokedexPagePos1], a
+	jr .loop ; print next evo stage
+
+;;;;;;;;;;;;;;;;;	
+	; ld [wTempIconSpecies], a
+	; ld e, MONICON_MOVES
+	; farcall LoadMenuMonIcon
+;;;;;;;;;;;;;;;;;
+; 	ld hl, wPartyCount ; -> Evo Line Num
+; 	ld a, [hli]
+; 	and a
+; 	ret z
+; 	ld c, a
+; 	xor a
+; 	ldh [hObjectStructIndex], a
+; .loop
+; 	push bc
+; 	push hl
+; 	ld hl, LoadMenuMonIcon
+; 	ld a, BANK(LoadMenuMonIcon)
+; 	ld e, MONICON_PARTYMENU
+; 	rst FarCall
+; 	ldh a, [hObjectStructIndex]
+; 	inc a
+; 	ldh [hObjectStructIndex], a
+; 	pop hl
+; 	pop bc
+; 	dec c
+; 	jr nz, .loop
+;;;;;;;;;;;;;;;;;
+.evoline_done
+	pop hl
+	ld de, .doesnotevolve_text
+	hlcoord 6, 4
+	call EVO_adjusthlcoord
+	call PlaceString
+.done
+	call SetPalettes
+	call WaitBGMap
+	callfar PlaySpriteAnimations
+	
+	call DelayFrame
+	ret
+
+.doesnotevolve_text:
+	db "DOESN'T EVOLVE@"
+
+EVO_adjusthlcoord:
+	push af
+	push bc
+	push de
+	ld a, [wPokedexPagePos1]
+.loop
+	cp 0
+	jr z, .done
+	ld b, 0
+	ld c, 100
+	add hl, bc
+	dec a
+	jr .loop
+.done
+	pop de
+	pop bc
+	pop af
+	ret
+
+EVO_level:
+	ld b,b
+	push hl
+	hlcoord 6, 4
+	call EVO_adjusthlcoord
+	ld de, .level_text
+	call PlaceString ; mon species
+	pop hl
+	ld a, [wStatsScreenFlags]
+	call GetFarByte
+	push hl
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 2
+	hlcoord 12, 4
+	call EVO_adjusthlcoord
+	call PrintNum
+	pop hl
+	inc hl
+	ret
+.level_text:
+	db "LEVEL@"
+
+EVO_item:
+	ret
+.item_text:
+	db "ITEM@"
+
+EVO_trade:
+.trade_text:
+	db "TRADE@"
+EVO_happiness:
+.happiness_text:
+	db "HAPPINESS@"
+EVO_stats:
+.stats_text:
+	db "STAT@"

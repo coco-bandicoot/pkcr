@@ -163,39 +163,60 @@ LoadMenuMonIcon:
 	dw Mobile_InitPartyMenuBGPal71      ; MONICON_MOBILE2
 	dw Unused_GetPartyMenuMonIcon       ; MONICON_UNUSED
 
+Unused_InitPartyMenuIcon:
+	call LoadPartyMenuMonIconColors
+	ld a, [wCurIconTile]
+	push af
+	ldh a, [hObjectStructIndex]
+	ld hl, wPartySpecies
+	ld e, a
+	ld d, 0
+	add hl, de
+	ld a, [hl]
+	call ReadMonMenuIcon
+	ld [wCurIcon], a
+	call GetMemIconGFX
+	ldh a, [hObjectStructIndex]
+; y coord
+	add a
+	add a
+	add a
+	add a
+	add $1c
+	ld d, a
+; x coord
+	ld e, $10
+; type is partymon icon
+	ld a, SPRITE_ANIM_INDEX_PARTY_MON
+	call _InitSpriteAnimStruct
+	pop af
+	ld hl, SPRITEANIMSTRUCT_TILE_ID
+	add hl, bc
+	ld [hl], a
+	ret
+
 Unused_GetPartyMenuMonIcon:
-	call InitPartyMenuIcon
+	call Unused_InitPartyMenuIcon
 	call .GetPartyMonItemGFX
-	call SetPartyMonIconAnimSpeed
+	call Unused_SetPartyMonIconAnimSpeed
 	ret
 
 .GetPartyMonItemGFX:
-	push bc
-	ldh a, [hObjectStructIndex]
-	ld hl, wPartyMon1Item
-	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
-	pop bc
-	ld a, [hl]
-	and a
-	jr z, .no_item
-	push hl
-	push bc
-	ld d, a
-	callfar ItemIsMail
-	pop bc
-	pop hl
-	jr c, .not_mail
-	ld a, $06
-	jr .got_tile
-.not_mail
-	ld a, $05
-	; fallthrough
-
-.no_item
 	ld a, $04
 .got_tile
 	ld hl, SPRITEANIMSTRUCT_FRAMESET_ID
+	add hl, bc ; same value as bc when func was called
+	ld [hl], a
+	ret
+
+Unused_SetPartyMonIconAnimSpeed:
+	ld a, $00 ; HP_GREEN speed aka normal
+	ld hl, SPRITEANIMSTRUCT_DURATIONOFFSET
+	add hl, bc
+	ld [hl], a
+	rlca
+	rlca
+	ld hl, SPRITEANIMSTRUCT_VAR2
 	add hl, bc
 	ld [hl], a
 	ret

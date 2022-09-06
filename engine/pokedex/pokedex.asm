@@ -488,7 +488,7 @@ DexEntryScreen_MenuActionJumptable:
 	dw .Moves
 	dw .Area
 	dw .Evos
-	dw .SpriteAnim
+	; dw .SpriteAnim
 
 .BaseStats:
 	call Pokedex_GetSelectedMon
@@ -531,8 +531,44 @@ DexEntryScreen_MenuActionJumptable:
 	ret
 
 .Evos:
-	call Pokedex_GetSelectedMon
+	call Pokedex_BlackOutBG
+	hlcoord 0, 0
+	lb bc, SCREEN_HEIGHT, SCREEN_WIDTH
+	call ClearBox
+	call ClearSprites
+	farcall HDMATransferTilemapToWRAMBank3
+	call WaitBGMap
+	call DelayFrame
+
+	ld a, SCGB_POKEDEX
+	call Pokedex_GetSGBLayout
+
 	farcall DisplayDexMonEvos
+.evo_loop
+	call JoyTextDelay
+	ld hl, hJoyPressed
+	ld a, [hl]
+	and A_BUTTON | B_BUTTON
+	jr nz, .evo_a_b
+	ldh a, [hJoypadDown]
+	call DelayFrame
+	jr .loop
+.evo_a_b
+	call Pokedex_BlackOutBG
+	call ClearSprites
+
+	call WaitBGMap
+	call Pokedex_ResetBGMapMode
+	farcall DrawDexEntryScreenRightEdge
+	call Pokedex_ResetBGMapMode
+
+	call Pokedex_RedisplayDexEntry
+	call Pokedex_LoadSelectedMonTiles
+	call WaitBGMap
+	call Pokedex_GetSelectedMon
+	ld [wCurPartySpecies], a
+	ld a, SCGB_POKEDEX
+	call Pokedex_GetSGBLayout
 	ret
 
 .SpriteAnim:
@@ -555,8 +591,6 @@ DexEntryScreen_MenuActionJumptable:
 
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
-
-
 	call Pokedex_GetSelectedMon
 	call Pokedex_PlaceAnimatedFrontpic
 	call Pokedex_PlayMonCry_AnimateFrontpic
@@ -579,13 +613,7 @@ DexEntryScreen_MenuActionJumptable:
 	call ClearSprites
 	call Pokedex_BlackOutBG
 	call DelayFrame
-	xor a
-	ldh [hBGMapMode], a
-	ld a, $90
-	ldh [hWY], a
-	ld a, POKEDEX_SCX
-	ldh [hSCX], a
-	call DelayFrame
+	call Pokedex_ResetBGMapMode
 	farcall DrawDexEntryScreenRightEdge
 	call Pokedex_ResetBGMapMode
 
@@ -597,9 +625,6 @@ DexEntryScreen_MenuActionJumptable:
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
 	ret
-
-
-
 
 Pokedex_RedisplayDexEntry:
 	call Pokedex_DrawDexEntryScreenBG
@@ -716,6 +741,7 @@ Pokedex_InitSearchScreen:
 	xor a
 	ldh [hBGMapMode], a
 	call ClearSprites
+	call Pokedex_LoadGFX ; restoring our precious Slowpoke Sprite
 	call Pokedex_DrawSearchScreenBG
 	call Pokedex_InitArrowCursor
 	ld a, NORMAL + 1
@@ -1248,11 +1274,6 @@ Pokedex_DrawDexEntryScreenBG:
 	ld b, 15
 	call Pokedex_FillColumn
 	ld [hl], $39
-	
-	hlcoord 1, 8
-	ld bc, 19
-	ld a, $55
-	call ByteFill
 
 	hlcoord 1, 17
 	ld bc, 18
