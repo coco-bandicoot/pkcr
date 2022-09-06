@@ -5,57 +5,57 @@ JohtoGrassWildMons:
 	def_grass_wildmons SPROUT_TOWER_2F
 	db 2 percent, 2 percent, 2 percent ; encounter rates: morn/day/nite
 	; morn
-	dbw 3, RATTATA
-	dbw 4, RATTATA
-	dbw 5, RATTATA
-	dbw 3, RATTATA
-	dbw 6, RATTATA
-	dbw 5, RATTATA
-	dbw 5, RATTATA
+	dbw 3, BELLSPROUT
+	dbw 4, BELLSPROUT
+	dbw 5, BELLSPROUT
+	dbw 3, BELLSPROUT
+	dbw 6, BELLSPROUT
+	dbw 5, BELLSPROUT
+	dbw 5, BELLSPROUT
 	; day
-	dbw 3, RATTATA
-	dbw 4, RATTATA
-	dbw 5, RATTATA
-	dbw 3, RATTATA
-	dbw 6, RATTATA
-	dbw 5, RATTATA
-	dbw 5, RATTATA
+	dbw 3, BELLSPROUT
+	dbw 4, BELLSPROUT
+	dbw 5, BELLSPROUT
+	dbw 3, BELLSPROUT
+	dbw 6, BELLSPROUT
+	dbw 5, BELLSPROUT
+	dbw 5, BELLSPROUT
 	; nite
 	dbw 3, GASTLY
 	dbw 4, GASTLY
 	dbw 5, GASTLY
-	dbw 3, RATTATA
+	dbw 3, BELLSPROUT
 	dbw 6, GASTLY
-	dbw 5, RATTATA
-	dbw 5, RATTATA
+	dbw 5, BELLSPROUT
+	dbw 5, BELLSPROUT
 	end_grass_wildmons
 
 	def_grass_wildmons SPROUT_TOWER_3F
 	db 2 percent, 2 percent, 2 percent ; encounter rates: morn/day/nite
 	; morn
-	dbw 3, RATTATA
-	dbw 4, RATTATA
-	dbw 5, RATTATA
-	dbw 3, RATTATA
-	dbw 6, RATTATA
-	dbw 5, RATTATA
-	dbw 5, RATTATA
+	dbw 3, BELLSPROUT
+	dbw 4, BELLSPROUT
+	dbw 5, BELLSPROUT
+	dbw 3, BELLSPROUT
+	dbw 6, BELLSPROUT
+	dbw 5, GASTLY
+	dbw 5, GASTLY
 	; day
-	dbw 3, RATTATA
-	dbw 4, RATTATA
-	dbw 5, RATTATA
-	dbw 3, RATTATA
-	dbw 6, RATTATA
-	dbw 5, RATTATA
-	dbw 5, RATTATA
+	dbw 3, BELLSPROUT
+	dbw 4, BELLSPROUT
+	dbw 5, BELLSPROUT
+	dbw 3, BELLSPROUT
+	dbw 6, BELLSPROUT
+	dbw 5, GASTLY
+	dbw 5, GASTLY
 	; nite
 	dbw 3, GASTLY
 	dbw 4, GASTLY
 	dbw 5, GASTLY
-	dbw 3, RATTATA
+	dbw 3, BELLSPROUT
 	dbw 6, GASTLY
-	dbw 5, RATTATA
-	dbw 5, RATTATA
+	dbw 5, BELLSPROUT
+	dbw 5, BELLSPROUT
 	end_grass_wildmons
 
 	def_grass_wildmons TIN_TOWER_2F
@@ -1267,25 +1267,25 @@ JohtoGrassWildMons:
 	; morn
 	dbw 3, LEDYBA
 	dbw 3, CATERPIE
-	dbw 4, CATERPIE
+	dbw 4, ODDISH
 	dbw 4, PIDGEY
 	dbw 3, WEEDLE
 	dbw 4, HOPPIP
 	dbw 4, HOPPIP
 	; day
-	dbw 3, PIDGEY
+	dbw 3, ODDISH
 	dbw 3, CATERPIE
-	dbw 4, CATERPIE
+	dbw 4, POLIWAG
 	dbw 4, PIDGEY
 	dbw 3, WEEDLE
 	dbw 4, HOPPIP
 	dbw 4, HOPPIP
 	; nite
 	dbw 3, SPINARAK
-	dbw 3, HOOTHOOT
+	dbw 3, POLIWAG
 	dbw 4, POLIWAG
-	dbw 4, HOOTHOOT
-	dbw 3, ZUBAT
+	dbw 4, ODDISH
+	dbw 3, ODDISH
 	dbw 4, HOOTHOOT
 	dbw 4, HOOTHOOT
 	end_grass_wildmons
@@ -1434,28 +1434,28 @@ JohtoGrassWildMons:
 	db 10 percent, 10 percent, 10 percent ; encounter rates: morn/day/nite
 	; morn
 	dbw 4, LEDYBA
-	dbw 4, PIDGEY
-	dbw 5, BELLSPROUT
+	dbw 4, MAREEP
+	dbw 5, MAREEP
 	dbw 5, GROWLITHE
-	dbw 5, PIDGEY
+	dbw 5, VULPIX
 	dbw 6, PIDGEY
 	dbw 6, PIDGEY
 	; day
-	dbw 4, PIDGEY
-	dbw 4, PIDGEY
-	dbw 5, BELLSPROUT
+	dbw 4, MAREEP
+	dbw 4, MAREEP
 	dbw 5, GROWLITHE
-	dbw 5, PIDGEY
+	dbw 5, VULPIX
+	dbw 5, MAREEP
 	dbw 6, PIDGEY
 	dbw 6, PIDGEY
 	; nite
 	dbw 4, SPINARAK
-	dbw 4, HOOTHOOT
-	dbw 5, BELLSPROUT
-	dbw 5, HOOTHOOT
-	dbw 5, HOOTHOOT
-	dbw 5, GASTLY
-	dbw 5, GASTLY
+	dbw 4, VULPIX
+	dbw 5, GROWLITHE
+	dbw 5, MAREEP
+	dbw 5, MAREEP
+	dbw 5, TYROGUE
+	dbw 5, TYROGUE
 	end_grass_wildmons
 
 	def_grass_wildmons ROUTE_37

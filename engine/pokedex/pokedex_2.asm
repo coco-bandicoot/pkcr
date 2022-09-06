@@ -479,6 +479,8 @@ EggMenuHeader:
 	dba UpdateItemDescription
 
 DisplayDexMonEvos:
+	ld hl, wPokedexPagePos1
+	ld [hl], 0 ; evo stage
 	xor a
 	ld [wPokedexPagePos1], a
 	ld [wPokedexPagePos2], a
@@ -489,17 +491,14 @@ DisplayDexMonEvos:
 	farcall Pokedex_GetSelectedMon
 	ld a, [wTempSpecies]
 	ld [wCurPartySpecies], a
-	callfar GetLowestEvolutionStage
-	ld hl, wPokedexPagePos1
-	ld [hl], 0 ; evo stage
-	ld [wCurPartySpecies], a
 	ld [wCurSpecies], a
-	call GetBaseData
-	ld a, [wTempSpecies]
+	callfar GetLowestEvolutionStage
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
+	ld [wTempMonSpecies], a
 	call GetPokemonIndexFromID
 ;;;; loops?
 .loop
-
 	ld b, h
 	ld c, l
 	call GetPokemonIDFromIndex
@@ -520,6 +519,23 @@ DisplayDexMonEvos:
 	hlcoord 5, 1
 	call EVO_adjusthlcoord
 	call PlaceString ; mon species
+	ld a, [wPokedexPagePos1]
+	cp 2
+	jr z, .stage3
+	cp 1
+	jr z, .stage2
+.stage1
+	ld de, .stage1_text
+	jr .print_stage
+.stage2
+	ld de, .stage2_text
+	jr .print_stage
+.stage3
+	ld de, .stage3_text
+.print_stage	
+	hlcoord 1, 0
+	call EVO_adjusthlcoord
+	call PlaceString ; mon species	
 	pop af
 	and a
 	jr z, .evoline_done
@@ -576,20 +592,19 @@ DisplayDexMonEvos:
 ;;;;;;;;;;;;;;;;;
 .evoline_done
 	pop hl
-	ld de, .doesnotevolve_text
-	hlcoord 6, 4
-	call EVO_adjusthlcoord
-	call PlaceString
 .done
 	call SetPalettes
 	call WaitBGMap
 	callfar PlaySpriteAnimations
-	
 	call DelayFrame
 	ret
 
-.doesnotevolve_text:
-	db "DOESN'T EVOLVE@"
+.stage1_text:
+	db "STAGE 1:@"
+.stage2_text:
+	db "STAGE 2:@"
+.stage3_text:
+	db "STAGE 3:@"
 
 EVO_adjusthlcoord:
 	push af
@@ -600,7 +615,7 @@ EVO_adjusthlcoord:
 	cp 0
 	jr z, .done
 	ld b, 0
-	ld c, 100
+	ld c, 120
 	add hl, bc
 	dec a
 	jr .loop
@@ -611,7 +626,6 @@ EVO_adjusthlcoord:
 	ret
 
 EVO_level:
-	ld b,b
 	push hl
 	hlcoord 6, 4
 	call EVO_adjusthlcoord
@@ -634,16 +648,162 @@ EVO_level:
 	db "LEVEL@"
 
 EVO_item:
+	push hl
+	hlcoord 6, 4
+	call EVO_adjusthlcoord
+	ld de, .item_text
+	call PlaceString ; mon species
+	pop hl
+	ld a, [wStatsScreenFlags]
+	call GetFarByte
+	push hl
+	ld [wNamedObjectIndex], a
+	call GetItemName
+	hlcoord 7, 5
+	call EVO_adjusthlcoord
+	call PlaceString
+	pop hl
+	inc hl
 	ret
 .item_text:
-	db "ITEM@"
+	db "ITEM:@"
 
 EVO_trade:
+	push hl
+	hlcoord 6, 4
+	call EVO_adjusthlcoord
+	ld de, .trade_text
+	call PlaceString ; mon species
+	pop hl
+	ld a, [wStatsScreenFlags]
+	call GetFarByte
+	cp -1
+	jr z, .done
+	ld [wNamedObjectIndex], a
+	push hl
+	hlcoord 12, 4
+	call EVO_adjusthlcoord
+	ld [hl], $e9
+	hlcoord 14, 4
+	call EVO_adjusthlcoord
+	ld de, .hold_text
+	call PlaceString
+	call GetItemName
+	hlcoord 6, 5
+	call EVO_adjusthlcoord
+	call PlaceString
+	pop hl
+.done	
+	inc hl
+	ret
 .trade_text:
 	db "TRADE@"
+.hold_text:
+	db "HOLD@"
+
 EVO_happiness:
+	push hl
+	hlcoord 6, 4
+	call EVO_adjusthlcoord
+	ld de, .happiness_text
+	call PlaceString ; mon species
+	pop hl
+	ld a, [wStatsScreenFlags]
+	call GetFarByte
+	inc hl
+	push hl
+	cp TR_ANYTIME
+	jr z, .anytime
+	cp TR_MORNDAY
+	jr z, .mornday
+	cp TR_NITE
+	jr z, .nite
+.done
+	pop hl
+	ret
+
+.anytime
+	hlcoord 6, 5
+	call EVO_adjusthlcoord
+	ld de, .anytime_text
+	call PlaceString
+	jr .done
+.mornday
+	hlcoord 6, 5
+	call EVO_adjusthlcoord
+	ld de, .sunup_text
+	call PlaceString
+	jr .done
+.nite
+	hlcoord 6, 5
+	call EVO_adjusthlcoord
+	ld de, .nite_text
+	call PlaceString
+	jr .done
+
 .happiness_text:
 	db "HAPPINESS@"
+.anytime_text:
+	db "ANYTIME@"
+.sunup_text:
+	db "MORN/DAY@"
+.nite_text:
+	db "NITE@"
+
 EVO_stats:
+;  ATK_EQ_DEF
+;  ATK_GT_DEF
+;  ATK_LT_DEF
+	ld b,b
+	push hl
+	hlcoord 6, 4
+	call EVO_adjusthlcoord
+	ld de, .stats_text
+	call PlaceString ; mon species
+	pop hl
+	ld a, [wStatsScreenFlags]
+	call GetFarByte ; level
+	inc hl
+	push hl
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 2
+	hlcoord 12, 4
+	call EVO_adjusthlcoord
+	call PrintNum
+	pop hl
+	ld a, [wStatsScreenFlags]
+	call GetFarByte ; Stats Const, ATK >= DEF etc
+	inc hl
+	push hl
+	cp ATK_EQ_DEF
+	jr z, .atk_eq_def
+	cp ATK_LT_DEF
+	jr z, .atk_lt_def
+	cp ATK_GT_DEF
+	jr z, .atk_gt_def
+.done
+	hlcoord 7, 5
+	call EVO_adjusthlcoord
+	call PlaceString
+	pop hl
+	ret
+
+.atk_eq_def
+	ld de, .atk_eq_def_text
+	jr .done
+.atk_gt_def
+	ld de, .atk_gt_def_text
+	jr .done
+.atk_lt_def
+	ld de, .atk_lt_def_text
+	jr .done
+
 .stats_text:
-	db "STAT@"
+	db "LVL UP TO@"
+.atk_eq_def_text:
+	db "& ATK = DEF@"
+.atk_gt_def_text:
+	db "& ATK > DEF@"
+.atk_lt_def_text:
+	db "& ATK < DEF@"

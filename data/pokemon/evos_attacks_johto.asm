@@ -157,9 +157,9 @@ CyndaquilEvosAttacks:
 	dbw 1, TACKLE
 	dbw 1, LEER
 	dbw 6, SMOKESCREEN
-	dbw 12, EMBER
-	dbw 19, QUICK_ATTACK
-	dbw 27, FLAME_WHEEL
+	dbw 8, EMBER
+	dbw 14, QUICK_ATTACK
+	dbw 20, FLAME_WHEEL
 	dbw 36, SWIFT
 	dbw 46, FLAMETHROWER
 	db 0 ; no more level-up moves
@@ -171,9 +171,9 @@ QuilavaEvosAttacks:
 	dbw 1, LEER
 	dbw 1, SMOKESCREEN
 	dbw 6, SMOKESCREEN
-	dbw 12, EMBER
-	dbw 21, QUICK_ATTACK
-	dbw 31, FLAME_WHEEL
+	dbw 8, EMBER
+	dbw 14, QUICK_ATTACK
+	dbw 20, FLAME_WHEEL
 	dbw 42, SWIFT
 	dbw 54, FLAMETHROWER
 	db 0 ; no more level-up moves
@@ -185,7 +185,7 @@ TyphlosionEvosAttacks:
 	dbw 1, SMOKESCREEN
 	dbw 1, EMBER
 	dbw 6, SMOKESCREEN
-	dbw 12, EMBER
+	dbw 8, EMBER
 	dbw 21, QUICK_ATTACK
 	dbw 31, FLAME_WHEEL
 	dbw 45, SWIFT
@@ -240,7 +240,7 @@ SentretEvosAttacks:
 	dbw 5, DEFENSE_CURL
 	dbw 11, QUICK_ATTACK
 	dbw 17, FURY_SWIPES
-	dbw 25, SLAM
+	dbw 25, BODY_SLAM
 	dbw 33, REST
 	dbw 41, AMNESIA
 	db 0 ; no more level-up moves
@@ -254,7 +254,7 @@ FurretEvosAttacks:
 	dbw 11, QUICK_ATTACK
 	dbw 14, AGILITY
 	dbw 18, FURY_SWIPES
-	dbw 28, SLAM
+	dbw 28, BODY_SLAM
 	dbw 38, REST
 	dbw 48, AMNESIA
 	db 0 ; no more level-up moves
@@ -262,28 +262,27 @@ FurretEvosAttacks:
 HoothootEvosAttacks:
 	dbbw EVOLVE_LEVEL, 20, NOCTOWL
 	db 0 ; no more evolutions
-	dbw 1, TACKLE
+	dbw 1, PECK
 	dbw 1, GROWL
 	dbw 6, FORESIGHT
-	dbw 11, PECK
+	dbw 11, AIR_CUTTER
 	dbw 16, HYPNOSIS
 	dbw 22, REFLECT
-	dbw 28, TAKE_DOWN
+	dbw 28, AIR_SLASH
 	dbw 34, CONFUSION
 	dbw 48, DREAM_EATER
 	db 0 ; no more level-up moves
 
 NoctowlEvosAttacks:
 	db 0 ; no more evolutions
-	dbw 1, TACKLE
 	dbw 1, GROWL
 	dbw 1, FORESIGHT
 	dbw 1, PECK
 	dbw 6, FORESIGHT
-	dbw 11, PECK
+	dbw 11, AIR_CUTTER
 	dbw 16, HYPNOSIS
 	dbw 25, REFLECT
-	dbw 33, TAKE_DOWN
+	dbw 33, AIR_SLASH
 	dbw 41, CONFUSION
 	dbw 57, DREAM_EATER
 	db 0 ; no more level-up moves
@@ -291,31 +290,39 @@ NoctowlEvosAttacks:
 LedybaEvosAttacks:
 	dbbw EVOLVE_LEVEL, 18, LEDIAN
 	db 0 ; no more evolutions
-	dbw 1, TACKLE
+	dbw 1, QUICK_ATTACK
+	dbw 5, BUG_BITE
 	dbw 8, SUPERSONIC
-	dbw 15, COMET_PUNCH
+	dbw 15, ICE_PUNCH
+	dbw 15, FIRE_PUNCH
+	dbw 15, THUNDERPUNCH
+	dbw 18, BULLET_PUNCH
+	dbw 18, MACH_PUNCH
 	dbw 22, LIGHT_SCREEN
 	dbw 22, REFLECT
 	dbw 22, SAFEGUARD
-	dbw 29, BATON_PASS
-	dbw 36, SWIFT
+	dbw 29, COMET_PUNCH
+	dbw 36, CONFUSE_RAY
 	dbw 43, AGILITY
-	dbw 50, DOUBLE_EDGE
+	dbw 50, LUNGE
 	db 0 ; no more level-up moves
 
 LedianEvosAttacks:
 	db 0 ; no more evolutions
-	dbw 1, TACKLE
 	dbw 1, SUPERSONIC
-	dbw 8, SUPERSONIC
-	dbw 15, COMET_PUNCH
+	dbw 1, BUG_BITE
+	dbw 1, ICE_PUNCH
+	dbw 1, FIRE_PUNCH
+	dbw 1, THUNDERPUNCH
+	dbw 1, BULLET_PUNCH
+	dbw 1, MACH_PUNCH
 	dbw 24, LIGHT_SCREEN
 	dbw 24, REFLECT
 	dbw 24, SAFEGUARD
-	dbw 33, BATON_PASS
-	dbw 42, SWIFT
+	dbw 33, COMET_PUNCH
+	dbw 42, CONFUSE_RAY
 	dbw 51, AGILITY
-	dbw 60, DOUBLE_EDGE
+	dbw 60, LUNGE
 	db 0 ; no more level-up moves
 
 SpinarakEvosAttacks:
@@ -323,11 +330,11 @@ SpinarakEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, POISON_STING
 	dbw 1, STRING_SHOT
-	dbw 6, SCARY_FACE
-	dbw 11, CONSTRICT
+	dbw 6, ACID
+	dbw 11, BUG_BITE
 	dbw 17, NIGHT_SHADE
 	dbw 23, LEECH_LIFE
-	dbw 30, FURY_SWIPES
+	dbw 30, SIGNAL_BEAM
 	dbw 37, SPIDER_WEB
 	dbw 45, AGILITY
 	dbw 53, PSYCHIC_M
@@ -337,14 +344,12 @@ AriadosEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, POISON_STING
 	dbw 1, STRING_SHOT
-	dbw 1, SCARY_FACE
-	dbw 1, CONSTRICT
-	dbw 6, SCARY_FACE
-	dbw 11, CONSTRICT
+	dbw 1, ACID
+	dbw 1, BUG_BITE
 	dbw 17, NIGHT_SHADE
 	dbw 21, SWORDS_DANCE
 	dbw 25, LEECH_LIFE
-	dbw 34, FURY_SWIPES
+	dbw 34, SIGNAL_BEAM
 	dbw 43, SPIDER_WEB
 	dbw 53, AGILITY
 	dbw 63, PSYCHIC_M

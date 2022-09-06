@@ -1374,13 +1374,14 @@ GastlyEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, HYPNOSIS
 	dbw 1, LICK
+	dbw 5, SHADOW_SNEAK
 	dbw 8, SPITE
 	dbw 13, MEAN_LOOK
 	dbw 16, CURSE
 	dbw 21, NIGHT_SHADE
 	dbw 28, CONFUSE_RAY
 	dbw 33, DREAM_EATER
-	dbw 36, DESTINY_BOND
+	dbw 36, SLUDGE_BOMB
 	db 0 ; no more level-up moves
 
 HaunterEvosAttacks:
@@ -1388,41 +1389,41 @@ HaunterEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, HYPNOSIS
 	dbw 1, LICK
-	dbw 1, SPITE
+	dbw 1, SHADOW_SNEAK
 	dbw 8, SPITE
 	dbw 13, MEAN_LOOK
 	dbw 16, CURSE
 	dbw 21, NIGHT_SHADE
 	dbw 31, CONFUSE_RAY
 	dbw 39, DREAM_EATER
-	dbw 48, DESTINY_BOND
+	dbw 48, SLUDGE_BOMB
 	db 0 ; no more level-up moves
 
 GengarEvosAttacks:
 	db 0 ; no more evolutions
 	dbw 1, HYPNOSIS
 	dbw 1, LICK
-	dbw 1, SPITE
+	dbw 5, SHADOW_SNEAK
 	dbw 8, SPITE
 	dbw 13, MEAN_LOOK
 	dbw 16, CURSE
 	dbw 21, NIGHT_SHADE
 	dbw 31, CONFUSE_RAY
 	dbw 39, DREAM_EATER
-	dbw 48, DESTINY_BOND
+	dbw 48, SLUDGE_BOMB
 	db 0 ; no more level-up moves
 
 OnixEvosAttacks:
 	dbbw EVOLVE_TRADE, METAL_COAT, STEELIX
 	db 0 ; no more evolutions
-	dbw 1, TACKLE
+	dbw 1, ROCK_THROW
 	dbw 1, SCREECH
 	dbw 10, BIND
 	dbw 14, ROCK_THROW
-	dbw 23, HARDEN
-	dbw 27, RAGE
+	dbw 23, MAGNITUDE
+	dbw 27, ROCK_SLIDE
 	dbw 36, SANDSTORM
-	dbw 40, SLAM
+	dbw 40, EARTHQUAKE
 	db 0 ; no more level-up moves
 
 DrowzeeEvosAttacks:
