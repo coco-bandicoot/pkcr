@@ -479,11 +479,9 @@ EggMenuHeader:
 	dba UpdateItemDescription
 
 DisplayDexMonEvos:
-	ld hl, wPokedexPagePos1
-	ld [hl], 0 ; evo stage
 	xor a
-	ld [wPokedexPagePos1], a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexPagePos1], a ; current evo stage
+	ld [wPokedexPagePos2], a ; num of possible evos per stage
 	call DisableSpriteUpdates
 	callfar InitPartyMenuPalettes
 	callfar ClearSpriteAnims2
@@ -510,6 +508,7 @@ DisplayDexMonEvos:
 	ld [wStatsScreenFlags], a ; bank
 	call GetFarByte ; if zero, no evos
 	push hl ; rn pointing to 1st EevoAttkPtr byte
+	call EVO_GetNumEvos
 	push af
 ;;;; print info
 	hlcoord 6, 2
@@ -536,21 +535,32 @@ DisplayDexMonEvos:
 	hlcoord 1, 0
 	call EVO_adjusthlcoord
 	call PlaceString ; mon species	
+	ld a, [wPokedexPagePos2]
+	cp 0
+	jr z, .stagenumevodone
+	cp 1
+	jr z, .stagenumevodone
+	hlcoord 10, 0
+	call EVO_adjusthlcoord
+	ld de, wPokedexPagePos2
+	lb bc, 1, 2
+	call PrintNum
+.stagenumevodone
 	pop af
 	and a
 	jr z, .evoline_done
 	; get and print Evo method
 	pop hl
 	inc hl
-	cp EVOLVE_LEVEL
+	cp EVOLVE_LEVEL ; 1 byte, 1 byte, 2 bytes
 	call z, EVO_level
-	cp EVOLVE_ITEM
+	cp EVOLVE_ITEM ; 1 byte, 1 byte, 2 bytes
 	call z, EVO_item
-	cp EVOLVE_TRADE
+	cp EVOLVE_TRADE ; 1 byte, 1 byte, 2 bytes
 	call z, EVO_trade
-	cp EVOLVE_HAPPINESS
+	cp EVOLVE_HAPPINESS ; 1 byte, 1 byte, 2 bytes
 	call z, EVO_happiness
-	cp EVOLVE_STAT
+	cp EVOLVE_STAT ; 1 byte, 1 byte, 1 byte, 2 bytes
 	call z, EVO_stats
 	; cp EVOLVE_LOCATION ; TODO
 .get_evo_species
@@ -561,7 +571,7 @@ DisplayDexMonEvos:
 	ld a, [wPokedexPagePos1]
 	inc a ; evo stage
 	ld [wPokedexPagePos1], a
-	jr .loop ; print next evo stage
+	jp .loop ; print next evo stage
 
 ;;;;;;;;;;;;;;;;;	
 	; ld [wTempIconSpecies], a
@@ -754,7 +764,6 @@ EVO_stats:
 ;  ATK_EQ_DEF
 ;  ATK_GT_DEF
 ;  ATK_LT_DEF
-	ld b,b
 	push hl
 	hlcoord 6, 4
 	call EVO_adjusthlcoord
@@ -768,7 +777,7 @@ EVO_stats:
 	ld [wTextDecimalByte], a
 	ld de, wTextDecimalByte
 	lb bc, 1, 2
-	hlcoord 12, 4
+	hlcoord 13, 4
 	call EVO_adjusthlcoord
 	call PrintNum
 	pop hl
@@ -800,10 +809,60 @@ EVO_stats:
 	jr .done
 
 .stats_text:
-	db "LVL UP TO@"
+	db "LVL UP @"
 .atk_eq_def_text:
 	db "& ATK = DEF@"
 .atk_gt_def_text:
 	db "& ATK > DEF@"
 .atk_lt_def_text:
 	db "& ATK < DEF@"
+
+EVO_GetNumEvos:
+	; evo type in a
+	; evo ptr in hl
+	push af
+	ld a, 0
+	ld [wPokedexPagePos2], a
+	pop af
+	cp 0
+	ret z
+	push af
+	push de
+	push hl
+	push bc
+	ld b, 0
+	ld c, 0
+.loop
+	push af
+	ld a, [wPokedexPagePos2]
+	inc a
+	ld [wPokedexPagePos2], a
+	pop af
+	cp EVOLVE_LEVEL ; 1 byte, 1 byte, 2 bytes
+	jr z, .add_four_bytes
+	cp EVOLVE_ITEM ; 1 byte, 1 byte, 2 bytes
+	jr z, .add_four_bytes
+	cp EVOLVE_TRADE ; 1 byte, 1 byte, 2 bytes
+	jr z, .add_four_bytes
+	cp EVOLVE_HAPPINESS ; 1 byte, 1 byte, 2 bytes
+	jr z, .add_four_bytes
+	cp EVOLVE_STAT ; 1 byte, 1 byte, 1 byte, 2 bytes
+	ld c, $5
+	add hl, bc
+.checkiflast
+	ld a, [wStatsScreenFlags]
+	call GetFarByte
+	cp 0
+	jr z, .done
+	jr .loop
+.done
+	pop bc
+	pop hl
+	pop de
+	pop af
+	ret
+
+.add_four_bytes
+	ld c, $4
+	add hl, bc
+	jr .checkiflast
