@@ -68,8 +68,7 @@ HallOfFame_FadeOutMusic:
 	ld [wVramState], a
 	ldh [hMapAnims], a
 	farcall InitDisplayForHallOfFame
-	ld c, 100
-	jp DelayFrames
+	ret
 
 HallOfFame_PlayMusicDE:
 	push de
@@ -364,7 +363,7 @@ _HallOfFamePC:
 	pop hl
 	call DisplayHOFMon
 	ld a, [wHallOfFameTempWinCount]
-	cp HOF_MASTER_COUNT
+	cp HOF_MASTER_COUNT + 1 ; should be HOF_MASTER_COUNT
 	jr c, .print_num_hof
 	ld de, .HOFMaster
 	hlcoord 1, 2
