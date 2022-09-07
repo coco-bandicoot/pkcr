@@ -1,4 +1,4 @@
-	object_const_def
+	object_const_def ; object_event constants
 	const KURTSHOUSE_KURT1
 	const KURTSHOUSE_TWIN1
 	const KURTSHOUSE_SLOWPOKE
@@ -72,8 +72,6 @@ Kurt1:
 	iffalse .NoRoomForBall
 	setevent EVENT_KURT_GAVE_YOU_LURE_BALL
 .GotLureBall:
-	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
-	iftrue .WaitForApricorns
 	checkevent EVENT_GAVE_KURT_RED_APRICORN
 	iftrue .GiveLevelBall
 	checkevent EVENT_GAVE_KURT_BLU_APRICORN
@@ -167,11 +165,18 @@ Kurt1:
 
 .GaveKurtApricorns:
 	setevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
-	setflag ENGINE_KURT_MAKING_BALLS
-.WaitForApricorns:
+	writetext KurtsHouseKurtGetStartedText
+	waitbutton
 	writetext KurtsHouseKurtItWillTakeADayText
 	waitbutton
 	closetext
+	special FadeBlackQuickly
+	special ReloadSpritesNoPalettes
+	playsound SFX_ENTER_DOOR
+	waitsfx
+	pause 35
+	warpfacing UP, KURTS_HOUSE, 3, 3
+	sjump Kurt1	
 	end
 
 .Cancel:
@@ -447,6 +452,11 @@ KurtsHouseKurtGoAroundPlayerThenExitHouseMovement:
 	big_step DOWN
 	big_step DOWN
 	step_end
+
+KurtsHouseKurtGetStartedText:
+	text "Kurt: I'll get"
+	line "started right now!"
+	done
 
 KurtsHouseKurtMakingBallsMustWaitText:
 	text "Hm? Who are you?"
