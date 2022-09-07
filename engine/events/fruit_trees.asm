@@ -17,14 +17,6 @@ FruitTreeScript::
 	sjump .end
 
 .fruit
-	; writetext HeyItsFruitText
-	; callasm .DetermineAmountFruit
-	; readmem wCurFruit
-	; giveitem ITEM_FROM_MEM, FRUIT_TREE_3_MIN
-	; iffalse .packisfull
-	; promptbutton
-	; writetext ObtainedFruitText
-	; callasm PickedFruitTree
 	farwritetext _HeyItsFruitText
 	callasm GetFruitTreeCount
 	ifequal $3, .try_three
@@ -90,6 +82,7 @@ FruitTreeScript::
 
 GetFruitTreeCount:
 ; RandomRange returns a random number between 0 and 2
+; the range is in a, not inclusive
 ; We want a possible range of 3-5 so we add 3 after
 	ld a, 3
 	call RandomRange
