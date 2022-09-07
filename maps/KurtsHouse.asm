@@ -167,12 +167,10 @@ Kurt1:
 	setevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
 	writetext KurtsHouseKurtGetStartedText
 	waitbutton
-	writetext KurtsHouseKurtItWillTakeADayText
-	waitbutton
 	closetext
 	special FadeBlackQuickly
 	special ReloadSpritesNoPalettes
-	playsound SFX_ENTER_DOOR
+	playsound SFX_WARP_TO
 	waitsfx
 	pause 35
 	warpfacing UP, KURTS_HOUSE, 3, 3
@@ -536,14 +534,6 @@ KurtsHouseKurtAskYouHaveAnApricornText:
 
 	para "Fine! I'll turn it"
 	line "into a BALL."
-	done
-
-KurtsHouseKurtItWillTakeADayText:
-	text "KURT: It'll take a"
-	line "day to make you a"
-
-	para "BALL. Come back"
-	line "for it later."
 	done
 
 KurtsHouseKurtThatsALetdownText:
