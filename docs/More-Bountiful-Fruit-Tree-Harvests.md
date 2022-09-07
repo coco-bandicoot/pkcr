@@ -34,24 +34,25 @@ Edit [engine\events\fruit_trees.asm](../blob/master/engine/events/fruit_trees.as
 -	writetext HeyItsFruitText
 +	farwritetext _HeyItsFruitText
 +	callasm GetFruitTreeCount
-+	ifequal $3, .try_three
-+	ifequal $4, .try_four
++	ifequal FRUIT_TREE_3_MIN, .try_three
++	ifequal FRUIT_TREE_4, .try_four
++	; only possible value left it could be is FRUIT_TREE_5_MAX
 +	readmem wCurFruit
-+	giveitem ITEM_FROM_MEM, 5
++	giveitem ITEM_FROM_MEM, $5
 +	iffalse .try_four
 +	promptbutton
 +	writetext ObtainedFiveFruitText
 +	sjump .continue
 +.try_four
 +	readmem wCurFruit
-+	giveitem ITEM_FROM_MEM, 4
++	giveitem ITEM_FROM_MEM, $4
 +	iffalse .try_three
 +	promptbutton
 +	writetext ObtainedFourFruitText
 +	sjump .continue
 +.try_three
 +	readmem wCurFruit
-+	giveitem ITEM_FROM_MEM, 3
++	giveitem ITEM_FROM_MEM, $3
 +	iffalse .try_two
 +	promptbutton
 +	writetext ObtainedThreeFruitText
@@ -62,7 +63,7 @@ Edit [engine\events\fruit_trees.asm](../blob/master/engine/events/fruit_trees.as
 +; but still gives you the 2 berry too
 +; if 2 still wont fit, try 1
 +	readmem wCurFruit
-+	giveitem ITEM_FROM_MEM, 2
++	giveitem ITEM_FROM_MEM, $2
 +	iffalse .try_one
 +	promptbutton
 +	writetext FruitPackIsFullText
