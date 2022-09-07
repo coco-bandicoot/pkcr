@@ -648,3 +648,4 @@ GetPreEvolution:
 	ld [wCurPartySpecies], a
 	scf
 	ret
+	

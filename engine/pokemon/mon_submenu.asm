@@ -122,29 +122,14 @@ GetMonSubmenuItems:
 	ld a, [wLinkMode]
 	and a
 	jr nz, .skip_moves
-	ld a, MON_MOVES
-	call GetPartyParamLocation
-	ld d, h
-	ld e, l
-	ld c, NUM_MOVES
-.loop
-	push bc
-	push de
-	ld a, [de]
-	and a
-	jr z, .next
-	push hl
-	call IsFieldMove
-	pop hl
-	jr nc, .next
-	call AddMonMenuItem
 
-.next
-	pop de
-	inc de
-	pop bc
-	dec c
-	jr nz, .loop
+	call CanUseFlash
+	call CanUseFly
+	call CanUseDig
+	call Can_Use_Sweet_Scent
+	call CanUseTeleport
+	call CanUseSoftboiled
+	call CanUseMilkdrink
 
 .skip_moves
 	ld a, MONMENUITEM_STATS
@@ -188,26 +173,6 @@ GetMonSubmenuItems:
 	ld a, MONMENUITEM_CANCEL
 	call AddMonMenuItem
 	call TerminateMonSubmenu
-	ret
-
-IsFieldMove:
-	ld b, a
-	ld hl, MonMenuOptions
-.next
-	ld a, [hli]
-	cp -1
-	jr z, .nope
-	cp MONMENU_MENUOPTION
-	jr z, .nope
-	ld d, [hl]
-	inc hl
-	ld a, [hli]
-	cp b
-	jr nz, .next
-	ld a, d
-	scf
-
-.nope
 	ret
 
 ResetMonSubmenu:
@@ -288,3 +253,270 @@ BattleMonMenu:
 	db "SWITCH@"
 	db "STATS@"
 	db "CANCEL@"
+
+CanUseFlash:
+	ld de, ENGINE_ZEPHYRBADGE
+	ld b, CHECK_FLAG
+	farcall EngineFlagAction
+	ld a, c
+	and a
+	ret z ; .fail, dont have needed badge
+; Flash
+	farcall SpecialAerodactylChamber
+	jr c, .valid_location ; can use flash
+	ld a, [wTimeOfDayPalset]
+	cp DARKNESS_PALSET
+	ret nz ; .fail ; not a darkcave
+
+.valid_location
+	ld a, FLASH
+	call CheckMonKnowsMove
+	and a
+	jr z, .yes
+
+	ld a, HM_FLASH
+	ld [wCurItem], a
+	ld hl, wNumItems
+	call CheckItem
+	ret nc ; hm isnt in bag
+
+	ld a, FLASH
+	call CheckMonCanLearn_TM_HM
+	jr c, .yes
+
+	ld a, FLASH
+	call CheckLvlUpMoves
+	ret c ; fail
+
+.yes
+	ld a, MONMENUITEM_FLASH
+	call AddMonMenuItem
+	ret
+
+CanUseFly:
+	ld de, ENGINE_STORMBADGE
+	ld b, CHECK_FLAG
+	farcall EngineFlagAction
+	ld a, c
+	and a
+	ret z ; .fail, dont have needed badge
+
+	call GetMapEnvironment
+	call CheckOutdoorMap
+	ret nz ; not outdoors, cant fly
+
+	ld a, FLY
+	call CheckMonKnowsMove
+	and a
+	jr z, .yes
+
+	ld a, HM_FLY
+	ld [wCurItem], a
+	ld hl, wNumItems
+	call CheckItem
+	ret nc ; .fail, hm isnt in bag
+
+	ld a, FLY
+	call CheckMonCanLearn_TM_HM
+	jr c, .yes
+
+	ld a, FLY
+	call CheckLvlUpMoves
+	ret c ; fail
+.yes
+	ld a, MONMENUITEM_FLY
+	call AddMonMenuItem
+	ret
+
+Can_Use_Sweet_Scent:
+	farcall CanUseSweetScent
+	ret nc ; .no_battle
+	farcall GetMapEncounterRate
+	ld a, b
+	and a
+	ret z ; .no_battle
+
+.valid_location
+	ld a, SWEET_SCENT
+	call CheckMonKnowsMove
+	and a
+	jr z, .yes
+
+	ld a, TM_SWEET_SCENT
+	ld [wCurItem], a
+	ld hl, wNumItems
+	call CheckItem
+	ret nc ; .fail, tm not in bag
+
+	ld a, SWEET_SCENT
+	call CheckMonCanLearn_TM_HM
+	jr c, .yes
+
+	ld a, SWEET_SCENT
+	call CheckLvlUpMoves
+	ret c ; fail
+.yes
+	ld a, MONMENUITEM_SWEETSCENT
+	call AddMonMenuItem
+	ret
+
+CanUseDig:
+	call GetMapEnvironment
+	cp CAVE
+	jr z, .valid_location
+	cp DUNGEON
+	ret nz ; fail, not inside cave or dungeon
+
+.valid_location
+	ld a, DIG
+	call CheckMonKnowsMove
+	and a
+	jr z, .yes
+
+	ld a, TM_DIG
+	ld [wCurItem], a
+	ld hl, wNumItems
+	call CheckItem
+	ret nc ; .fail ; TM not in bag
+
+	ld a, DIG
+	call CheckMonCanLearn_TM_HM
+	jr c, .yes
+
+	ld a, DIG
+	call CheckLvlUpMoves
+	ret c ; fail
+.yes
+	ld a, MONMENUITEM_DIG
+	call AddMonMenuItem
+	ret
+
+CanUseTeleport:
+	call GetMapEnvironment
+	call CheckOutdoorMap
+	ret nz ; .fail
+	
+	ld a, TELEPORT
+	call CheckMonKnowsMove
+	and a
+	jr z, .yes
+
+	ld a, TELEPORT
+	call CheckLvlUpMoves
+	ret c ; fail
+.yes
+	ld a, MONMENUITEM_TELEPORT
+	call AddMonMenuItem	
+	ret
+
+CanUseSoftboiled:
+	ld a, SOFTBOILED
+	call CheckMonKnowsMove
+	and a
+	ret nz
+	ld a, MONMENUITEM_SOFTBOILED
+	call AddMonMenuItem
+	ret
+
+CanUseMilkdrink:
+	ld a, MILK_DRINK
+	call CheckMonKnowsMove
+	and a
+	ret nz
+
+	ld a, MONMENUITEM_MILKDRINK
+	call AddMonMenuItem
+	ret
+
+CheckMonCanLearn_TM_HM:
+; Check if wCurPartySpecies can learn move in 'a'
+	ld [wPutativeTMHMMove], a
+	ld a, [wCurPartySpecies]
+	farcall CanLearnTMHMMove
+.check
+	ld a, c
+	and a
+	ret z
+; yes
+	scf
+	ret
+
+CheckMonKnowsMove:
+	ld b, a
+	ld a, MON_MOVES
+	call GetPartyParamLocation
+	ld d, h
+	ld e, l
+	ld c, NUM_MOVES
+.loop
+	ld a, [de]
+	and a
+	jr z, .next
+	cp b
+	jr z, .found ; knows move
+.next
+	inc de
+	dec c
+	jr nz, .loop
+	ld a, -1
+	scf ; mon doesnt know move
+	ret
+.found
+	xor a
+	ret z
+
+CheckLvlUpMoves:
+; move looking for in a
+	ld d, a
+	ld a, [wCurPartySpecies]
+	dec a
+	ld b, 0
+	ld c, a
+	ld hl, EvosAttacksPointers
+	add hl, bc
+	add hl, bc
+	ld a, BANK(EvosAttacksPointers)
+	ld b, a
+	call GetFarWord
+	ld a, b
+	call GetFarByte
+	inc hl
+	cp 0
+	jr z, .find_move
+	dec hl
+	call MonSubMenu_SkipEvolutions
+.find_move
+	call MonSubMenu_GetNextEvoAttackByte
+	and a
+	jr z, .notfound ; end of mon's lvl up learnset
+	call MonSubMenu_GetNextEvoAttackByte
+	cp d ;MAKE SURE NOT CLOBBERED
+	jr z, .found
+	jr .find_move
+.found
+	xor a
+	ret z ; move is in lvl up learnset
+.notfound
+	scf ; move isnt in lvl up learnset
+	ret
+
+MonSubMenu_SkipEvolutions:
+; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
+	ld a, b
+	call GetFarByte
+	inc hl
+	and a
+	ret z
+	cp EVOLVE_STAT
+	jr nz, .no_extra_skip
+	inc hl
+.no_extra_skip
+	inc hl
+	inc hl
+	jr MonSubMenu_SkipEvolutions
+
+MonSubMenu_GetNextEvoAttackByte:
+	ld a, BANK(EvosAttacksPointers)
+	call GetFarByte
+	inc hl
+	ret
