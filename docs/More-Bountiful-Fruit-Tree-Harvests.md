@@ -1,3 +1,4 @@
+![bitterberries](https://user-images.githubusercontent.com/110363717/189034093-2c025bab-cd40-4695-a042-7b3ccb499942.png)
 
 The code for this feature was adapted from [Polished Crystal by Rangi](https://github.com/Rangi42/polishedcrystal).
 
@@ -194,3 +195,8 @@ That's it!
 Let me know if you have any questions, you can find me in the discord server.
 
 
+
+![bitterberries](https://user-images.githubusercontent.com/110363717/189034172-59b70475-ef7d-4854-bb84-de153eef90db.png)
+![3blk](https://user-images.githubusercontent.com/110363717/189034151-3666143d-7b0c-452c-ac75-360cfe104f6c.png)
+![3min](https://user-images.githubusercontent.com/110363717/189034129-98b1bc79-f341-4454-92a3-4d84479de7e2.png)
+![5blu](https://user-images.githubusercontent.com/110363717/189034121-1f714448-f63c-4ac7-a7f0-56beb439b2d0.png)
