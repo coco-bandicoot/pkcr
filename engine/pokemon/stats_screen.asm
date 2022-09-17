@@ -573,25 +573,44 @@ LoadPinkPage:
 .NotImmuneToPkrs:
 	ld a, [wMonType]
 	cp BOXMON
-	jr z, .StatusOK
-	hlcoord 6, 13
-	push hl
+	jr z, .done_status
+	
 	ld de, wTempMonStatus
-	predef PlaceStatusString
-	pop hl
-	jr nz, .done_status
-	jr .StatusOK
+	predef GetStatusConditionIndex
+	ld a, d
+	and a
+	jr z, .StatusOK
+
+	; status index in a
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $50
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+
+	hlcoord 7, 12
+	ld a, $50
+	ld [hli], a
+	inc a
+	ld [hl], a
+	
+	jr .done_status
 .HasPokerus:
 	ld de, .PkrsStr
-	hlcoord 1, 13
+	hlcoord 1, 10
 	call PlaceString
-	jr .done_status
+	jr .NotImmuneToPkrs
 .StatusOK:
+	hlcoord 7, 12
 	ld de, .OK_str
 	call PlaceString
 .done_status
 	hlcoord 1, 15
-	predef PrintMonTypes
+	; predef PrintMonTypes
+	call PrintMonTypeTiles
 	hlcoord 9, 8
 	ld de, SCREEN_WIDTH
 	ld b, 10
@@ -707,6 +726,86 @@ LoadPinkPage:
 
 .PkrsStr:
 	db "#RUS@"
+
+PrintMonTypeTiles:
+	call GetBaseData
+	ld a, [wBaseType1]
+; Skip Bird
+	cp BIRD
+	jr c, .type1_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type1_adjust_done
+	sub UNUSED_TYPES
+.type1_adjust_done
+; load the 1st type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 2
+	push af
+	farcall LoadMonBaseTypePal	
+	pop af
+; load the tiles
+	ld hl, TypeLightIconGFX
+	ld bc, 4 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $4c
+	lb bc, BANK(TypeLightIconGFX), 4
+	call Request2bpp
+; 2nd Type
+	ld a, [wBaseType2]
+; Skip Bird
+	cp BIRD
+	jr c, .type2_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type2_adjust_done
+	sub UNUSED_TYPES
+.type2_adjust_done
+; load the 2nd type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 4
+	push af
+	farcall LoadMonBaseTypePal	
+	pop af
+; load type 2 tiles
+	ld hl, TypeDarkIconGFX
+	ld bc, 4 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $5c
+	lb bc, BANK(TypeDarkIconGFX), 4
+	call Request2bpp
+
+	call SetPalettes
+	hlcoord 5, 14
+	push hl
+	ld [hl], $4c
+	inc hl
+	ld [hl], $4d
+	inc hl
+	ld [hl], $4e
+	inc hl
+	ld [hl], $4f
+	inc hl
+	ld a, [wBaseType1]
+	ld b, a
+	ld a, [wBaseType2]
+	pop hl
+	cp b
+	ret z
+	ld bc, 20
+	add hl, bc
+	ld [hl], $5c
+	inc hl
+	ld [hl], $5d
+	inc hl
+	ld [hl], $5e
+	inc hl
+	ld [hl], $5f
+	ret
 
 LoadGreenPage:
 	ld de, .Item
@@ -1185,13 +1284,13 @@ StatsScreen_AnimateEgg:
 
 StatsScreen_LoadPageIndicators:
 	hlcoord 11, 5
-	ld a, $36 ; " " " "
+	ld a, $42 ; " " " "
 	call .load_square
 	hlcoord 13, 5
 	ld a, $36 ; first of 4 small square tiles
 	call .load_square
 	hlcoord 15, 5
-	ld a, $36 ; " " " "
+	ld a, $42 ; " " " "
 	call .load_square
 	hlcoord 17, 5
 	ld a, $36 ; " " " "
@@ -1199,13 +1298,13 @@ StatsScreen_LoadPageIndicators:
 	ld a, c
 	cp PINK_PAGE
 	hlcoord 11, 5
-	jr z, .load_highlighted_square
+	jr z, .load_highlighted_square_alt
 	cp GREEN_PAGE
 	hlcoord 13, 5
 	jr z, .load_highlighted_square
 	cp BLUE_PAGE
 	hlcoord 15, 5
-	jr z, .load_highlighted_square
+	jr z, .load_highlighted_square_alt
 	; must be ORANGE_PAGE
 	hlcoord 17, 5
 .load_highlighted_square
@@ -1223,6 +1322,9 @@ StatsScreen_LoadPageIndicators:
 	ld [hl], a
 	pop bc
 	ret
+.load_highlighted_square_alt
+	ld a, $46 ; first of 4 large square tiles
+	jr .load_square
 
 CopyNickname:
 	ld de, wStringBuffer1

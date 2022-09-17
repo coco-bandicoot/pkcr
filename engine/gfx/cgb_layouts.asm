@@ -109,6 +109,10 @@ _CGB_BattleColors:
 	call LoadPalette_White_Col1_Col2_Black ; PAL_BATTLE_OB_ENEMY
 	pop hl
 	call LoadPalette_White_Col1_Col2_Black ; PAL_BATTLE_OB_PLAYER
+
+	call LoadPlayerStatusIconPalette
+	call LoadEnemyStatusIconPalette
+
 	ld a, SCGB_BATTLE_COLORS
 	ld [wDefaultSGBLayout], a
 	call ApplyPals
@@ -143,6 +147,18 @@ _CGB_FinishBattleScreenLayout:
 	ld a, PAL_BATTLE_BG_TEXT
 	call ByteFill
 
+; status icons
+	; enemy
+	hlcoord 2, 1, wAttrmap
+	lb bc, 1, 2
+	ld a, $6
+	call FillBoxCGB
+	; player's
+	hlcoord 10, 8, wAttrmap
+	lb bc, 1, 2
+	ld a, $6
+	call FillBoxCGB
+
 ; flip reused tiles
 ; HUD vertical bar thingy
 	hlcoord 18, 10, wAttrmap
@@ -157,17 +173,18 @@ _CGB_FinishBattleScreenLayout:
 	ld a, PAL_BATTLE_BG_EXP
 	set 5, a ; flips tiles on x axis
 	call FillBoxCGB
+
 ; check if we're in the MoveInfoBox
 	hlcoord 0, 12
 	ld a, [hl]
 	cp $7d
 	jr nz, .done
-	hlcoord 10, 11, wAttrmap
-	ld bc, 1
-	ld a, PAL_BATTLE_BG_EXP
-	; set 5, a ; flips tiles on x axis
-	call ByteFill
 
+	; Move Type and Category pal
+	hlcoord 1, 11, wAttrmap
+	ld bc, 7
+	ld a, $5
+	call ByteFill
 .done
 	ld hl, BattleObjectPals
 	ld de, wOBPals1 palette PAL_BATTLE_OB_GRAY
@@ -237,9 +254,10 @@ _CGB_StatsScreenHPPals:
 	call LoadPalette_White_Col1_Col2_Black ; mon palette
 	ld hl, ExpBarPalette
 	call LoadPalette_White_Col1_Col2_Black ; exp palette
+	call LoadStatsScreenStatusIconPalette
 	ld hl, StatsScreenPagePals
 	ld de, wBGPals1 palette 3
-	ld bc, 4 palettes ; pink, green, blue, and orange page palettes
+	ld bc, 2 palettes ; pink, green, blue, and orange page palettes
 	ld a, BANK(wBGPals1)
 	call FarCopyWRAM
 	call WipeAttrmap
@@ -261,19 +279,43 @@ _CGB_StatsScreenHPPals:
 
 	hlcoord 13, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $4 ; green page palette
+	ld a, $3 ; green page palette
 	call FillBoxCGB
 
 	hlcoord 15, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $5 ; blue page palette
+	ld a, $4 ; blue & orange box palette
 	call FillBoxCGB
 
 	hlcoord 17, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $6 ; orange page palette
+	ld a, $4 ; blue & orange box palette
 	call FillBoxCGB
 
+	; mon type(s)
+	hlcoord 5, 14, wAttrmap
+	lb bc, 2, 4
+	ld a, $7 ; mon base type light/dark pals
+	call FillBoxCGB
+
+	; mon status
+	hlcoord 7, 12, wAttrmap
+	lb bc, 1, 2
+	ld a, $6 ; mon base type light/dark pals
+	call FillBoxCGB
+
+	; heart and player gender (if any)
+	hlcoord 0, 12, wAttrmap
+	lb bc, 5, 5
+	ld a, $2 ; exp pal
+	call FillBoxCGB
+
+	; mon gender (if any)
+	hlcoord 18, 0, wAttrmap
+	ld bc, 1
+	ld a, $7 ; type(s) and gender
+	call ByteFill
+	
 	call ApplyAttrmap
 	call ApplyPals
 	ld a, TRUE
@@ -301,12 +343,54 @@ _CGB_Pokedex:
 .is_pokemon
 	call GetMonPalettePointer
 	call LoadPalette_White_Col1_Col2_Black ; mon palette
+; black background
+	ld de, wBGPals1 palette 7	
+	call LoadSingleBlackPal
+; mon type 1	
+	ld a, [wTempSpecies]
+	ld [wCurSpecies], a	
+	call GetBaseData
+	ld a, [wBaseType1]
+; Skip Bird
+	cp BIRD
+	jr c, .type1_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type1_adjust_done
+	sub UNUSED_TYPES
+.type1_adjust_done
+; load the 1st type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 2
+	farcall LoadMonBaseTypePal	
+; mon type 2
+	ld a, [wBaseType2]
+; Skip Bird
+	cp BIRD
+	jr c, .type2_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type2_adjust_done
+	sub UNUSED_TYPES
+.type2_adjust_done
+; load the 2nd type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 4
+	farcall LoadMonBaseTypePal
+;
 .got_palette
 	call WipeAttrmap
 	hlcoord 1, 1, wAttrmap
 	lb bc, 7, 7
 	ld a, $1 ; green question mark palette
 	call FillBoxCGB
+
+; mon base types
+	hlcoord 9, 1, wAttrmap
+	lb bc, 1, 8
+	ld a, $7 ; mon base type pals
+	call FillBoxCGB
+
 	call InitPartyMenuOBPals
 	ld hl, PokedexCursorPalette
 	ld de, wOBPals1 palette 7 ; green cursor palette
@@ -557,11 +641,88 @@ _CGB_MapPals:
 	ret
 
 _CGB_PartyMenu:
+
 	ld hl, PalPacket_PartyMenu + 1
 	call CopyFourPalettes
 	call InitPartyMenuBGPal0
 	call InitPartyMenuBGPal7
 	call InitPartyMenuOBPals
+	call InitPartyMenuStatusPals
+
+	ld a, [wPartyCount]
+	and a
+	ret z
+	ld c, a
+	ld b, 0
+	hlcoord 5, 2, wAttrmap
+.loop
+	push bc
+	push hl
+	; checking for egg
+	ld a, LOW(wPartySpecies)
+	add b
+	ld e, a
+	ld a, HIGH(wPartySpecies)
+	adc 0
+	ld d, a
+	ld a, [de]
+	cp EGG
+	jr z, .next
+	; not egg
+	push hl
+	ld a, b
+	ld bc, PARTYMON_STRUCT_LENGTH
+	ld hl, wPartyMon1Status
+	call AddNTimes
+	ld e, l
+	ld d, h
+	farcall GetStatusConditionIndex
+	ld a, d
+	and a
+	pop hl
+	jr z, .next
+	; get the right Pal for the status
+	ld b, $1
+	cp b
+	jr nz, .PAR
+	ld a, $4 ; PSN
+	jr .done
+.PAR
+	ld b, $2
+	cp b
+	jr nz, .SLP
+	ld a, $5 ; PAR
+	jr .done
+.SLP
+	ld b, $3
+	cp b
+	jr nz, .BRN
+	ld a, $6 ; SLP
+	jr .done
+.BRN
+	ld b, $4
+	cp b
+	jr nz, .FRZ
+	ld a, $4 ; BRN
+	jr .done
+.FRZ
+	ld b, $5
+	cp b
+	jr nz, .next
+	ld a, $5 ; FRZ
+.done
+	lb bc, 1, 2
+	call FillBoxCGB
+
+.next
+	pop hl
+	ld de, SCREEN_WIDTH * 2
+	add hl, de
+	pop bc
+	inc b
+	dec c
+	jr nz, .loop
+
 	call ApplyAttrmap
 	ret
 
@@ -765,6 +926,62 @@ _CGB_MoveList:
 	add hl, bc
 	call LoadPalette_White_Col1_Col2_Black
 	call WipeAttrmap
+
+	ld hl, Moves + MOVE_TYPE
+	ld a, [wCurSpecies]
+	dec a
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	add a
+	add a
+	ld hl, CategoryIconPals
+	ld c, a
+	ld b, 0
+	add hl, bc
+	;ld de, wBGPals1 palette 0 + 2
+	ld de, wBGPals1 palette 0 + 18
+	ld c, 4
+	call LoadCPaletteBytesFromHLIntoDE
+
+	ld hl, Moves + MOVE_TYPE
+	ld a, [wCurSpecies]
+	dec a
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and TYPE_MASK
+; Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	ld hl, TypeIconPals
+	add a
+	ld c, a
+	ld b, 0
+	add hl, bc
+	;ld de, wBGPals1 palette 0 + 6
+	ld de, wBGPals1 palette 0 + 22
+	ld c, 2
+	call LoadCPaletteBytesFromHLIntoDE
+; Type and Category tiles
+	
+	hlcoord 2, 13, wAttrmap
+	ld bc, 8
+	ld a, $2
+	call ByteFill
+
 	hlcoord 11, 1, wAttrmap
 	lb bc, 2, 9
 	ld a, $1

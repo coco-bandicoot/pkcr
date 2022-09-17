@@ -544,7 +544,6 @@ SECTION "mobile5C", ROMX
 
 INCLUDE "mobile/mobile_5c.asm"
 
-
 SECTION "Crystal Phone Text 2", ROMX
 
 INCLUDE "data/phone/text/bike_shop.asm"
@@ -643,6 +642,7 @@ INCLUDE "engine/overworld/landmarks.asm"
 SECTION "Print Party", ROMX
 
 INCLUDE "engine/printer/print_party.asm"
+INCLUDE "gfx/rangi_gfx.asm"
 
 
 SECTION "bank77", ROMX
