@@ -733,6 +733,62 @@ _CGB_MoveList:
 	add hl, bc
 	call LoadPalette_White_Col1_Col2_Black
 	call WipeAttrmap
+
+	ld hl, Moves + MOVE_TYPE
+	ld a, [wCurSpecies]
+	dec a
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	add a
+	add a
+	ld hl, CategoryIconPals
+	ld c, a
+	ld b, 0
+	add hl, bc
+	;ld de, wBGPals1 palette 0 + 2
+	ld de, wBGPals1 palette 0 + 18
+	ld c, 4
+	call LoadCPaletteBytesFromHLIntoDE
+
+	ld hl, Moves + MOVE_TYPE
+	ld a, [wCurSpecies]
+	dec a
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and TYPE_MASK
+; Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	ld hl, TypeIconPals
+	add a
+	ld c, a
+	ld b, 0
+	add hl, bc
+	;ld de, wBGPals1 palette 0 + 6
+	ld de, wBGPals1 palette 0 + 22
+	ld c, 2
+	call LoadCPaletteBytesFromHLIntoDE
+; Type and Category tiles
+	
+	hlcoord 1, 11, wAttrmap
+	ld bc, 6
+	ld a, $2
+	call ByteFill
+
 	hlcoord 11, 1, wAttrmap
 	lb bc, 2, 9
 	ld a, $1

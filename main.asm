@@ -528,7 +528,6 @@ SECTION "mobile46", ROMX
 
 INCLUDE "mobile/mobile_46.asm"
 
-
 SECTION "Battle Tower", ROMX
 
 INCLUDE "engine/events/battle_tower/trainer_text.asm"
@@ -537,13 +536,12 @@ INCLUDE "engine/events/battle_tower/trainer_text.asm"
 SECTION "bank5B", ROMX
 
 INCLUDE "mobile/mobile_5b.asm"
-INCLUDE "engine/link/link_trade.asm"
 
 
 SECTION "mobile5C", ROMX
 
 INCLUDE "mobile/mobile_5c.asm"
-
+INCLUDE "engine/link/link_trade.asm"
 
 SECTION "Crystal Phone Text 2", ROMX
 
@@ -643,6 +641,7 @@ INCLUDE "engine/overworld/landmarks.asm"
 SECTION "Print Party", ROMX
 
 INCLUDE "engine/printer/print_party.asm"
+INCLUDE "gfx/rangi_gfx.asm"
 
 
 SECTION "bank77", ROMX

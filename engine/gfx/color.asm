@@ -370,6 +370,115 @@ ApplyHPBarPals:
 	call FillBoxCGB
 	ret
 
+LoadCPaletteBytesFromHLIntoDE:
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK("GBC Video")
+	ldh [rSVBK], a
+.loop
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec c
+	jr nz, .loop
+	pop af
+	ldh [rSVBK], a
+	ret
+
+LoadPlayerStatusIconPalette:
+	ld a, [wPlayerSubStatus2]
+	ld de, wBattleMonStatus
+	farcall GetStatusConditionIndex
+	ld hl, StatusIconPals
+	ld c, a
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	;ld de, wBGPals1 palette PAL_BATTLE_BG_STATUS + 2
+	ld de, wBGPals1 palette 5 + 2
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadEnemyStatusIconPalette:
+	ld a, [wEnemySubStatus2]
+	ld de, wEnemyMonStatus
+	farcall GetStatusConditionIndex
+	ld hl, StatusIconPals
+	ld c, a
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	;ld de, wBGPals1 palette PAL_BATTLE_BG_STATUS + 4
+	ld de, wBGPals1 palette 5 + 4
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadBattleCategoryAndTypePals:
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	ld b, a
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and TYPE_MASK
+	; Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	ld c, a
+	;ld de, wBGPals1 palette PAL_BATTLE_BG_TYPE_CAT + 2
+	ld de, wBGPals1 palette 6 + 2
+
+LoadCategoryAndTypePals:
+; we need the white palette lol kill me
+; im too dumb to do this any other way
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wBGPals1)
+	ldh [rSVBK], a
+	ld a, LOW(PALRGB_WHITE)
+	ld [de], a
+	inc de
+	ld a, HIGH(PALRGB_WHITE)
+	ld [de], a
+	inc de
+	pop af
+	ldh [rSVBK], a
+	;
+
+	ld hl, CategoryIconPals
+	ld a, b
+	add a
+	add a
+	push bc
+	ld c, a
+	ld b, 0
+	add hl, bc
+	ld bc, 4
+	push de
+	call FarCopyColorWRAM
+	pop de
+
+	ld hl, TypeIconPals
+	pop bc
+	ld a, c
+	add a
+	ld c, a
+	ld b, 0
+	add hl, bc
+	inc de
+	inc de
+	inc de
+	inc de
+	ld bc, 2
+	jp FarCopyColorWRAM
+
 LoadStatsScreenPals:
 	call CheckCGB
 	ret z
@@ -1294,6 +1403,8 @@ endr
 	ret
 
 INCLUDE "data/maps/environment_colors.asm"
+
+INCLUDE "gfx/types_cats_status_pals.asm"
 
 PartyMenuBGMobilePalette:
 INCLUDE "gfx/stats/party_menu_bg_mobile.pal"
