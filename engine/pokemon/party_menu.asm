@@ -35,6 +35,7 @@ InitPartyMenuLayout:
 	ret
 
 LoadPartyMenuGFX:
+	call LoadStatusIconSet
 	call LoadFontsBattleExtra
 	callfar InitPartyMenuPalettes
 	callfar ClearSpriteAnims2
@@ -283,7 +284,17 @@ PlacePartyMonStatus:
 	ld e, l
 	ld d, h
 	pop hl
-	call PlaceStatusString
+
+	call GetStatusConditionIndex
+	jr z, .next
+	; get the right tile nums
+	dec a
+	add a
+	ld b, $50
+	add b
+	ld [hli], a
+	inc a
+	ld [hl], a
 
 .next
 	pop hl
@@ -852,4 +863,71 @@ PrintPartyMenuActionText:
 	call PrintText
 	pop af
 	ld [wOptions], a
+	ret
+
+LoadStatusIconSet:
+	push bc
+	push hl
+	; status index in a
+	ld a, $1 ; PSN
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $50
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+
+	ld a, $2 ; PAR
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $52
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+
+	ld a, $3 ; SLP
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $54
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+
+	ld a, $4 ; BRN
+	ld hl, EnemyStatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $56
+	lb bc, BANK(EnemyStatusIconGFX), 2
+	call Request2bpp
+
+	ld a, $5 ; FRZ
+	ld hl, EnemyStatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $58
+	lb bc, BANK(EnemyStatusIconGFX), 2
+	call Request2bpp
+
+	ld a, $6 ; FNT
+	ld hl, EnemyStatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $5a
+	lb bc, BANK(EnemyStatusIconGFX), 2
+	call Request2bpp
+	pop hl
+	pop bc
 	ret

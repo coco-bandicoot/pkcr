@@ -196,6 +196,9 @@ BattleTurn:
 	jr nz, .quit
 .skip_iteration
 	call ParsePlayerAction
+	push af
+	call ClearSprites
+	pop af
 	jr nz, .loop1
 
 	call EnemyTriesToFlee
@@ -643,9 +646,9 @@ ParsePlayerAction:
 .not_encored
 	ld a, [wBattlePlayerAction]
 	cp BATTLEPLAYERACTION_SWITCH
-	jr z, .reset_rage
+	jp z, .reset_rage
 	and a
-	jr nz, .reset_bide
+	jp nz, .reset_bide
 	ld a, [wPlayerSubStatus3]
 	and 1 << SUBSTATUS_BIDE
 	jr nz, .locked_in
@@ -656,7 +659,8 @@ ParsePlayerAction:
 	call MoveSelectionScreen
 	push af
 	call SafeLoadTempTilemapToTilemap
-	call UpdateBattleHuds
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 	ld a, [wCurPlayerMove]
 	cp STRUGGLE
 	jr z, .struggle
@@ -1063,7 +1067,6 @@ ResidualDamage:
 	jr z, .check_toxic
 	ld de, wEnemyToxicCount
 .check_toxic
-
 	ld a, BATTLE_VARS_SUBSTATUS5
 	call GetBattleVar
 	bit SUBSTATUS_TOXIC, a
@@ -4720,14 +4723,18 @@ PrintPlayerHUD:
 .got_gender_char
 	hlcoord 17, 8
 	ld [hl], a
-	hlcoord 14, 8
+	hlcoord 10, 8
 	push af ; back up gender
 	push hl
-	ld de, wBattleMonStatus
-	predef PlaceNonFaintStatus
+	farcall Player_CheckToxicStatus
+	jr nc, .status_nottoxic
 	pop hl
+	ld [hl], $70
+	inc hl
+	ld [hl], $71
+.status_done
 	pop bc
-	ret nz
+	hlcoord 14, 8
 	ld a, b
 	cp " "
 	jr nz, .copy_level ; male or female
@@ -4737,6 +4744,12 @@ PrintPlayerHUD:
 	ld a, [wBattleMonLevel]
 	ld [wTempMonLevel], a
 	jp PrintLevel
+
+.status_nottoxic
+	pop hl
+	ld de, wBattleMonStatus
+	predef Player_PlaceNonFaintStatus
+	jr .status_done
 
 UpdateEnemyHUD::
 	push hl
@@ -4797,19 +4810,21 @@ DrawEnemyHUD:
 	hlcoord 9, 1
 	ld [hl], a
 
-	hlcoord 6, 1
-	push af
+	hlcoord 2, 1
 	push hl
-	ld de, wEnemyMonStatus
-	predef PlaceNonFaintStatus
+	farcall Enemy_CheckToxicStatus
+	jr z, .status_nottoxic
 	pop hl
-	pop bc
-	jr nz, .skip_level
-	ld a, b
-	cp " "
-	jr nz, .print_level
-	dec hl
-.print_level
+	ld [hl], $72
+	inc hl
+	ld [hl], $73
+	jr .status_done
+.status_nottoxic
+	pop hl
+	ld de, wEnemyMonStatus
+	predef Enemy_PlaceNonFaintStatus
+.status_done
+	hlcoord 6, 1
 	ld a, [wEnemyMonLevel]
 	ld [wTempMonLevel], a
 	call PrintLevel
@@ -5121,6 +5136,8 @@ BattleMenuPKMN_Loop:
 	call DelayFrame
 	call _LoadHPBar
 	call CloseWindow
+	call GetBattleMonBackpic
+	call WaitBGMap
 	call LoadTilemapToTempTilemap
 	call GetMemSGBLayout
 	call SetPalettes
@@ -5207,6 +5224,8 @@ TryPlayerSwitch:
 	call DelayFrame
 	call ClearSprites
 	call _LoadHPBar
+	call GetBattleMonBackpic
+	call WaitBGMap
 	call CloseWindow
 	call GetMemSGBLayout
 	call SetPalettes
@@ -5449,6 +5468,8 @@ MoveSelectionScreen:
 	ld [w2DMenuFlags2], a
 	ld a, $10
 	ld [w2DMenuCursorOffsets], a
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 .menu_loop
 	ld a, [wMoveSelectionMenuType]
 	and a
@@ -5462,8 +5483,6 @@ MoveSelectionScreen:
 
 .battle_player_moves
 	call MoveInfoBox
-	ld b, SCGB_BATTLE_COLORS
-	call GetSGBLayout
 	ld a, [wSwappingMove]
 	and a
 	jr z, .interpret_joypad
@@ -5505,15 +5524,12 @@ MoveSelectionScreen:
 	ld a, b
 	ld [wCurMoveNum], a
 	jr nz, .use_move
-
 	pop af
 	ret
 
 .use_move
 	pop af
 	ret nz
-	ld b, SCGB_BATTLE_COLORS
-	call GetSGBLayout
 	ld hl, wBattleMonPP
 	ld a, [wMenuCursorY]
 	ld c, a
@@ -5551,6 +5567,11 @@ MoveSelectionScreen:
 	ld hl, BattleText_TheresNoPPLeftForThisMove
 
 .place_textbox_start_over
+	push hl
+	call ClearSprites
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
+	pop hl
 	call StdBattleTextbox
 	call SafeLoadTempTilemapToTilemap
 	jp MoveSelectionScreen
@@ -5667,9 +5688,9 @@ MoveInfoBox:
 	xor a
 	ldh [hBGMapMode], a
 
-	hlcoord 0, 8
-	ld b, 3
-	ld c, 9
+	hlcoord 0, 7
+	ld b, 4
+	ld c, 7
 	call Textbox
 	call MobileTextBorder
 
@@ -5684,10 +5705,10 @@ MoveInfoBox:
 	cp b
 	jr nz, .not_disabled
 
-	hlcoord 1, 10
+	hlcoord 1, 11
 	ld de, .Disabled
 	call PlaceString
-	jr .done
+	jp .done
 
 .not_disabled
 	ld hl, wMenuCursorY
@@ -5719,23 +5740,107 @@ MoveInfoBox:
 	call .PrintPP
 
 	farcall UpdateMoveData
-	ld a, [wPlayerMoveStruct + MOVE_ANIM]
-	ld b, a
-	farcall GetMoveCategoryName
+	farcall LoadBattleCategoryAndTypePals
+	call SetPalettes
 
-	hlcoord 1, 9
-	ld de, wStringBuffer1
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and TYPE_MASK
+; TYPE ADJUST: Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	ld hl, TypeIconGFX
+	ld bc, 4 * LEN_1BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $55
+	lb bc, BANK(TypeIconGFX), 4
+	call Request1bpp
+	hlcoord 4, 11
+	ld [hl], $55
+	inc hl
+	ld [hl], $56
+	inc hl
+	ld [hl], $57
+	inc hl
+	ld [hl], $58
+
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	ld hl, CategoryIconGFX
+	ld bc, 2 tiles
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $59
+	lb bc, BANK(CategoryIconGFX), 2
+	call Request2bpp ; Load 2bpp at b:de to occupy c tiles of hl.
+	hlcoord 1, 11
+	ld [hl], $59
+	inc hl
+	ld [hl], $5a
+
+; print move BP
+	ld de, .power_string
+	hlcoord 1, 8
 	call PlaceString
 
-	ld h, b
-	ld l, c
-	ld [hl], "/"
-
-	ld a, [wPlayerMoveStruct + MOVE_ANIM]
-	ld b, a
-	hlcoord 2, 10
-	predef PrintMoveType
-
+	hlcoord 4, 8
+	ld a, [wPlayerMoveStruct + MOVE_POWER]
+	and a
+	jr nz, .haspower
+	ld de, .nopower_string
+	call PlaceString
+	jr .print_acc
+.haspower	
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 3
+	call PrintNum
+	
+; print move ACC
+.print_acc
+	hlcoord 1, 9
+	ld de, .accuracy_string
+	call PlaceString
+	hlcoord 7, 9
+	ld [hl], "<%>"
+	hlcoord 4, 9
+	ld a, [wPlayerMoveStruct + MOVE_ACC]
+; convert from hex to decimal
+	ldh [hMultiplicand], a
+	ld a, 100
+	ldh [hMultiplier], a
+	call Multiply
+	; Divide hDividend length b (max 4 bytes) by hDivisor. Result in hQuotient.
+	ld b, 2
+	ld a, 255
+	ldh [hDivisor], a
+	call Divide
+	ldh a, [hQuotient + 3]
+	cp 100
+	jr z, .print_num
+	inc a
+.print_num
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 3
+	call PrintNum
+; print move Effect chance?
+	; call WaitBGMap
+	; ld a, 8
+	; call DelayFrames
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 .done
 	ret
 
@@ -5743,11 +5848,7 @@ MoveInfoBox:
 	db "Disabled!@"
 
 .PrintPP:
-	hlcoord 3, 11
-	ld a, $76
-	ld [hli], a
-	ld [hl], a 
-	hlcoord 5, 11
+	hlcoord 3, 10
 	push hl
 	ld de, wStringBuffer1
 	lb bc, 1, 2
@@ -5760,7 +5861,17 @@ MoveInfoBox:
 	ld de, wNamedObjectIndex
 	lb bc, 1, 2
 	call PrintNum
+	hlcoord 1, 10
+	ld a, $76
+	ld [hli], a
+	ld [hl], a
 	ret
+.power_string:
+	db "BP@"
+.nopower_string:
+	db "---@"
+.accuracy_string:
+	db "AC@"
 
 CheckPlayerHasUsableMoves:
 	ld a, STRUGGLE

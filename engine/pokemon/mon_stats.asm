@@ -366,8 +366,9 @@ Unused_PlaceEnemyHPLevel:
 .egg
 	ret
 
-PlaceStatusString:
-; Return nz if the status is not OK
+GetStatusConditionIndex:
+; de points to status, e.g. from a party_struct or battle_struct
+; return the status condition index in a
 	push de
 	inc de
 	inc de
@@ -377,62 +378,127 @@ PlaceStatusString:
 	ld a, [de]
 	or b
 	pop de
-	jr nz, PlaceNonFaintStatus
-	push de
-	ld de, FntString
-	call CopyStatusString
-	pop de
-	ld a, TRUE
-	and a
-	ret
-
-FntString:
-	db "FNT@"
-
-CopyStatusString:
+	jr z, .fnt
 	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	ld [hl], a
-	ret
-
-PlaceNonFaintStatus:
-	push de
-	ld a, [de]
-	ld de, PsnString
-	bit PSN, a
-	jr nz, .place
-	ld de, BrnString
-	bit BRN, a
-	jr nz, .place
-	ld de, FrzString
-	bit FRZ, a
-	jr nz, .place
-	ld de, ParString
-	bit PAR, a
-	jr nz, .place
-	ld de, SlpString
+	ld b, a
 	and SLP_MASK
-	jr z, .no_status
-
-.place
-	call CopyStatusString
-	ld a, TRUE
-	and a
-
-.no_status
-	pop de
+	ld a, 0
+	jr nz, .slp
+	bit PSN, b
+	jr nz, .psn
+	bit PAR, b
+	jr nz, .par
+	bit BRN, b
+	jr nz, .brn
+	bit FRZ, b
+	jr nz, .frz
+	ld d, a
+	ret
+	
+.fnt
+	inc a ; 6
+.frz
+	inc a ; 5
+.brn
+	inc a ; 4
+.slp
+	inc a ; 3
+.par
+	inc a ; 2
+.psn
+	inc a ; 1
+	ld d, a
 	ret
 
-SlpString: db "SLP@"
-PsnString: db "PSN@"
-BrnString: db "BRN@"
-FrzString: db "FRZ@"
-ParString: db "PAR@"
+Player_PlaceNonFaintStatus:
+	call GetStatusConditionIndex
+	ret z ; .no_status
+	cp $6 ; faint
+	ret z
+
+	call Load_Player_Status_Tiles
+	ld [hl], $70
+	inc hl
+	ld [hl], $71
+
+	farcall LoadPlayerStatusIconPalette
+	ld a, TRUE
+	and a
+	ret
+
+Player_CheckToxicStatus:
+	ld a, [wPlayerSubStatus5]
+	bit SUBSTATUS_TOXIC, a
+	ret z
+
+	ld a, $7
+	call Load_Player_Status_Tiles
+	farcall LoadPlayerStatusIconPalette
+	scf
+	ret
+
+Enemy_PlaceNonFaintStatus:
+	call GetStatusConditionIndex
+	ret z ; .no_status
+	cp $6 ; faint
+	ret z
+
+	call Load_Enemy_Status_Tiles
+	ld [hl], $72
+	inc hl
+	ld [hl], $73
+	
+	farcall LoadEnemyStatusIconPalette
+	ld a, TRUE
+	and a
+	ret
+
+Enemy_CheckToxicStatus:
+	ld a, [wEnemySubStatus5]
+	bit SUBSTATUS_TOXIC, a
+	ret z
+
+	ld a, $7
+	call Load_Enemy_Status_Tiles
+	ld [hl], $72
+	inc hl
+	ld [hl], $73
+	
+	farcall LoadEnemyStatusIconPalette
+	scf
+	ret
+
+Load_Player_Status_Tiles:
+	push bc
+	push hl
+	; status index in a
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $70
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+	pop hl
+	pop bc
+	ret
+
+Load_Enemy_Status_Tiles:
+	push bc
+	push hl
+	; status index in a
+	ld hl, EnemyStatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $72
+	lb bc, BANK(EnemyStatusIconGFX), 2
+	call Request2bpp
+	pop hl
+	pop bc
+	ret
 
 ListMoves:
 ; List moves at hl, spaced every [wListMovesLineSpacing] tiles.

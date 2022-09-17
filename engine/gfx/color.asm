@@ -370,6 +370,143 @@ ApplyHPBarPals:
 	call FillBoxCGB
 	ret
 
+LoadCPaletteBytesFromHLIntoDE:
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK("GBC Video")
+	ldh [rSVBK], a
+.loop
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec c
+	jr nz, .loop
+	pop af
+	ldh [rSVBK], a
+	ret
+LoadStatsScreenStatusIconPalette:
+	ld de, wTempMonStatus
+	jr LoadPlayerStatusIconPalette.statusindex
+LoadPlayerStatusIconPalette:
+	ld a, [wPlayerSubStatus2]
+	ld de, wBattleMonStatus
+.statusindex	
+	farcall GetStatusConditionIndex
+	ld hl, StatusIconPals
+	ld c, d
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	;ld de, wBGPals1 palette PAL_BATTLE_BG_STATUS + 2
+	ld de, wBGPals1 palette 6 + 2
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadEnemyStatusIconPalette:
+	ld a, [wEnemySubStatus2]
+	ld de, wEnemyMonStatus
+	farcall GetStatusConditionIndex
+	ld hl, StatusIconPals
+	ld c, d
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	;ld de, wBGPals1 palette PAL_BATTLE_BG_STATUS + 4
+	ld de, wBGPals1 palette 6 + 4
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadBattleCategoryAndTypePals:
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	ld b, a
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and TYPE_MASK
+	; Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	ld c, a
+	;ld de, wBGPals1 palette PAL_BATTLE_BG_TYPE_CAT + 2
+	ld de, wBGPals1 palette 5
+
+LoadCategoryAndTypePals:
+; we need the white palette lol kill me
+; im too dumb to do this any other way
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wBGPals1)
+	ldh [rSVBK], a
+	ld a, LOW(PALRGB_WHITE)
+	ld [de], a
+	inc de
+	ld a, HIGH(PALRGB_WHITE)
+	ld [de], a
+	inc de
+	pop af
+	ldh [rSVBK], a
+	;
+
+	ld hl, CategoryIconPals
+	ld a, b
+	add a
+	add a
+	push bc
+	ld c, a
+	ld b, 0
+	add hl, bc
+	ld bc, 4
+	push de
+	call FarCopyColorWRAM
+	pop de
+
+	ld hl, TypeIconPals
+	pop bc
+	ld a, c
+	add a
+	ld c, a
+	ld b, 0
+	add hl, bc
+	inc de
+	inc de
+	inc de
+	inc de
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadMonBaseTypePal:
+	ld hl, TypeIconPals
+	ld a, c ; c is the type ID
+	add a
+	ld c, a
+	ld b, 0
+	add hl, bc
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadSingleBlackPal:
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wBGPals1)
+	ldh [rSVBK], a
+	xor a
+	ld [de], a
+	inc de
+	ld [de], a
+	inc de
+
+	pop af
+	ldh [rSVBK], a
+	ret
+
 LoadStatsScreenPals:
 	call CheckCGB
 	ret z
@@ -384,9 +521,13 @@ LoadStatsScreenPals:
 	ld a, [hli]
 	ld [wBGPals1 palette 0], a
 	ld [wBGPals1 palette 2], a
+	ld [wBGPals1 palette 6], a
+	ld [wBGPals1 palette 7], a
 	ld a, [hl]
 	ld [wBGPals1 palette 0 + 1], a
 	ld [wBGPals1 palette 2 + 1], a
+	ld [wBGPals1 palette 6 + 1], a
+	ld [wBGPals1 palette 7 + 1], a
 	pop af
 	ldh [rSVBK], a
 	call ApplyPals
@@ -649,6 +790,53 @@ CGB_ApplyPartyMenuHPPals:
 	lb bc, 2, 8
 	ld a, e
 	call FillBoxCGB
+	ret
+
+InitPartyMenuStatusPals:
+	ld hl, StatusIconPals
+	ld c, $1 ; PSN
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 4 + 2
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $2 ; PAR
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 5 + 2
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $3 ; SLP
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 6 + 2
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $4 ; BRN
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 4 + 4
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $5 ; FRZ
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 5 + 4
+	ld bc, 2
+	call FarCopyColorWRAM
 	ret
 
 InitPartyMenuOBPals:
@@ -1294,6 +1482,8 @@ endr
 
 INCLUDE "data/maps/environment_colors.asm"
 
+INCLUDE "gfx/types_cats_status_pals.asm"
+
 PartyMenuBGMobilePalette:
 INCLUDE "gfx/stats/party_menu_bg_mobile.pal"
 
@@ -1337,3 +1527,17 @@ INCLUDE "gfx/beta_poker/beta_poker.pal"
 
 SlotMachinePals:
 INCLUDE "gfx/slots/slots.pal"
+
+; Input: E must contain the offset of the selected palette from PartyMenuOBPals.
+SetFirstOBJPalette::
+	ld hl, PartyMenuOBPals
+	ld d, 0
+	add hl, de
+ 	ld de, wOBPals1
+	ld bc, 1 palettes
+	ld a, BANK(wOBPals1)
+	call FarCopyWRAM
+	ld a, TRUE
+ 	ldh [hCGBPalUpdate], a
+ 	call ApplyPals
+ 	ret

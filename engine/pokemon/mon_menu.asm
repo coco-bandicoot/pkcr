@@ -1179,27 +1179,127 @@ PrepareToPlaceMoveData:
 PlaceMoveData:
 	xor a
 	ldh [hBGMapMode], a
-	hlcoord 0, 10
-	ld de, String_MoveType_Top
+
+; Place Move Cateogry
+	ld a, [wCurSpecies]
+	dec a
+	ld hl, Moves + MOVE_TYPE
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	ld b, a
+	push bc
+	ld hl, CategoryIconGFX
+	ld bc, 2 tiles
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $59
+	lb bc, BANK(CategoryIconGFX), 2
+	call Request2bpp ; Load 2bpp at b:de to occupy c tiles of hl.
+	hlcoord 7, 13
+	ld a, $59
+	ld [hli], a
+	ld [hl], $5a
+; Place Move Type
+	ld a, [wCurSpecies]
+	dec a
+	ld hl, Moves + MOVE_TYPE
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and TYPE_MASK
+; Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	pop bc
+	
+	ld c, a
+	ld de, wBGPals1 palette 0 + 16
+	push af
+	farcall LoadCategoryAndTypePals
+	call SetPalettes
+
+
+	pop af
+	ld hl, TypeIconGFX
+	ld bc, 4 * LEN_1BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $5b
+	lb bc, BANK(TypeIconGFX), 4
+	call Request1bpp
+	hlcoord 2, 13
+	ld a, $5b
+	ld [hli], a
+	inc a ; $5c
+	ld [hli], a
+	inc a ; $5d
+	ld [hli], a
+	ld [hl], $5e
+
+; Place Move Accuracy
+	hlcoord 10, 12
+	ld de, String_MoveAcc
 	call PlaceString
-	hlcoord 0, 11
-	ld de, String_MoveType_Bottom
+	hlcoord 18, 12
+	ld [hl], "<%>"
+
+	ld a, [wCurSpecies]
+	dec a
+	ld hl, Moves + MOVE_ACC
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	call Adjust_percent
+	hlcoord 15, 12
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 3
+	call PrintNum
+; Place Move Effect Chance
+	ld a, [wCurSpecies]
+	dec a
+	ld hl, Moves + MOVE_CHANCE
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	hlcoord 15, 13
+	cp 2
+	jr c, .no_efct_chance
+
+	call Adjust_percent
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 3
+	call PrintNum
+
+	hlcoord 10, 13
+	ld de, String_MoveChance
 	call PlaceString
-	hlcoord 12, 12
+	hlcoord 18, 13
+	ld [hl], "<%>"
+.no_efct_chance
+; Place Move POWER
+	hlcoord 2, 12
 	ld de, String_MoveAtk
 	call PlaceString
-	ld a, [wCurSpecies]
-	ld b, a
-	farcall GetMoveCategoryName
-	hlcoord 1, 11
-	ld de, wStringBuffer1
-	call PlaceString
-	ld a, [wCurSpecies]
-	ld b, a
-	hlcoord 1, 12
-	ld [hl], "/"
-	inc hl
-	predef PrintMoveType
+
 	ld a, [wCurSpecies]
 	dec a
 	ld hl, Moves + MOVE_POWER
@@ -1207,13 +1307,14 @@ PlaceMoveData:
 	call AddNTimes
 	ld a, BANK(Moves)
 	call GetFarByte
-	hlcoord 16, 12
+	hlcoord 6, 12
 	cp 2
 	jr c, .no_power
 	ld [wTextDecimalByte], a
 	ld de, wTextDecimalByte
 	lb bc, 1, 3
 	call PrintNum
+;print Move Description
 	jr .description
 
 .no_power
@@ -1232,9 +1333,34 @@ String_MoveType_Top:
 String_MoveType_Bottom:
 	db "│        └@"
 String_MoveAtk:
-	db "ATK/@"
+	db "BP /@"
+String_MoveAcc:
+	db "ACC/@"
+String_MoveChance:
+	db "EFCT/@"
 String_MoveNoPower:
 	db "---@"
+
+Adjust_percent:
+	; hMultiplicand 
+	; hMultiplier. Result in hProduct.
+	ldh [hMultiplicand], a
+	ld a, 100
+	ldh [hMultiplier], a
+	call Multiply
+	; Divide hDividend length b (max 4 bytes) by hDivisor. Result in hQuotient.
+	; All values are big endian.
+	ld b, 2
+	; ldh a, [hProduct]
+	; ldh [hDividend], a
+	ld a, 255
+	ldh [hDivisor], a
+	call Divide
+	ldh a, [hQuotient + 3]
+	cp 100
+	ret z
+	inc a
+	ret
 
 PlaceMoveScreenArrows:
 	call PlaceMoveScreenLeftArrow
