@@ -1242,6 +1242,7 @@ BattleCommand_Stab:
 
 .go
 	ld a, BATTLE_VARS_MOVE_TYPE
+	and TYPE_MASK
 	call GetBattleVarAddr
 	ld [wCurType], a
 
@@ -1289,6 +1290,7 @@ BattleCommand_Stab:
 
 .SkipStab:
 	ld a, BATTLE_VARS_MOVE_TYPE
+	and TYPE_MASK
 	call GetBattleVar
 	ld b, a
 	ld hl, TypeMatchups
@@ -1403,6 +1405,7 @@ BattleCheckTypeMatchup:
 	ld hl, wBattleMonType1
 .get_type
 	ld a, BATTLE_VARS_MOVE_TYPE
+	and TYPE_MASK
 	call GetBattleVar ; preserves hl, de, and bc
 	; fallthrough
 CheckTypeMatchup:
@@ -3032,6 +3035,7 @@ ConfusionDamageCalc:
 ; Type
 	ld b, a
 	ld a, BATTLE_VARS_MOVE_TYPE
+	and TYPE_MASK
 	call GetBattleVar
 	cp b
 	jr nz, .DoneItem
@@ -5948,6 +5952,7 @@ CheckMoveTypeMatchesTarget:
 .ok
 
 	ld a, BATTLE_VARS_MOVE_TYPE
+	and TYPE_MASK
 	call GetBattleVar
 	cp NORMAL
 	jr z, .normal
