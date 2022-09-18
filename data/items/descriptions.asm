@@ -171,7 +171,7 @@ ItemDescriptions:
 	dw GorgeousBoxDesc
 	dw SunStoneDesc
 	dw PinkBowDesc
-	dw QuestionMarkDesc
+	dw TeruSama25Desc
 	dw UpGradeDesc
 	dw BerryDesc
 	dw GoldBerryDesc
