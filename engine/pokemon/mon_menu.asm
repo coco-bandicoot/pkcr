@@ -616,7 +616,6 @@ MonMenu_Fly:
 	jr z, .Fail
 	cp $0
 	jr z, .Error
-	farcall StubbedTrainerRankings_Fly
 	ld b, $4
 	ld a, $2
 	ret
@@ -627,10 +626,6 @@ MonMenu_Fly:
 
 .Error:
 	ld a, $0
-	ret
-
-.NoReload: ; unreferenced
-	ld a, $1
 	ret
 
 MonMenu_Flash:
@@ -1274,8 +1269,6 @@ PlaceMoveData:
 	call GetFarByte
 	call Adjust_percent
 	hlcoord 6, 13
-	; cp 2
-	; jr c, .no_power
 	ld [wTextDecimalByte], a
 	ld de, wTextDecimalByte
 	lb bc, 1, 3
