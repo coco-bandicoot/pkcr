@@ -254,6 +254,12 @@ _CGB_StatsScreenHPPals:
 	ld a, $6 ; orange page palette
 	call FillBoxCGB
 
+	; mon type(s)
+	hlcoord 5, 14, wAttrmap
+	lb bc, 2, 4
+	ld a, $7 ; mon base type light/dark pals
+	call FillBoxCGB
+
 	call ApplyAttrmap
 	call ApplyPals
 	ld a, TRUE
