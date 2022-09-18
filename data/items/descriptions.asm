@@ -25,7 +25,7 @@ ItemDescriptions:
 	dw FireStoneDesc
 	dw ThunderStoneDesc
 	dw WaterStoneDesc
-	dw TeruSama2Desc
+	dw ZincDesc
 	dw HPUpDesc
 	dw ProteinDesc
 	dw IronDesc
@@ -380,7 +380,11 @@ LuckyPunchDesc:
 	next "ratio of CHANSEY.@"
 
 CalciumDesc:
-	db   "Ups SPECIAL stats"
+	db   "Raises SPCL.ATK"
+	next "of one #MON.@"
+
+ZincDesc:
+	db   "Raises SPCL.DEF"
 	next "of one #MON.@"
 
 RareCandyDesc:
