@@ -591,7 +591,8 @@ LoadPinkPage:
 	call PlaceString
 .done_status
 	hlcoord 1, 15
-	predef PrintMonTypes
+	; predef PrintMonTypes
+	call PrintMonTypeTiles
 	hlcoord 9, 8
 	ld de, SCREEN_WIDTH
 	ld b, 10
@@ -707,6 +708,86 @@ LoadPinkPage:
 
 .PkrsStr:
 	db "#RUS@"
+
+PrintMonTypeTiles:
+	call GetBaseData
+	ld a, [wBaseType1]
+; Skip Bird
+	cp BIRD
+	jr c, .type1_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type1_adjust_done
+	sub UNUSED_TYPES
+.type1_adjust_done
+; load the 1st type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 2
+	push af
+	farcall LoadMonBaseTypePal	
+	pop af
+; load the tiles
+	ld hl, TypeLightIconGFX
+	ld bc, 4 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $50
+	lb bc, BANK(TypeLightIconGFX), 4
+	call Request2bpp
+; 2nd Type
+	ld a, [wBaseType2]
+; Skip Bird
+	cp BIRD
+	jr c, .type2_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type2_adjust_done
+	sub UNUSED_TYPES
+.type2_adjust_done
+; load the 2nd type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 4
+	push af
+	farcall LoadMonBaseTypePal	
+	pop af
+; load type 2 tiles
+	ld hl, TypeDarkIconGFX
+	ld bc, 4 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $54
+	lb bc, BANK(TypeDarkIconGFX), 4
+	call Request2bpp
+
+	call SetPalettes
+	hlcoord 5, 14
+	push hl
+	ld [hl], $50
+	inc hl
+	ld [hl], $51
+	inc hl
+	ld [hl], $52
+	inc hl
+	ld [hl], $53
+	inc hl
+	ld a, [wBaseType1]
+	ld b, a
+	ld a, [wBaseType2]
+	pop hl
+	cp b
+	ret z
+	ld bc, 20
+	add hl, bc
+	ld [hl], $54
+	inc hl
+	ld [hl], $55
+	inc hl
+	ld [hl], $56
+	inc hl
+	ld [hl], $57
+	ret
 
 LoadGreenPage:
 	ld de, .Item
