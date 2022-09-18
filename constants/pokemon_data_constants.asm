@@ -9,6 +9,10 @@ DEF BASE_DEF         rb
 DEF BASE_SPD         rb
 DEF BASE_SAT         rb
 DEF BASE_SDF         rb
+DEF BASE_EVS         rw
+rsset BASE_EVS
+DEF BASE_HP_ATK_DEF_SPD_EVS  rb
+DEF BASE_SAT_SDF_EVS         rb
 DEF BASE_TYPES       rw
 rsset BASE_TYPES
 DEF BASE_TYPE_1      rb
@@ -20,9 +24,7 @@ rsset BASE_ITEMS
 DEF BASE_ITEM_1      rb
 DEF BASE_ITEM_2      rb
 DEF BASE_GENDER      rb
-                     rb_skip
 DEF BASE_EGG_STEPS   rb
-                     rb_skip
 DEF BASE_PIC_SIZE    rb
 DEF BASE_FRONTPIC    rw
 DEF BASE_BACKPIC     rw
@@ -80,13 +82,17 @@ rsset MON_EXP
 DEF MON_CAUGHTTIME         rb
 DEF MON_EXP2               rb
 DEF MON_EXP3               rb
-DEF MON_STAT_EXP           rw NUM_EXP_STATS
-rsset MON_STAT_EXP
-DEF MON_HP_EXP             rw
-DEF MON_ATK_EXP            rw
-DEF MON_DEF_EXP            rw
-DEF MON_SPD_EXP            rw
-DEF MON_SPC_EXP            rw
+DEF MON_EVS                rb NUM_STATS
+rsset MON_EVS
+DEF MON_HP_EV              rb
+DEF MON_ATK_EV             rb
+DEF MON_DEF_EV             rb
+DEF MON_SPD_EV             rb
+DEF MON_SAT_EV             rb
+DEF MON_SDF_EV             rb
+                       rb_skip 2
+DEF MON_CAUGHTBALL		   rb
+DEF MON_CAUGHTLEVELREAL		   rb
 DEF MON_DVS                rw
 DEF MON_PP                 rb NUM_MOVES
 DEF MON_HAPPINESS          rb
@@ -136,6 +142,10 @@ DEF MON_CRY_LENGTH EQU 6
 
 ; maximum number of party pokemon
 DEF PARTY_LENGTH EQU 6
+
+; significant EV values
+DEF MAX_EV EQU 252
+DEF MAX_TOTAL_EV EQU 510
 
 ; boxes
 DEF MONS_PER_BOX EQU 20
