@@ -489,6 +489,21 @@ LoadMonBaseTypePal:
 	ld bc, 2
 	jp FarCopyColorWRAM
 
+LoadSingleBlackPal:
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wBGPals1)
+	ldh [rSVBK], a
+	xor a
+	ld [de], a
+	inc de
+	ld [de], a
+	inc de
+
+	pop af
+	ldh [rSVBK], a
+	ret
+
 LoadStatsScreenPals:
 	call CheckCGB
 	ret z

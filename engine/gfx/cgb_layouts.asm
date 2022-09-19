@@ -290,12 +290,54 @@ _CGB_Pokedex:
 .is_pokemon
 	call GetMonPalettePointer
 	call LoadPalette_White_Col1_Col2_Black ; mon palette
+; black background
+	ld de, wBGPals1 palette 7	
+	call LoadSingleBlackPal
+; mon type 1	
+	ld a, [wTempSpecies]
+	ld [wCurSpecies], a	
+	call GetBaseData
+	ld a, [wBaseType1]
+; Skip Bird
+	cp BIRD
+	jr c, .type1_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type1_adjust_done
+	sub UNUSED_TYPES
+.type1_adjust_done
+; load the 1st type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 2
+	farcall LoadMonBaseTypePal	
+; mon type 2
+	ld a, [wBaseType2]
+; Skip Bird
+	cp BIRD
+	jr c, .type2_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type2_adjust_done
+	sub UNUSED_TYPES
+.type2_adjust_done
+; load the 2nd type pal 
+	ld c, a
+	ld de, wBGPals1 palette 7 + 4
+	farcall LoadMonBaseTypePal
+;
 .got_palette
 	call WipeAttrmap
 	hlcoord 1, 1, wAttrmap
 	lb bc, 7, 7
 	ld a, $1 ; green question mark palette
 	call FillBoxCGB
+
+; mon base types
+	hlcoord 9, 1, wAttrmap
+	lb bc, 1, 8
+	ld a, $7 ; mon base type pals
+	call FillBoxCGB
+
 	call InitPartyMenuOBPals
 	ld hl, PokedexCursorPalette
 	ld de, wOBPals1 palette 7 ; green cursor palette
