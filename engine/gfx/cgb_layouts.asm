@@ -112,6 +112,10 @@ _CGB_BattleColors:
 	call LoadPalette_White_Col1_Col2_Black ; PAL_BATTLE_OB_ENEMY
 	pop hl
 	call LoadPalette_White_Col1_Col2_Black ; PAL_BATTLE_OB_PLAYER
+
+	call LoadPlayerStatusIconPalette
+	call LoadEnemyStatusIconPalette
+
 	ld a, SCGB_BATTLE_COLORS
 	ld [wDefaultSGBLayout], a
 	call ApplyPals
@@ -145,6 +149,19 @@ _CGB_FinishBattleScreenLayout:
 	ld bc, 6 * SCREEN_WIDTH
 	ld a, PAL_BATTLE_BG_TEXT
 	call ByteFill
+
+; status icons
+	; enemy
+	hlcoord 2, 1, wAttrmap
+	lb bc, 1, 2
+	ld a, $6
+	call FillBoxCGB
+	; player's
+	hlcoord 10, 8, wAttrmap
+	lb bc, 1, 2
+	ld a, $6
+	call FillBoxCGB
+
 	ld hl, BattleObjectPals
 	ld de, wOBPals1 palette PAL_BATTLE_OB_GRAY
 	ld bc, 6 palettes
@@ -217,9 +234,12 @@ _CGB_StatsScreenHPPals:
 	call LoadPalette_White_Col1_Col2_Black ; mon palette
 	ld hl, ExpBarPalette
 	call LoadPalette_White_Col1_Col2_Black ; exp palette
-	ld hl, StatsScreenPagePals
-	ld de, wBGPals1 palette 3
-	ld bc, 4 palettes ; pink, green, blue, and orange page palettes
+	; ld hl, StatsScreenPagePals
+	; ld de, wBGPals1 palette 3
+	; ld bc, 4 palettes ; pink, green, blue, and orange page palettes
+
+	call LoadStatsScreenStatusIconPalette
+
 	ld a, BANK(wBGPals1)
 	call FarCopyWRAM
 	call WipeAttrmap
@@ -241,23 +261,29 @@ _CGB_StatsScreenHPPals:
 
 	hlcoord 13, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $4 ; green page palette
+	ld a, $3 ; green page palette
 	call FillBoxCGB
 
 	hlcoord 15, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $5 ; blue page palette
+	ld a, $3 ; blue page palette
 	call FillBoxCGB
 
 	hlcoord 17, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $6 ; orange page palette
+	ld a, $3 ; orange page palette
 	call FillBoxCGB
 
 	; mon type(s)
 	hlcoord 5, 14, wAttrmap
 	lb bc, 2, 4
 	ld a, $7 ; mon base type light/dark pals
+	call FillBoxCGB
+
+	; mon status
+	hlcoord 7, 12, wAttrmap
+	lb bc, 1, 2
+	ld a, $6 ; mon base type light/dark pals
 	call FillBoxCGB
 
 	call ApplyAttrmap
@@ -588,11 +614,88 @@ _CGB_MapPals:
 	ret
 
 _CGB_PartyMenu:
+
 	ld hl, PalPacket_PartyMenu + 1
 	call CopyFourPalettes
 	call InitPartyMenuBGPal0
 	call InitPartyMenuBGPal7
 	call InitPartyMenuOBPals
+	call InitPartyMenuStatusPals
+
+	ld a, [wPartyCount]
+	and a
+	ret z
+	ld c, a
+	ld b, 0
+	hlcoord 3, 2, wAttrmap
+.loop
+	push bc
+	push hl
+	; checking for egg
+	ld a, LOW(wPartySpecies)
+	add b
+	ld e, a
+	ld a, HIGH(wPartySpecies)
+	adc 0
+	ld d, a
+	ld a, [de]
+	cp EGG
+	jr z, .next
+	; not egg
+	push hl
+	ld a, b
+	ld bc, PARTYMON_STRUCT_LENGTH
+	ld hl, wPartyMon1Status
+	call AddNTimes
+	ld e, l
+	ld d, h
+	farcall GetStatusConditionIndex
+	ld a, d
+	and a
+	pop hl
+	jr z, .next
+	; get the right Pal for the status
+	ld b, $1
+	cp b
+	jr nz, .PAR
+	ld a, $4 ; PSN
+	jr .done
+.PAR
+	ld b, $2
+	cp b
+	jr nz, .SLP
+	ld a, $5 ; PAR
+	jr .done
+.SLP
+	ld b, $3
+	cp b
+	jr nz, .BRN
+	ld a, $6 ; SLP
+	jr .done
+.BRN
+	ld b, $4
+	cp b
+	jr nz, .FRZ
+	ld a, $4 ; BRN
+	jr .done
+.FRZ
+	ld b, $5
+	cp b
+	jr nz, .next
+	ld a, $5 ; FRZ
+.done
+	lb bc, 1, 2
+	call FillBoxCGB
+
+.next
+	pop hl
+	ld de, SCREEN_WIDTH * 2
+	add hl, de
+	pop bc
+	inc b
+	dec c
+	jr nz, .loop
+
 	call ApplyAttrmap
 	ret
 

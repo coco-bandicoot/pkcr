@@ -410,6 +410,7 @@ GetStatusConditionIndex:
 	jr nz, .brn
 	bit FRZ, b
 	jr nz, .frz
+	ld d, a
 	ret
 
 .tox
@@ -426,76 +427,72 @@ GetStatusConditionIndex:
 	inc a ; 2
 .psn
 	inc a ; 1
+	ld d, a
 	ret
 
+Player_PlaceNonFaintStatus:
+	call GetStatusConditionIndex
+	ret z ; .no_status
+	cp $6 ; faint
+	ret z
 
-PlaceStatusString:
-; Return nz if the status is not OK
-	push de
-	inc de
-	inc de
-	ld a, [de]
-	ld b, a
-	inc de
-	ld a, [de]
-	or b
-	pop de
-	jr nz, PlaceNonFaintStatus
-	push de
-	ld de, FntString
-	call CopyStatusString
-	pop de
+	call Load_Player_Status_Tiles
+	ld [hl], $50
+	inc hl
+	ld [hl], $51
+
+	farcall LoadPlayerStatusIconPalette
 	ld a, TRUE
 	and a
 	ret
 
-FntString:
-	db "FNT@"
+Enemy_PlaceNonFaintStatus:
+	call GetStatusConditionIndex
+	ret z ; .no_status
+	cp $6 ; faint
+	ret z
 
-CopyStatusString:
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	ld [hl], a
-	ret
-
-PlaceNonFaintStatus:
-	push de
-	ld a, [de]
-	ld de, PsnString
-	bit PSN, a
-	jr nz, .place
-	ld de, BrnString
-	bit BRN, a
-	jr nz, .place
-	ld de, FrzString
-	bit FRZ, a
-	jr nz, .place
-	ld de, ParString
-	bit PAR, a
-	jr nz, .place
-	ld de, SlpString
-	and SLP_MASK
-	jr z, .no_status
-
-.place
-	call CopyStatusString
+	call Load_Enemy_Status_Tiles
+	ld [hl], $52
+	inc hl
+	ld [hl], $53
+	
+	farcall LoadEnemyStatusIconPalette
 	ld a, TRUE
 	and a
-
-.no_status
-	pop de
 	ret
 
-SlpString: db "SLP@"
-PsnString: db "PSN@"
-BrnString: db "BRN@"
-FrzString: db "FRZ@"
-ParString: db "PAR@"
+Load_Player_Status_Tiles:
+	push bc
+	push hl
+	; status index in a
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $50
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+	pop hl
+	pop bc
+	ret
+
+Load_Enemy_Status_Tiles:
+	push bc
+	push hl
+	; status index in a
+	ld hl, EnemyStatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $52
+	lb bc, BANK(EnemyStatusIconGFX), 2
+	call Request2bpp
+	pop hl
+	pop bc
+	ret
 
 ListMoves:
 ; List moves at hl, spaced every [wListMovesLineSpacing] tiles.
