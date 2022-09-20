@@ -12,7 +12,7 @@ StatusIconPals:
 ; FRZ
 	RGB 09, 18, 31
 ; FNT
-	RGB 25, 00, 00
+	RGB 31, 31, 31
 ; TOX
 	RGB 27, 06, 28
 

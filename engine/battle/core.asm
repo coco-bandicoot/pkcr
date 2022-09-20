@@ -663,8 +663,9 @@ ParsePlayerAction:
 
 	ld b, SCGB_BATTLE_COLORS
 	call GetSGBLayout
-
 	call UpdateBattleHuds
+	call WaitBGMap
+
 	ld a, [wCurPlayerMove]
 	cp STRUGGLE
 	jr z, .struggle

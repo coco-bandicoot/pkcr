@@ -147,6 +147,8 @@ RefreshBattleHuds::
 	jp WaitBGMap
 
 UpdateBattleHuds::
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 	farcall UpdatePlayerHUD
 	farcall UpdateEnemyHUD
 	ret
