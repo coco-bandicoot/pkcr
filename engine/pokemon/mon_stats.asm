@@ -338,52 +338,62 @@ ListMovePP:
 	jr nz, .load_loop
 	ret
 
-BrokenPlacePPUnits: ; unreferenced
-; Probably would have these parameters:
-; hl = starting coordinate
-; de = SCREEN_WIDTH or SCREEN_WIDTH * 2
-; c = the number of moves (1-4)
-.loop
-	ld [hl], $32 ; typo for P?
-	inc hl
-	ld [hl], $3e ; P
-	dec hl
-	add hl, de
-	dec c
-	jr nz, .loop
-	ret
+; BrokenPlacePPUnits: ; unreferenced
+; ; Probably would have these parameters:
+; ; hl = starting coordinate
+; ; de = SCREEN_WIDTH or SCREEN_WIDTH * 2
+; ; c = the number of moves (1-4)
+; .loop
+; 	ld [hl], $32 ; typo for P?
+; 	inc hl
+; 	ld [hl], $3e ; P
+; 	dec hl
+; 	add hl, de
+; 	dec c
+; 	jr nz, .loop
+; 	ret
 
 Unused_PlaceEnemyHPLevel:
-	push hl
-	push hl
-	ld hl, wPartyMonNicknames
-	ld a, [wCurPartyMon]
-	call GetNickname
-	pop hl
-	call PlaceString
-	call CopyMonToTempMon
-	pop hl
-	ld a, [wCurPartySpecies]
-	cp EGG
-	jr z, .egg
-	push hl
-	ld bc, -12
-	add hl, bc
-	ld b, 0
-	call DrawEnemyHP
-	pop hl
-	ld bc, 5
-	add hl, bc
-	push de
-	call PrintLevel
-	pop de
+; 	push hl
+; 	push hl
+; 	ld hl, wPartyMonNicknames
+; 	ld a, [wCurPartyMon]
+; 	call GetNickname
+; 	pop hl
+; 	call PlaceString
+; 	call CopyMonToTempMon
+; 	pop hl
+; 	ld a, [wCurPartySpecies]
+; 	cp EGG
+; 	jr z, .egg
+; 	push hl
+; 	ld bc, -12
+; 	add hl, bc
+; 	ld b, 0
+; 	call DrawEnemyHP
+; 	pop hl
+; 	ld bc, 5
+; 	add hl, bc
+; 	push de
+; 	call PrintLevel
+; 	pop de
 
-.egg
+; .egg
 	ret
 
 GetStatusConditionIndex:
 ; de points to status, e.g. from a party_struct or battle_struct
 ; return the status condition index in a
+
+; 	ld b,b
+; 	ld a, BATTLE_VARS_SUBSTATUS5
+; 	call GetBattleVar
+; 	bit SUBSTATUS_TOXIC, a
+; 	jr nz, .not_toxic
+; 	ld a, $7
+; 	ld d, a
+; 	ret
+; .not_toxic	
 	push de
 	inc de
 	inc de
@@ -399,9 +409,6 @@ GetStatusConditionIndex:
 	and SLP_MASK
 	ld a, 0
 	jr nz, .slp
-	; bit TOX, b
-	bit SUBSTATUS_TOXIC, b
-	jr nz, .tox
 	bit PSN, b
 	jr nz, .psn
 	bit PAR, b
@@ -412,9 +419,7 @@ GetStatusConditionIndex:
 	jr nz, .frz
 	ld d, a
 	ret
-
-.tox
-	inc a ; 7
+	
 .fnt
 	inc a ; 6
 .frz
@@ -437,9 +442,9 @@ Player_PlaceNonFaintStatus:
 	ret z
 
 	call Load_Player_Status_Tiles
-	ld [hl], $50
+	ld [hl], $70
 	inc hl
-	ld [hl], $51
+	ld [hl], $71
 
 	farcall LoadPlayerStatusIconPalette
 	ld a, TRUE
@@ -453,9 +458,9 @@ Enemy_PlaceNonFaintStatus:
 	ret z
 
 	call Load_Enemy_Status_Tiles
-	ld [hl], $52
+	ld [hl], $72
 	inc hl
-	ld [hl], $53
+	ld [hl], $73
 	
 	farcall LoadEnemyStatusIconPalette
 	ld a, TRUE
@@ -471,7 +476,7 @@ Load_Player_Status_Tiles:
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $50
+	ld hl, vTiles2 tile $70
 	lb bc, BANK(StatusIconGFX), 2
 	call Request2bpp
 	pop hl
@@ -487,7 +492,7 @@ Load_Enemy_Status_Tiles:
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $52
+	ld hl, vTiles2 tile $72
 	lb bc, BANK(EnemyStatusIconGFX), 2
 	call Request2bpp
 	pop hl

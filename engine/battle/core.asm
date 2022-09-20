@@ -646,9 +646,9 @@ ParsePlayerAction:
 .not_encored
 	ld a, [wBattlePlayerAction]
 	cp BATTLEPLAYERACTION_SWITCH
-	jr z, .reset_rage
+	jp z, .reset_rage
 	and a
-	jr nz, .reset_bide
+	jp nz, .reset_bide
 	ld a, [wPlayerSubStatus3]
 	and 1 << SUBSTATUS_BIDE
 	jr nz, .locked_in
@@ -658,7 +658,12 @@ ParsePlayerAction:
 	ld [wFXAnimID], a
 	call MoveSelectionScreen
 	push af
+
 	call SafeLoadTempTilemapToTilemap
+
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
+
 	call UpdateBattleHuds
 	ld a, [wCurPlayerMove]
 	cp STRUGGLE
@@ -1933,24 +1938,24 @@ GetMaxHP:
 	ld c, a
 	ret
 
-GetHalfHP: ; unreferenced
-	ld hl, wBattleMonHP
-	ldh a, [hBattleTurn]
-	and a
-	jr z, .ok
-	ld hl, wEnemyMonHP
-.ok
-	ld a, [hli]
-	ld b, a
-	ld a, [hli]
-	ld c, a
-	srl b
-	rr c
-	ld a, [hli]
-	ld [wHPBuffer1 + 1], a
-	ld a, [hl]
-	ld [wHPBuffer1], a
-	ret
+; GetHalfHP: ; unreferenced
+; 	ld hl, wBattleMonHP
+; 	ldh a, [hBattleTurn]
+; 	and a
+; 	jr z, .ok
+; 	ld hl, wEnemyMonHP
+; .ok
+; 	ld a, [hli]
+; 	ld b, a
+; 	ld a, [hli]
+; 	ld c, a
+; 	srl b
+; 	rr c
+; 	ld a, [hli]
+; 	ld [wHPBuffer1 + 1], a
+; 	ld a, [hl]
+; 	ld [wHPBuffer1], a
+; 	ret
 
 CheckUserHasEnoughHP:
 	ld hl, wBattleMonHP + 1
@@ -4763,8 +4768,31 @@ PrintPlayerHUD:
 	hlcoord 10, 8
 	push af ; back up gender
 	push hl
+
+; 	ld b,b
+; 	ld a, [wPlayerSubStatus5]
+; 	bit SUBSTATUS_TOXIC, a
+; 	jr z, .not_toxic
+; 	ld a, $7 ; Toxic
+; 	ld hl, StatusIconGFX
+; 	ld bc, 2 * LEN_2BPP_TILE
+; 	call AddNTimes
+; 	ld d, h
+; 	ld e, l
+; 	ld hl, vTiles2 tile $70
+; 	lb bc, BANK(StatusIconGFX), 2
+; 	call Request2bpp
+; 	ld [hl], $70
+; 	inc hl
+; 	ld [hl], $71
+
+; 	farcall LoadPlayerStatusIconPalette
+; 	jr .status_done
+; .not_toxic
 	ld de, wBattleMonStatus
 	predef Player_PlaceNonFaintStatus
+
+.status_done
 	pop hl
 	pop bc
 	; ret nz
@@ -4950,10 +4978,14 @@ BattleMenu:
 	jr z, .ok
 	cp BATTLETYPE_TUTORIAL
 	jr z, .ok
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
+
 	call EmptyBattleTextbox
 	call UpdateBattleHuds
 	call EmptyBattleTextbox
 	call LoadTilemapToTempTilemap
+
 .ok
 
 .loop
@@ -5163,6 +5195,13 @@ BattleMenuPKMN_Loop:
 	call DelayFrame
 	call _LoadHPBar
 	call CloseWindow
+
+
+	call GetBattleMonBackpic
+	call WaitBGMap
+	call FinishBattleAnim
+	; call LoadTilemapToTempTilemap
+
 	call LoadTilemapToTempTilemap
 	call GetMemSGBLayout
 	call SetPalettes
@@ -5252,6 +5291,7 @@ TryPlayerSwitch:
 	call CloseWindow
 	call GetMemSGBLayout
 	call SetPalettes
+	call GetBattleMonBackpic
 	ld a, [wCurPartyMon]
 	ld [wCurBattleMon], a
 PlayerSwitch:
@@ -5392,12 +5432,6 @@ CheckAmuletCoin:
 	ret
 
 MoveSelectionScreen:
-	call IsMobileBattle
-	jr nz, .not_mobile
-	farcall Mobile_MoveSelectionScreen
-	ret
-
-.not_mobile
 	ld hl, wEnemyMonMoves
 	ld a, [wMoveSelectionMenuType]
 	dec a
@@ -5491,6 +5525,10 @@ MoveSelectionScreen:
 	ld [w2DMenuFlags2], a
 	ld a, $10
 	ld [w2DMenuCursorOffsets], a
+
+	; call WaitBGMap
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 .menu_loop
 	ld a, [wMoveSelectionMenuType]
 	and a
@@ -5546,7 +5584,6 @@ MoveSelectionScreen:
 	ld a, b
 	ld [wCurMoveNum], a
 	jr nz, .use_move
-
 	pop af
 	ret
 
@@ -5593,6 +5630,8 @@ MoveSelectionScreen:
 .place_textbox_start_over
 	push hl
 	call ClearSprites
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 	pop hl
 	call StdBattleTextbox
 	call SafeLoadTempTilemapToTilemap
@@ -5710,9 +5749,9 @@ MoveInfoBox:
 	xor a
 	ldh [hBGMapMode], a
 
-	hlcoord 0, 8
-	ld b, 3
-	ld c, 9
+	hlcoord 0, 7
+	ld b, 4
+	ld c, 7
 	call Textbox
 	call MobileTextBorder
 
@@ -5727,10 +5766,10 @@ MoveInfoBox:
 	cp b
 	jr nz, .not_disabled
 
-	hlcoord 1, 10
+	hlcoord 1, 11
 	ld de, .Disabled
 	call PlaceString
-	jr .done
+	jp .done
 
 .not_disabled
 	ld hl, wMenuCursorY
@@ -5762,23 +5801,107 @@ MoveInfoBox:
 	call .PrintPP
 
 	farcall UpdateMoveData
-	ld a, [wPlayerMoveStruct + MOVE_ANIM]
-	ld b, a
-	farcall GetMoveCategoryName
+	farcall LoadBattleCategoryAndTypePals
+	call SetPalettes
 
-	hlcoord 1, 9
-	ld de, wStringBuffer1
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and TYPE_MASK
+; TYPE ADJUST: Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
+	ld hl, TypeIconGFX
+	ld bc, 4 * LEN_1BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $55
+	lb bc, BANK(TypeIconGFX), 4
+	call Request1bpp
+	hlcoord 4, 11
+	ld [hl], $55
+	inc hl
+	ld [hl], $56
+	inc hl
+	ld [hl], $57
+	inc hl
+	ld [hl], $58
+
+	ld a, [wPlayerMoveStruct + MOVE_TYPE]
+	and CATG_MASK
+	swap a
+	srl a
+	srl a
+	dec a
+	ld hl, CategoryIconGFX
+	ld bc, 2 tiles
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $59
+	lb bc, BANK(CategoryIconGFX), 2
+	call Request2bpp ; Load 2bpp at b:de to occupy c tiles of hl.
+	hlcoord 1, 11
+	ld [hl], $59
+	inc hl
+	ld [hl], $5a
+
+; print move BP
+	ld de, .power_string
+	hlcoord 1, 8
 	call PlaceString
 
-	ld h, b
-	ld l, c
-	ld [hl], "/"
-
-	ld a, [wPlayerMoveStruct + MOVE_ANIM]
-	ld b, a
-	hlcoord 2, 10
-	predef PrintMoveType
-
+	hlcoord 4, 8
+	ld a, [wPlayerMoveStruct + MOVE_POWER]
+	and a
+	jr nz, .haspower
+	ld de, .nopower_string
+	call PlaceString
+	jr .print_acc
+.haspower	
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 3
+	call PrintNum
+	
+; print move ACC
+.print_acc
+	hlcoord 1, 9
+	ld de, .accuracy_string
+	call PlaceString
+	hlcoord 7, 9
+	ld [hl], "<%>"
+	hlcoord 4, 9
+	ld a, [wPlayerMoveStruct + MOVE_ACC]
+; convert from hex to decimal
+	ldh [hMultiplicand], a
+	ld a, 100
+	ldh [hMultiplier], a
+	call Multiply
+	; Divide hDividend length b (max 4 bytes) by hDivisor. Result in hQuotient.
+	ld b, 2
+	ld a, 255
+	ldh [hDivisor], a
+	call Divide
+	ldh a, [hQuotient + 3]
+	cp 100
+	jr z, .print_num
+	inc a
+.print_num
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	lb bc, 1, 3
+	call PrintNum
+; print move Effect chance?
+	; call WaitBGMap
+	; ld a, 8
+	; call DelayFrames
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 .done
 	ret
 
@@ -5786,11 +5909,11 @@ MoveInfoBox:
 	db "Disabled!@"
 
 .PrintPP:
-	hlcoord 5, 11
+	hlcoord 3, 10
 	ld a, [wLinkMode] ; What's the point of this check?
 	cp LINK_MOBILE
 	jr c, .ok
-	hlcoord 5, 11
+	hlcoord 3, 10
 .ok
 	push hl
 	ld de, wStringBuffer1
@@ -5804,7 +5927,17 @@ MoveInfoBox:
 	ld de, wNamedObjectIndex
 	lb bc, 1, 2
 	call PrintNum
+	hlcoord 1, 10
+	ld a, $76
+	ld [hli], a
+	ld [hl], a
 	ret
+.power_string:
+	db "BP@"
+.nopower_string:
+	db "---@"
+.accuracy_string:
+	db "AC@"
 
 CheckPlayerHasUsableMoves:
 	ld a, STRUGGLE
@@ -6564,16 +6697,16 @@ CheckUnownLetter:
 
 INCLUDE "data/wild/unlocked_unowns.asm"
 
-SwapBattlerLevels: ; unreferenced
-	push bc
-	ld a, [wBattleMonLevel]
-	ld b, a
-	ld a, [wEnemyMonLevel]
-	ld [wBattleMonLevel], a
-	ld a, b
-	ld [wEnemyMonLevel], a
-	pop bc
-	ret
+; SwapBattlerLevels: ; unreferenced
+; 	push bc
+; 	ld a, [wBattleMonLevel]
+; 	ld b, a
+; 	ld a, [wEnemyMonLevel]
+; 	ld [wBattleMonLevel], a
+; 	ld a, b
+; 	ld [wEnemyMonLevel], a
+; 	pop bc
+; 	ret
 
 BattleWinSlideInEnemyTrainerFrontpic:
 	xor a
@@ -6926,20 +7059,6 @@ _LoadBattleFontsHPBar:
 _LoadHPBar:
 	callfar LoadHPBar
 	ret
-
-LoadHPExpBarGFX: ; unreferenced
-	ld de, EnemyHPBarBorderGFX
-	ld hl, vTiles2 tile $6c
-	lb bc, BANK(EnemyHPBarBorderGFX), 4
-	call Get1bpp
-	ld de, HPExpBarBorderGFX
-	ld hl, vTiles2 tile $73
-	lb bc, BANK(HPExpBarBorderGFX), 6
-	call Get1bpp
-	ld de, ExpBarGFX
-	ld hl, vTiles2 tile $55
-	lb bc, BANK(ExpBarGFX), 8
-	jp Get2bpp
 
 EmptyBattleTextbox:
 	ld hl, .empty
@@ -7939,45 +8058,45 @@ GoodComeBackText:
 	text_far _GoodComeBackText
 	text_end
 
-TextJump_ComeBack: ; unreferenced
-	ld hl, ComeBackText
-	ret
+; TextJump_ComeBack: ; unreferenced
+; 	ld hl, ComeBackText
+; 	ret
 
 ComeBackText:
 	text_far _ComeBackText
 	text_end
 
-HandleSafariAngerEatingStatus: ; unreferenced
-	ld hl, wSafariMonEating
-	ld a, [hl]
-	and a
-	jr z, .angry
-	dec [hl]
-	ld hl, BattleText_WildMonIsEating
-	jr .finish
+; HandleSafariAngerEatingStatus: ; unreferenced
+; 	ld hl, wSafariMonEating
+; 	ld a, [hl]
+; 	and a
+; 	jr z, .angry
+; 	dec [hl]
+; 	ld hl, BattleText_WildMonIsEating
+; 	jr .finish
 
-.angry
-	dec hl
-	assert wSafariMonEating - 1 == wSafariMonAngerCount
-	ld a, [hl]
-	and a
-	ret z
-	dec [hl]
-	ld hl, BattleText_WildMonIsAngry
-	jr nz, .finish
-	push hl
-	ld a, [wEnemyMonSpecies]
-	ld [wCurSpecies], a
-	call GetBaseData
-	ld a, [wBaseCatchRate]
-	ld [wEnemyMonCatchRate], a
-	pop hl
+; .angry
+; 	dec hl
+; 	assert wSafariMonEating - 1 == wSafariMonAngerCount
+; 	ld a, [hl]
+; 	and a
+; 	ret z
+; 	dec [hl]
+; 	ld hl, BattleText_WildMonIsAngry
+; 	jr nz, .finish
+; 	push hl
+; 	ld a, [wEnemyMonSpecies]
+; 	ld [wCurSpecies], a
+; 	call GetBaseData
+; 	ld a, [wBaseCatchRate]
+; 	ld [wEnemyMonCatchRate], a
+; 	pop hl
 
-.finish
-	push hl
-	call SafeLoadTempTilemapToTilemap
-	pop hl
-	jp StdBattleTextbox
+; .finish
+; 	push hl
+; 	call SafeLoadTempTilemapToTilemap
+; 	pop hl
+; 	jp StdBattleTextbox
 
 FillInExpBar:
 	push hl
@@ -8109,7 +8228,8 @@ PlaceExpBar:
 .next
 	add $8
 	jr z, .loop2
-	add $54 ; tile to the left of small exp bar tile
+	; add $54 ; tile to the left of small exp bar tile
+	add $62
 	jr .skip
 
 .loop2
@@ -8212,9 +8332,9 @@ StartBattle:
 	scf
 	ret
 
-CallDoBattle: ; unreferenced
-	call DoBattle
-	ret
+; CallDoBattle: ; unreferenced
+; 	call DoBattle
+; 	ret
 
 BattleIntro:
 	farcall StubbedTrainerRankings_Battles ; mobile
@@ -8385,56 +8505,56 @@ InitEnemyWildmon:
 	predef PlaceGraphic
 	ret
 
-FillEnemyMovesFromMoveIndicesBuffer: ; unreferenced
-	ld hl, wEnemyMonMoves
-	ld de, wListMoves_MoveIndicesBuffer
-	ld b, NUM_MOVES
-.loop
-	ld a, [de]
-	inc de
-	ld [hli], a
-	and a
-	jr z, .clearpp
+; FillEnemyMovesFromMoveIndicesBuffer: ; unreferenced
+; 	ld hl, wEnemyMonMoves
+; 	ld de, wListMoves_MoveIndicesBuffer
+; 	ld b, NUM_MOVES
+; .loop
+; 	ld a, [de]
+; 	inc de
+; 	ld [hli], a
+; 	and a
+; 	jr z, .clearpp
 
-	push bc
-	push hl
+; 	push bc
+; 	push hl
 
-	push hl
-	dec a
-	ld hl, Moves + MOVE_PP
-	ld bc, MOVE_LENGTH
-	call AddNTimes
-	ld a, BANK(Moves)
-	call GetFarByte
-	pop hl
+; 	push hl
+; 	dec a
+; 	ld hl, Moves + MOVE_PP
+; 	ld bc, MOVE_LENGTH
+; 	call AddNTimes
+; 	ld a, BANK(Moves)
+; 	call GetFarByte
+; 	pop hl
 
-	ld bc, wEnemyMonPP - (wEnemyMonMoves + 1)
-	add hl, bc
-	ld [hl], a
+; 	ld bc, wEnemyMonPP - (wEnemyMonMoves + 1)
+; 	add hl, bc
+; 	ld [hl], a
 
-	pop hl
-	pop bc
+; 	pop hl
+; 	pop bc
 
-	dec b
-	jr nz, .loop
-	ret
+; 	dec b
+; 	jr nz, .loop
+; 	ret
 
-.clear
-	xor a
-	ld [hli], a
+; .clear
+; 	xor a
+; 	ld [hli], a
 
-.clearpp
-	push bc
-	push hl
-	ld bc, wEnemyMonPP - (wEnemyMonMoves + 1)
-	add hl, bc
-	xor a
-	ld [hl], a
-	pop hl
-	pop bc
-	dec b
-	jr nz, .clear
-	ret
+; .clearpp
+; 	push bc
+; 	push hl
+; 	ld bc, wEnemyMonPP - (wEnemyMonMoves + 1)
+; 	add hl, bc
+; 	xor a
+; 	ld [hl], a
+; 	pop hl
+; 	pop bc
+; 	dec b
+; 	jr nz, .clear
+; 	ret
 
 ExitBattle:
 	call .HandleEndOfBattle
