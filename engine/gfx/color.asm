@@ -384,18 +384,21 @@ LoadCPaletteBytesFromHLIntoDE:
 	pop af
 	ldh [rSVBK], a
 	ret
-
+LoadStatsScreenStatusIconPalette:
+	ld de, wTempMonStatus
+	jr LoadPlayerStatusIconPalette.statusindex
 LoadPlayerStatusIconPalette:
 	ld a, [wPlayerSubStatus2]
 	ld de, wBattleMonStatus
+.statusindex	
 	farcall GetStatusConditionIndex
 	ld hl, StatusIconPals
-	ld c, a
+	ld c, d
 	ld b, 0
 	add hl, bc
 	add hl, bc
 	;ld de, wBGPals1 palette PAL_BATTLE_BG_STATUS + 2
-	ld de, wBGPals1 palette 5 + 2
+	ld de, wBGPals1 palette 6 + 2
 	ld bc, 2
 	jp FarCopyColorWRAM
 
@@ -404,12 +407,12 @@ LoadEnemyStatusIconPalette:
 	ld de, wEnemyMonStatus
 	farcall GetStatusConditionIndex
 	ld hl, StatusIconPals
-	ld c, a
+	ld c, d
 	ld b, 0
 	add hl, bc
 	add hl, bc
 	;ld de, wBGPals1 palette PAL_BATTLE_BG_STATUS + 4
-	ld de, wBGPals1 palette 5 + 4
+	ld de, wBGPals1 palette 6 + 4
 	ld bc, 2
 	jp FarCopyColorWRAM
 
@@ -518,10 +521,12 @@ LoadStatsScreenPals:
 	ld a, [hli]
 	ld [wBGPals1 palette 0], a
 	ld [wBGPals1 palette 2], a
+	ld [wBGPals1 palette 6], a
 	ld [wBGPals1 palette 7], a
 	ld a, [hl]
 	ld [wBGPals1 palette 0 + 1], a
 	ld [wBGPals1 palette 2 + 1], a
+	ld [wBGPals1 palette 6 + 1], a
 	ld [wBGPals1 palette 7 + 1], a
 	pop af
 	ldh [rSVBK], a
@@ -785,6 +790,53 @@ CGB_ApplyPartyMenuHPPals:
 	lb bc, 2, 8
 	ld a, e
 	call FillBoxCGB
+	ret
+
+InitPartyMenuStatusPals:
+	ld hl, StatusIconPals
+	ld c, $1 ; PSN
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 4 + 2
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $2 ; PAR
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 5 + 2
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $3 ; SLP
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 6 + 2
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $4 ; BRN
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 4 + 4
+	ld bc, 2
+	call FarCopyColorWRAM
+
+	ld hl, StatusIconPals
+	ld c, $5 ; FRZ
+	ld b, 0
+	add hl, bc
+	add hl, bc
+	ld de, wBGPals1 palette 5 + 4
+	ld bc, 2
+	call FarCopyColorWRAM
 	ret
 
 InitPartyMenuOBPals:
@@ -1489,4 +1541,3 @@ SetFirstOBJPalette::
  	ldh [hCGBPalUpdate], a
  	call ApplyPals
  	ret
- 

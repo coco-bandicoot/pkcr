@@ -574,18 +574,37 @@ LoadPinkPage:
 	ld a, [wMonType]
 	cp BOXMON
 	jr z, .StatusOK
-	hlcoord 6, 13
+	hlcoord 7, 12
 	push hl
 	ld de, wTempMonStatus
-	predef PlaceStatusString
+	predef GetStatusConditionIndex
+	ld a, d
 	pop hl
-	jr nz, .done_status
-	jr .StatusOK
+	jr z, .StatusOK
+
+	push hl
+	; status index in a
+	ld hl, StatusIconGFX
+	ld bc, 2 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $5e
+	lb bc, BANK(StatusIconGFX), 2
+	call Request2bpp
+
+	pop hl
+	ld a, $5e
+	ld [hli], a
+	inc a
+	ld [hl], a
+	
+	jr .done_status
 .HasPokerus:
 	ld de, .PkrsStr
 	hlcoord 1, 13
 	call PlaceString
-	jr .done_status
+	jr .NotImmuneToPkrs
 .StatusOK:
 	ld de, .OK_str
 	call PlaceString
