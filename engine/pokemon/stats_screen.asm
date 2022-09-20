@@ -1285,13 +1285,13 @@ StatsScreen_AnimateEgg:
 
 StatsScreen_LoadPageIndicators:
 	hlcoord 11, 5
-	ld a, $36 ; " " " "
+	ld a, $42 ; " " " "
 	call .load_square
 	hlcoord 13, 5
 	ld a, $36 ; first of 4 small square tiles
 	call .load_square
 	hlcoord 15, 5
-	ld a, $36 ; " " " "
+	ld a, $42 ; " " " "
 	call .load_square
 	hlcoord 17, 5
 	ld a, $36 ; " " " "
@@ -1299,13 +1299,13 @@ StatsScreen_LoadPageIndicators:
 	ld a, c
 	cp PINK_PAGE
 	hlcoord 11, 5
-	jr z, .load_highlighted_square
+	jr z, .load_highlighted_square_alt
 	cp GREEN_PAGE
 	hlcoord 13, 5
 	jr z, .load_highlighted_square
 	cp BLUE_PAGE
 	hlcoord 15, 5
-	jr z, .load_highlighted_square
+	jr z, .load_highlighted_square_alt
 	; must be ORANGE_PAGE
 	hlcoord 17, 5
 .load_highlighted_square
@@ -1323,6 +1323,9 @@ StatsScreen_LoadPageIndicators:
 	ld [hl], a
 	pop bc
 	ret
+.load_highlighted_square_alt
+	ld a, $46 ; first of 4 large square tiles
+	jr .load_square
 
 CopyNickname:
 	ld de, wStringBuffer1

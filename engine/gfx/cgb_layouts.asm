@@ -234,12 +234,10 @@ _CGB_StatsScreenHPPals:
 	call LoadPalette_White_Col1_Col2_Black ; mon palette
 	ld hl, ExpBarPalette
 	call LoadPalette_White_Col1_Col2_Black ; exp palette
-	; ld hl, StatsScreenPagePals
-	; ld de, wBGPals1 palette 3
-	; ld bc, 4 palettes ; pink, green, blue, and orange page palettes
-
 	call LoadStatsScreenStatusIconPalette
-
+	ld hl, StatsScreenPagePals
+	ld de, wBGPals1 palette 3
+	ld bc, 2 palettes ; pink, green, blue, and orange page palettes
 	ld a, BANK(wBGPals1)
 	call FarCopyWRAM
 	call WipeAttrmap
@@ -266,12 +264,12 @@ _CGB_StatsScreenHPPals:
 
 	hlcoord 15, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $3 ; blue page palette
+	ld a, $4 ; blue & orange box palette
 	call FillBoxCGB
 
 	hlcoord 17, 5, wAttrmap
 	lb bc, 2, 2
-	ld a, $3 ; orange page palette
+	ld a, $4 ; blue & orange box palette
 	call FillBoxCGB
 
 	; mon type(s)
