@@ -59,7 +59,7 @@
 	charmap "“",         $72 ; opening quote
 	charmap "”",         $73 ; closing quote
 	; charmap "·",         $74 ; middle dot, unused
-	charmap "…",         $75 ; ellipsis
+	charmap "…",         $e8 ;$75 ; ellipsis
 	; charmap "ぁ",         $76 ; hiragana small a, unused
 	; charmap "ぇ",         $77 ; hiragana small e, unused
 	; charmap "ぉ",         $78 ; hiragana small o, unused
@@ -172,7 +172,7 @@
 	charmap "=",        $dd
 	charmap "<PP>",		$de
 	charmap "<%>",      $f2
-	charmap "<DOT>",    $f2
+	charmap "<DOT>",    $e8
 	charmap "<UP>",     $e4
 	charmap "<DOWN>",   $e5
 	charmap "<UNK_A>",  $ba

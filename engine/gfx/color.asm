@@ -436,7 +436,7 @@ LoadBattleCategoryAndTypePals:
 .type_adjust_done
 	ld c, a
 	;ld de, wBGPals1 palette PAL_BATTLE_BG_TYPE_CAT + 2
-	ld de, wBGPals1 palette 6 + 2
+	ld de, wBGPals1 palette 5
 
 LoadCategoryAndTypePals:
 ; we need the white palette lol kill me

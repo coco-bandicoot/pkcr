@@ -49,7 +49,7 @@ Moves:
 	move FURY_ATTACK,  EFFECT_MULTI_HIT,          15, NORMAL,        PHYSICAL,  85, 20,   0
 	move HORN_DRILL,   EFFECT_OHKO,                1, NORMAL,        PHYSICAL,  30,  5,   0
 	; move TACKLE,       EFFECT_NORMAL_HIT,         35, NORMAL,        PHYSICAL, 100, 35,   0
-	move TACKLE,       EFFECT_POISON_HIT,         35, NORMAL,        PHYSICAL, 100, 35,   100
+	move TACKLE,       EFFECT_PARALYZE_HIT,         35, NORMAL,        PHYSICAL, 100, 35,   100
 	move BODY_SLAM,    EFFECT_PARALYZE_HIT,       85, NORMAL,        PHYSICAL, 100, 15,  30
 	move WRAP,         EFFECT_TRAP_TARGET,        15, NORMAL,        PHYSICAL,  85, 20,   0
 	move TAKE_DOWN,    EFFECT_RECOIL_HIT,         90, NORMAL,        PHYSICAL,  85, 20,   0
@@ -97,7 +97,8 @@ Moves:
 	move STUN_SPORE,   EFFECT_PARALYZE,            0, GRASS,         STATUS,    75, 30,   0
 	move SLEEP_POWDER, EFFECT_SLEEP,               0, GRASS,         STATUS,    75, 15,   0
 	move PETAL_DANCE,  EFFECT_RAMPAGE,            70, GRASS,         SPECIAL,  100, 20,   0
-	move STRING_SHOT,  EFFECT_SPEED_DOWN,          0, BUG,           STATUS,    95, 40,   0
+	; move STRING_SHOT,  EFFECT_SPEED_DOWN,          0, BUG,           STATUS,    95, 40,   0
+	move STRING_SHOT,  EFFECT_TOXIC,          0, BUG,           STATUS,    95, 40,   0
 	move DRAGON_RAGE,  EFFECT_STATIC_DAMAGE,      40, DRAGON,        SPECIAL,  100, 10,   0
 	move FIRE_SPIN,    EFFECT_TRAP_TARGET,        15, FIRE,          SPECIAL,   70, 15,   0
 	move THUNDERSHOCK, EFFECT_PARALYZE_HIT,       40, ELECTRIC,      SPECIAL,  100, 30,  10

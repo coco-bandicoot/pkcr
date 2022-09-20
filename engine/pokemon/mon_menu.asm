@@ -1177,12 +1177,12 @@ PrepareToPlaceMoveData:
 PlaceMoveData:
 	xor a
 	ldh [hBGMapMode], a
-	hlcoord 0, 10
-	ld de, String_MoveType_Top
-	call PlaceString
-	hlcoord 0, 11
-	ld de, String_MoveType_Bottom
-	call PlaceString
+	; hlcoord 0, 10
+	; ld de, String_MoveType_Top
+	; call PlaceString
+	; hlcoord 0, 11
+	; ld de, String_MoveType_Bottom
+	; call PlaceString
 
 ; Place Move Cateogry
 	ld a, [wCurSpecies]
@@ -1207,7 +1207,7 @@ PlaceMoveData:
 	ld hl, vTiles2 tile $59
 	lb bc, BANK(CategoryIconGFX), 2
 	call Request2bpp ; Load 2bpp at b:de to occupy c tiles of hl.
-	hlcoord 1, 11
+	hlcoord 7, 13
 	ld a, $59
 	ld [hli], a
 	ld [hl], $5a
@@ -1246,7 +1246,7 @@ PlaceMoveData:
 	ld hl, vTiles2 tile $5b
 	lb bc, BANK(TypeIconGFX), 4
 	call Request1bpp
-	hlcoord 3, 11
+	hlcoord 2, 13
 	ld a, $5b
 	ld [hli], a
 	inc a ; $5c
@@ -1256,9 +1256,11 @@ PlaceMoveData:
 	ld [hl], $5e
 
 ; Place Move Accuracy
-	hlcoord 2, 13
+	hlcoord 10, 12
 	ld de, String_MoveAcc
 	call PlaceString
+	hlcoord 18, 12
+	ld [hl], "<%>"
 
 	ld a, [wCurSpecies]
 	dec a
@@ -1268,7 +1270,7 @@ PlaceMoveData:
 	ld a, BANK(Moves)
 	call GetFarByte
 	call Adjust_percent
-	hlcoord 6, 13
+	hlcoord 15, 12
 	ld [wTextDecimalByte], a
 	ld de, wTextDecimalByte
 	lb bc, 1, 3
@@ -1281,7 +1283,7 @@ PlaceMoveData:
 	call AddNTimes
 	ld a, BANK(Moves)
 	call GetFarByte
-	hlcoord 15, 12
+	hlcoord 15, 13
 	cp 2
 	jr c, .no_efct_chance
 
@@ -1291,9 +1293,11 @@ PlaceMoveData:
 	lb bc, 1, 3
 	call PrintNum
 
-	hlcoord 10, 12
+	hlcoord 10, 13
 	ld de, String_MoveChance
 	call PlaceString
+	hlcoord 18, 13
+	ld [hl], "<%>"
 .no_efct_chance
 ; Place Move POWER
 	hlcoord 2, 12
