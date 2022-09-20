@@ -915,6 +915,7 @@ BellsproutEvosAttacks:
 	db EVOLVE_LEVEL, 21, WEEPINBELL
 	db 0 ; no more evolutions
 	db 1, VINE_WHIP
+	db 5, TOXIC
 	db 6, GROWTH
 	db 11, WRAP
 	db 15, SLEEP_POWDER
