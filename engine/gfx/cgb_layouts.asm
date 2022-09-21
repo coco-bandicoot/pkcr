@@ -169,7 +169,7 @@ _CGB_FinishBattleScreenLayout:
 	set 5, a ; flips tiles on x axis
 	call ByteFill
 
-; player hp
+; player exp
 	hlcoord 10, 11, wAttrmap
 	lb bc, 1, 8
 	ld a, PAL_BATTLE_BG_EXP
@@ -672,7 +672,7 @@ _CGB_PartyMenu:
 	ret z
 	ld c, a
 	ld b, 0
-	hlcoord 3, 2, wAttrmap
+	hlcoord 5, 2, wAttrmap
 .loop
 	push bc
 	push hl

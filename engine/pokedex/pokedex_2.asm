@@ -177,9 +177,6 @@ DisplayDexEntry:
 	call PlaceFarString
 	ret
 
-POKeString: ; unreferenced
-	db "#@"
-
 GetDexEntryPointer:
 ; return dex entry pointer b:de
 	push hl
@@ -482,6 +479,7 @@ Pokedex_Print_NextLvlMoves:
 	ret
 
 DisplayDexMonEvos:
+; print stage 1 first, then sus out how many evos it has
 	ld hl, wPokedexPagePos1
 	ld [hl], 0 ; evo stage
 	xor a

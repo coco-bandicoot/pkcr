@@ -63,15 +63,11 @@ _LoadFontsExtra2::
 	ld c, 1
 	call Get2bppViaHDMA
 	ret
-
+	
 _LoadFontsBattleExtra::
 	ld de, FontBattleExtra
 	ld hl, vTiles2 tile $60
 	lb bc, BANK(FontBattleExtra), 16
-	call Get2bppViaHDMA
-	ld de, FontBattleExtra + 4 tiles
-	ld hl, vTiles2 tile $74
-	lb bc, BANK(FontBattleExtra), 12
 	call Get2bppViaHDMA
 	jr LoadFrame
 
@@ -97,10 +93,6 @@ LoadBattleFontsHPBar:
 	ld hl, vTiles2 tile $60
 	lb bc, BANK(FontBattleExtra), 12
 	call Get2bppViaHDMA
-	; ld hl, vTiles2 tile $70
-	; ld de, FontBattleExtra + 16 tiles ; "<DO>"
-	; lb bc, BANK(FontBattleExtra), 3 ; "<DO>" to "『"
-	; call Get2bppViaHDMA
 	call LoadFrame
 
 LoadHPBar:
@@ -108,7 +100,7 @@ LoadHPBar:
 	ld hl, vTiles2 tile $6c
 	lb bc, BANK(EnemyHPBarBorderGFX), 4
 	call Get1bppViaHDMA
-	ld de, HPExpBarBorderGFX + 8;+ 1 tiles
+	ld de, HPExpBarBorderGFX + 1 * LEN_1BPP_TILE
 	ld hl, vTiles2 tile $74
 	lb bc, BANK(HPExpBarBorderGFX), 5
 	call Get1bppViaHDMA

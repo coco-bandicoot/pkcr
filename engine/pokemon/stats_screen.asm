@@ -751,7 +751,7 @@ PrintMonTypeTiles:
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $50
+	ld hl, vTiles2 tile $4c
 	lb bc, BANK(TypeLightIconGFX), 4
 	call Request2bpp
 ; 2nd Type
@@ -776,20 +776,20 @@ PrintMonTypeTiles:
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $54
+	ld hl, vTiles2 tile $5c
 	lb bc, BANK(TypeDarkIconGFX), 4
 	call Request2bpp
 
 	call SetPalettes
 	hlcoord 5, 14
 	push hl
-	ld [hl], $50
+	ld [hl], $4c
 	inc hl
-	ld [hl], $51
+	ld [hl], $4d
 	inc hl
-	ld [hl], $52
+	ld [hl], $4e
 	inc hl
-	ld [hl], $53
+	ld [hl], $4f
 	inc hl
 	ld a, [wBaseType1]
 	ld b, a
@@ -799,13 +799,13 @@ PrintMonTypeTiles:
 	ret z
 	ld bc, 20
 	add hl, bc
-	ld [hl], $54
+	ld [hl], $5c
 	inc hl
-	ld [hl], $55
+	ld [hl], $5d
 	inc hl
-	ld [hl], $56
+	ld [hl], $5e
 	inc hl
-	ld [hl], $57
+	ld [hl], $5f
 	ret
 
 LoadGreenPage:

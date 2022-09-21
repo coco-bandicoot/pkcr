@@ -270,7 +270,7 @@ PlacePartyMonStatus:
 	ret z
 	ld c, a
 	ld b, 0
-	hlcoord 3, 2
+	hlcoord 5, 2
 .loop
 	push bc
 	push hl

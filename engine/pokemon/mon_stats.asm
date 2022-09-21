@@ -384,16 +384,6 @@ Unused_PlaceEnemyHPLevel:
 GetStatusConditionIndex:
 ; de points to status, e.g. from a party_struct or battle_struct
 ; return the status condition index in a
-
-; 	ld b,b
-; 	ld a, BATTLE_VARS_SUBSTATUS5
-; 	call GetBattleVar
-; 	bit SUBSTATUS_TOXIC, a
-; 	jr nz, .not_toxic
-; 	ld a, $7
-; 	ld d, a
-; 	ret
-; .not_toxic	
 	push de
 	inc de
 	inc de
@@ -451,6 +441,17 @@ Player_PlaceNonFaintStatus:
 	and a
 	ret
 
+Player_CheckToxicStatus:
+	ld a, [wPlayerSubStatus5]
+	bit SUBSTATUS_TOXIC, a
+	ret z
+
+	ld a, $7
+	call Load_Player_Status_Tiles
+	farcall LoadPlayerStatusIconPalette
+	scf
+	ret
+
 Enemy_PlaceNonFaintStatus:
 	call GetStatusConditionIndex
 	ret z ; .no_status
@@ -465,6 +466,21 @@ Enemy_PlaceNonFaintStatus:
 	farcall LoadEnemyStatusIconPalette
 	ld a, TRUE
 	and a
+	ret
+
+Enemy_CheckToxicStatus:
+	ld a, [wEnemySubStatus5]
+	bit SUBSTATUS_TOXIC, a
+	ret z
+
+	ld a, $7
+	call Load_Enemy_Status_Tiles
+	ld [hl], $72
+	inc hl
+	ld [hl], $73
+	
+	farcall LoadEnemyStatusIconPalette
+	scf
 	ret
 
 Load_Player_Status_Tiles:

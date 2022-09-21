@@ -663,8 +663,6 @@ ParsePlayerAction:
 
 	ld b, SCGB_BATTLE_COLORS
 	call GetSGBLayout
-	call UpdateBattleHuds
-	call WaitBGMap
 
 	ld a, [wCurPlayerMove]
 	cp STRUGGLE
@@ -1072,11 +1070,11 @@ ResidualDamage:
 	jr z, .check_toxic
 	ld de, wEnemyToxicCount
 .check_toxic
-
 	ld a, BATTLE_VARS_SUBSTATUS5
 	call GetBattleVar
 	bit SUBSTATUS_TOXIC, a
 	jr z, .did_toxic
+
 	call GetSixteenthMaxHP
 	ld a, [de]
 	inc a
@@ -4769,34 +4767,14 @@ PrintPlayerHUD:
 	hlcoord 10, 8
 	push af ; back up gender
 	push hl
-
-; 	ld b,b
-; 	ld a, [wPlayerSubStatus5]
-; 	bit SUBSTATUS_TOXIC, a
-; 	jr z, .not_toxic
-; 	ld a, $7 ; Toxic
-; 	ld hl, StatusIconGFX
-; 	ld bc, 2 * LEN_2BPP_TILE
-; 	call AddNTimes
-; 	ld d, h
-; 	ld e, l
-; 	ld hl, vTiles2 tile $70
-; 	lb bc, BANK(StatusIconGFX), 2
-; 	call Request2bpp
-; 	ld [hl], $70
-; 	inc hl
-; 	ld [hl], $71
-
-; 	farcall LoadPlayerStatusIconPalette
-; 	jr .status_done
-; .not_toxic
-	ld de, wBattleMonStatus
-	predef Player_PlaceNonFaintStatus
-
-.status_done
+	farcall Player_CheckToxicStatus
+	jr nc, .status_nottoxic
 	pop hl
+	ld [hl], $70
+	inc hl
+	ld [hl], $71
+.status_done
 	pop bc
-	; ret nz
 	hlcoord 14, 8
 	ld a, b
 	cp " "
@@ -4807,6 +4785,12 @@ PrintPlayerHUD:
 	ld a, [wBattleMonLevel]
 	ld [wTempMonLevel], a
 	jp PrintLevel
+
+.status_nottoxic
+	pop hl
+	ld de, wBattleMonStatus
+	predef Player_PlaceNonFaintStatus
+	jr .status_done
 
 UpdateEnemyHUD::
 	push hl
@@ -4870,9 +4854,18 @@ DrawEnemyHUD:
 	hlcoord 2, 1
 	push af
 	push hl
+	farcall Enemy_CheckToxicStatus
+	jr nc, .status_nottoxic
+	pop hl
+	ld [hl], $72
+	inc hl
+	ld [hl], $73
+	jr .status_done
+.status_nottoxic
+	pop hl
 	ld de, wEnemyMonStatus
 	predef Enemy_PlaceNonFaintStatus
-	pop hl
+.status_done
 	pop bc
 	; jr nz, .skip_level
 	hlcoord 6, 1
@@ -5200,9 +5193,6 @@ BattleMenuPKMN_Loop:
 
 	call GetBattleMonBackpic
 	call WaitBGMap
-	call FinishBattleAnim
-	; call LoadTilemapToTempTilemap
-
 	call LoadTilemapToTempTilemap
 	call GetMemSGBLayout
 	call SetPalettes
@@ -5289,10 +5279,11 @@ TryPlayerSwitch:
 	call DelayFrame
 	call ClearSprites
 	call _LoadHPBar
+	call GetBattleMonBackpic
+	call WaitBGMap
 	call CloseWindow
 	call GetMemSGBLayout
 	call SetPalettes
-	call GetBattleMonBackpic
 	ld a, [wCurPartyMon]
 	ld [wCurBattleMon], a
 PlayerSwitch:
@@ -8229,8 +8220,18 @@ PlaceExpBar:
 .next
 	add $8
 	jr z, .loop2
-	; add $54 ; tile to the left of small exp bar tile
-	add $62
+	push hl
+	push af
+	hlcoord 0, 9
+	ld a, [hl]
+	ld b, $62
+	cp $60 ; if we are in stats screen
+	jr nz, .inbattle
+	ld b, $54
+.inbattle
+	pop af
+	pop hl
+	add b
 	jr .skip
 
 .loop2
