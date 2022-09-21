@@ -540,7 +540,7 @@ DexEntryScreen_MenuActionJumptable:
 	call WaitBGMap
 	call DelayFrame
 
-	ld a, SCGB_POKEDEX
+	ld a, SCGB_POKEDEX_EVO
 	call Pokedex_GetSGBLayout
 
 	farcall DisplayDexMonEvos
@@ -1257,10 +1257,10 @@ String_SEEN:
 String_OWN:
 	db "OWN", -1
 String_SELECT_OPTION:
-	db $3b, $48, $49, $4a, $44, $45, $46, $47 ; SELECT > OPTION
+	db $32, $3b, $43, $44, $ed, $45, $46, " " ; SELECT > OPTION
 	; fallthrough
 String_START_SEARCH:
-	db $3c, $3b, $41, $42, $43, $4b, $4c, $4d, $4e, $3c, -1 ; START > SEARCH
+	db $3c, $32, $3b, $41, $42, $ed, "?", $3c, -1 ; START > SEARCH
 
 Pokedex_DrawDexEntryScreenBG:
 	call Pokedex_FillBackgroundColor2
@@ -2595,8 +2595,8 @@ Pokedex_InvertTiles:
 	ret
 
 PokedexLZ:
-INCBIN "gfx/pokedex/pokedex_new.2bpp.lz"
-; INCBIN "gfx/pokedex/pokedex.2bpp.lz"
+INCBIN "gfx/pokedex/pokedex.2bpp.lz"
+; INCBIN "gfx/pokedex/pokedex_new.2bpp.lz"
 
 PokedexSlowpokeLZ:
 INCBIN "gfx/pokedex/slowpoke.2bpp.lz"

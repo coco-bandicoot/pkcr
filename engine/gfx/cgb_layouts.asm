@@ -32,11 +32,10 @@ CGBLayoutJumptable:
 	table_width 2, CGBLayoutJumptable
 	dw _CGB_BattleGrayscale
 	dw _CGB_BattleColors
-	dw _CGB_BattleColors_MoveInfo
 	dw _CGB_PokegearPals
 	dw _CGB_StatsScreenHPPals
-	dw _CGB_StatsScreenHPPals_MoveInfo
 	dw _CGB_Pokedex
+	dw _CGB_Pokedex_EvoPage
 	dw _CGB_SlotMachine
 	dw _CGB_BetaTitleScreen
 	dw _CGB_GSIntro
@@ -419,6 +418,9 @@ ld a, [wPokedexShinyToggle]
 	ldh [hCGBPalUpdate], a
 	ret
 
+_CGB_Pokedex_EvoPage:
+	ret
+	
 PokedexQuestionMarkPalette:
 INCLUDE "gfx/pokedex/question_mark.pal"
 

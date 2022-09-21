@@ -77,14 +77,12 @@ DoDexSearchSlowpokeFrame:
 	db -1
 
 DisplayDexEntry:
-	call Dex_PrintMonTypeTiles
-
 	lb bc, 8, SCREEN_WIDTH - 1
 	hlcoord 1, 8
 	call ClearBox
 	ld a, [wTempSpecies]
 	ld [wCurSpecies], a
-
+	call DisplayDexMonType
 	call GetPokemonName
 	hlcoord 9, 4
 	call PlaceString ; mon species
@@ -167,7 +165,7 @@ DisplayDexEntry:
 ; Page 2
 	push bc
 	push de
-
+	call Pokedex_Clearbox
 	hlcoord 1, 8
 	ld [hl], $56 ; P.
 	inc hl
@@ -302,7 +300,6 @@ DisplayDexMonMoves:
 	ret
 
 DisplayDexMonType:
-	push hl
 	call GetBaseData
 	ld a, [wBaseType1]
 ; Skip Bird
@@ -313,23 +310,29 @@ DisplayDexMonType:
 	jr c, .type1_adjust_done
 	sub UNUSED_TYPES
 .type1_adjust_done
-; ; load the 1st type pal 
-; 	ld c, a
-; 	ld de, wBGPals1 palette 7 + 2
-; 	push af
-; 	farcall LoadMonBaseTypePal	
-; 	pop af
 ; load the tiles
 	ld hl, TypeLightIconGFX
 	ld bc, 4 * LEN_2BPP_TILE
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $70
+	ld hl, vTiles2 tile $47
 	lb bc, BANK(TypeLightIconGFX), 4
 	call Request2bpp
+	hlcoord 9, 1
+	ld [hl], $47
+	inc hl
+	ld [hl], $48
+	inc hl
+	ld [hl], $49
+	inc hl
+	ld [hl], $4a
 ; 2nd Type
+	ld a, [wBaseType1]
+	ld b, a
 	ld a, [wBaseType2]
+	cp b
+	ret z
 ; Skip Bird
 	cp BIRD
 	jr c, .type2_adjust_done
@@ -338,60 +341,42 @@ DisplayDexMonType:
 	jr c, .type2_adjust_done
 	sub UNUSED_TYPES
 .type2_adjust_done
-; ; load the 2nd type pal 
-; 	ld c, a
-; 	ld de, wBGPals1 palette 7 + 4
-; 	push af
-; 	farcall LoadMonBaseTypePal	
-; 	pop af
 ; load type 2 tiles
 	ld hl, TypeDarkIconGFX
 	ld bc, 4 * LEN_2BPP_TILE
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $74
+	ld hl, vTiles2 tile $4b
 	lb bc, BANK(TypeDarkIconGFX), 4
 	call Request2bpp
 
-	; call SetPalettes
-	hlcoord 9, 1
-	; push hl
-	ld [hl], $70
+	hlcoord 13, 1
+	ld [hl], $4b
 	inc hl
-	ld [hl], $71
+	ld [hl], $4c
 	inc hl
-	ld [hl], $72
+	ld [hl], $4d
 	inc hl
-	ld [hl], $73
-	inc hl
-	ld a, [wBaseType1]
-	ld b, a
-	ld a, [wBaseType2]
-	; pop hl
-	cp b
-	ret z
-	; ld bc, 20
-	; add hl, bc
-	ld [hl], $74
-	inc hl
-	ld [hl], $75
-	inc hl
-	ld [hl], $76
-	inc hl
-	ld [hl], $77
+	ld [hl], $4e
 	ret
 
 Pokedex_Calc_LvlMovesPtr:
 	ld a, [wTempSpecies]
-	call GetPokemonIndexFromID
-	ld b, h
-	ld c, l
+	dec a
+	ld b, 0
+	ld c, a
 	ld hl, EvosAttacksPointers
+	add hl, bc
+	add hl, bc
 	ld a, BANK(EvosAttacksPointers)
-	call LoadDoubleIndirectPointer
-	ld [wStatsScreenFlags], a ; bank
-	call FarSkipEvolutions
+	call GetFarWord
+.SkipEvoBytes	
+	ld a, BANK("Evolutions and Attacks")
+	call GetFarByte
+	inc hl
+	and a ; cp 0
+	jr nz, .SkipEvoBytes
 .CalcPageoffset
 	ld a, [wPokedexPagePos1]
 	ld c, 5
@@ -402,7 +387,7 @@ Pokedex_Calc_LvlMovesPtr:
 	ld c, a
 	add hl, bc
 	add hl, bc
-	add hl, bc
+	; add hl, bc
 	ret
 
 Pokedex_Print_NextLvlMoves:
@@ -422,7 +407,7 @@ Pokedex_Print_NextLvlMoves:
 	pop hl
 	pop bc
 .learnset_loop
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
 	cp 0
 	jr z, .FoundEnd
@@ -439,10 +424,8 @@ Pokedex_Print_NextLvlMoves:
 	pop hl
 	inc hl
 	push hl
-	ld a, [wStatsScreenFlags]
-	call GetFarWord ; our move index
-	
-	call GetMoveIDFromIndex
+	ld a, BANK("Evolutions and Attacks")
+	call GetFarByte
 	ld [wNamedObjectIndex], a
 	call GetMoveName
 	hlcoord 4, 11
@@ -451,7 +434,7 @@ Pokedex_Print_NextLvlMoves:
 	call PlaceString
 	pop bc
 	pop hl
-	inc hl
+	; inc hl
 	inc hl
 	inc bc
 	ld a, 5
@@ -465,7 +448,16 @@ Pokedex_Print_NextLvlMoves:
 	;xor %00010000 ; setting the "egg" bit
 	set 7, a
 	ld [wPokedexPagePos2], a
+	ld a, [wPokedexPagePos1]
+	inc a
+	ld [wPokedexPagePos1], a
+	ret
 .MaxedPage ; Printed 5 moves. Moves are still left. Inc the Page counter
+	; check to see if any moves left
+	ld a, BANK("Evolutions and Attacks")
+	call GetFarByte
+	and a
+	jr z, .FoundEnd
 	; Shouldn't NEED to, but added check to make sure doesnt go over 8 rn
 	ld a, [wPokedexPagePos1]
 	inc a
@@ -489,21 +481,6 @@ Pokedex_Print_NextLvlMoves:
 	pop de
 	ret
 
-EggMenuHeader:
-	db MENU_BACKUP_TILES ; flags
-	menu_coords 7, 1, SCREEN_WIDTH - 1, TEXTBOX_Y - 1
-	dw .MenuData
-	db 1 ; default option
-
-.MenuData:
-	db STATICMENU_ENABLE_SELECT | STATICMENU_ENABLE_LEFT_RIGHT | STATICMENU_ENABLE_START | STATICMENU_WRAP | STATICMENU_CURSOR ; flags
-	db 5, 8 ; rows, columns
-	db SCROLLINGMENU_ITEMS_QUANTITY ; item format
-	dbw 0, wNumItems
-	dba PlaceMenuItemName
-	dba PlaceMenuItemQuantity
-	dba UpdateItemDescription
-
 DisplayDexMonEvos:
 	ld hl, wPokedexPagePos1
 	ld [hl], 0 ; evo stage
@@ -518,29 +495,31 @@ DisplayDexMonEvos:
 	ld a, [wTempSpecies]
 	ld [wCurPartySpecies], a
 	ld [wCurSpecies], a
-	callfar GetLowestEvolutionStage
+	callfar GetPreEvolution
+	callfar GetPreEvolution
 	ld a, [wCurPartySpecies]
 	ld [wCurSpecies], a
 	ld [wTempMonSpecies], a
-	call GetPokemonIndexFromID
 ;;;; loops?
 .loop
-	ld b, h
-	ld c, l
-	call GetPokemonIDFromIndex
 	ld [wTempSpecies], a
 	ld [wCurSpecies], a
+	dec a
+	ld b, 0
+	ld c, a
 	ld hl, EvosAttacksPointers
+	add hl, bc
+	add hl, bc
 	ld a, BANK(EvosAttacksPointers)
-	call LoadDoubleIndirectPointer
-	ld [wStatsScreenFlags], a ; bank
+	call GetFarWord
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte ; if zero, no evos
 	push hl ; rn pointing to 1st EevoAttkPtr byte
 	push af
 ;;;; print info
 	hlcoord 6, 2
 	call EVO_adjusthlcoord
-	call DisplayDexMonType
+	; call DisplayDexMonType
 	call GetPokemonName
 	hlcoord 5, 1
 	call EVO_adjusthlcoord
@@ -568,6 +547,7 @@ DisplayDexMonEvos:
 	; get and print Evo method
 	pop hl
 	inc hl
+	ld b,b
 	cp EVOLVE_LEVEL
 	call z, EVO_level
 	cp EVOLVE_ITEM
@@ -581,12 +561,13 @@ DisplayDexMonEvos:
 	; cp EVOLVE_LOCATION ; TODO
 .get_evo_species
 	; hl points to species word
-	ld a, [wStatsScreenFlags]
-	call GetFarWord ; mon species index
-	;call GetPokemonIDFromIndex
+	ld a, BANK("Evolutions and Attacks")
+	call GetFarByte ; if zero, no evos
+	ld b, a ; species
 	ld a, [wPokedexPagePos1]
 	inc a ; evo stage
 	ld [wPokedexPagePos1], a
+	ld a, b
 	jr .loop ; print next evo stage
 
 ;;;;;;;;;;;;;;;;;	
@@ -658,7 +639,7 @@ EVO_level:
 	ld de, .level_text
 	call PlaceString ; mon species
 	pop hl
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
 	push hl
 	ld [wTextDecimalByte], a
@@ -671,7 +652,7 @@ EVO_level:
 	inc hl
 	ret
 .level_text:
-	db "LEVEL@"
+	db "LVL@"
 
 EVO_item:
 	push hl
@@ -680,7 +661,7 @@ EVO_item:
 	ld de, .item_text
 	call PlaceString ; mon species
 	pop hl
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
 	push hl
 	ld [wNamedObjectIndex], a
@@ -701,7 +682,7 @@ EVO_trade:
 	ld de, .trade_text
 	call PlaceString ; mon species
 	pop hl
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
 	cp -1
 	jr z, .done
@@ -734,7 +715,7 @@ EVO_happiness:
 	ld de, .happiness_text
 	call PlaceString ; mon species
 	pop hl
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
 	inc hl
 	push hl
@@ -780,14 +761,13 @@ EVO_stats:
 ;  ATK_EQ_DEF
 ;  ATK_GT_DEF
 ;  ATK_LT_DEF
-	ld b,b
 	push hl
 	hlcoord 6, 4
 	call EVO_adjusthlcoord
 	ld de, .stats_text
 	call PlaceString ; mon species
 	pop hl
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte ; level
 	inc hl
 	push hl
@@ -798,7 +778,7 @@ EVO_stats:
 	call EVO_adjusthlcoord
 	call PrintNum
 	pop hl
-	ld a, [wStatsScreenFlags]
+	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte ; Stats Const, ATK >= DEF etc
 	inc hl
 	push hl
