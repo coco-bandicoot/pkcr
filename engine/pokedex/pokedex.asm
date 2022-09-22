@@ -440,9 +440,9 @@ Pokedex_UpdateDexEntryScreen:
 	ret
 
 Pokedex_Page:
-	ld a, [wPokedexStatus]
-	xor 1 ; toggle page
-	ld [wPokedexStatus], a
+	; ld a, [wPokedexStatus]
+	; xor 1 ; toggle page
+	; ld [wPokedexStatus], a
 	call Pokedex_GetSelectedMon
 	ld [wPrevDexEntry], a
 	farcall DisplayDexEntry

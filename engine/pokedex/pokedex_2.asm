@@ -89,9 +89,20 @@ DoDexSearchSlowpokeFrame:
 	dbsprite 11, 13, 0, 0, $22, 0
 	db -1
 
+HandlePageNumReset:
+	ld b, a
+	ld a, [wPokedexEntryType]
+	cp b
+	ret z
+	ld a, b
+	ld [wPokedexEntryType], a
+	xor a
+	ld [wPokedexEntryPageNum], a
+	ret
+
 DisplayDexEntry:
 	ld a, 1 << DEXENTRY_LORE
-	ld [wPokedexEntryType], a
+	call HandlePageNumReset
 	lb bc, 8, SCREEN_WIDTH - 1
 	hlcoord 1, 8
 	call ClearBox
@@ -156,20 +167,16 @@ DisplayDexEntry:
 	ld [wCurSpecies], a
 	inc hl
 	ld a, b
-
 	push af
 	inc hl
 	inc hl
 	inc hl
 	push hl
-	ld a, [wPokedexStatus]
-	or a ; check for page 2
+	ld a, [wPokedexEntryPageNum]
+	and a ; check for page 2
 	jr nz, .page2
 ; Page 1
-	hlcoord 18, 8
-	ld [hl], $56 ; P.
-	inc hl
-	ld [hl], $57 ; 1
+	call Pokedex_PrintPageNum
 	pop de
 	inc de
 	pop af
@@ -177,12 +184,18 @@ DisplayDexEntry:
 	push af
 	call PlaceFarString
 	pop bc
+	call DexEntry_IncPageNum
 	ret
 
 ; Page 2
 .page2
 	pop de
+	inc de
 	pop af
+	hlcoord 2, 11
+	push af
+	call PlaceFarString
+	pop bc
 	push bc
 	push de
 	lb bc, 5, SCREEN_WIDTH - 1
@@ -192,15 +205,14 @@ DisplayDexEntry:
 	ld bc, 19
 	ld a, $55
 	call ByteFill
-	hlcoord 18, 8
-	ld [hl], $56 ; P.
-	inc hl
-	ld [hl], $58 ; 2
+	call Pokedex_PrintPageNum
 	pop de
 	inc de
 	pop af
 	hlcoord 2, 11
 	call PlaceFarString
+	xor a
+	ld [wPokedexEntryPageNum], a
 	ret
 
 GetDexEntryPointer:
@@ -241,7 +253,8 @@ rept 4
 	inc hl
 endr
 ; if c != 1: skip entry
-	dec c
+	;dec c
+	and c
 	jr z, .done
 ; skip entry
 .loop2
@@ -250,7 +263,6 @@ endr
 	inc hl
 	cp "@"
 	jr nz, .loop2
-
 .done
 	ld d, h
 	ld e, l
@@ -272,20 +284,24 @@ Pokedex_Clearbox:
 	call ClearBox
 	ret
 Pokedex_PrintPageNum:
-	and %00001111
+	push hl
+	push de
+	ld a, [wPokedexEntryPageNum]
 	; a = page num
 	push bc
-	push hl
 	ld b, 0
 	ld c, a
 	ld hl, .PgNumPtrs
 	add hl, bc
 	ld a, [hl]
-	pop hl
+	hlcoord 18, 8
 	ld [hl], $56
 	inc hl 
 	ld [hl], a
 	pop bc
+	pop de
+	pop hl
+	ld a, [wPokedexEntryPageNum]
 	ret
 .PgNumPtrs
 	db $57, $58, $61, $62, $63, $64, $65, $6B, $6C
@@ -293,9 +309,56 @@ Pokedex_PrintPageNum:
 DisplayDexMonStats:
 	ld a, [wTempSpecies]
 	ld [wCurSpecies], a
+	ld a, [wPokedexEntryType]
+	ld b, a
 	ld a, 1 << DEXENTRY_BASESTATS
-	ld [wPokedexEntryType], a
+	call HandlePageNumReset
+	call Pokedex_Clearbox
+	ld de, .Base_stats_text
+	hlcoord 2, 9
+	call PlaceString
+	call Pokedex_PrintPageNum ; page num is also returned in a
+	and a
+	jr z, .print_page1
+	cp 1
+	jr z, .print_page2
+	cp 2
+	jr z, .print_page3; must be page 3 then
+	jr .print_page4
+.print_page1
+	; Page 1:
+	; Base Stats (3 lines)
+	; Wild Held Items:
+	; Common: Item1
+	; Rare: Item2
+	call Pokedex_GBS_Stats
+	call Pokedex_Get_Items
+	jp DexEntry_IncPageNum
+.print_page2
+	;Page 2:
+	; Gender Ratio (1 line)
+	; Catch Rate (1 line)
+	; Base Exp (1 line) / EV Reward
+	; Egg Group(s) (3 lines)
+	call Pokedex_EggG_SetUp
+	call Pokedex_Get_GenderRatio
+	call Pokedex_CatchRate
+	jp DexEntry_IncPageNum
+.print_page3
+	;Page 3:
+	; Growth Rate: (2 lines)
+	call Pokedex_PrintBaseExp
+	call Pokedex_PrintHatchSteps
+	call Pokedex_Get_Growth
+	jp DexEntry_IncPageNum
+.print_page4
+	call Pokedex_PrintBaseEVs
+	call Pokedex_HeightWeight
+	xor a
+	ld [wPokedexEntryPageNum], a
 	ret
+.Base_stats_text:
+	db "BASE STATS@"
 
 DisplayDexMonMoves:
 	ld a, [wTempSpecies]
@@ -306,7 +369,6 @@ DisplayDexMonMoves:
 	; the byte flag that tells us which type of table we're currently on
 	; 0 = Info, 1 = Stats, 2 = LVL UP, 3 = EGG, 2 = FIELD, 3 = TMs, 4 = HMs, 5 = MTs,  
 	; other menu options (Base stats, info, evos) should xor wPokedexEntryType before return 
-	ld b,b
 	ld a, [wPokedexEntryType] 
 	maskbits MOVESPAGES_MASK
 	jr nz, .LvlUpLearnset
@@ -318,26 +380,19 @@ DisplayDexMonMoves:
 	; jr nz, .EggMoves
 	jr .Done
 .LvlUpLearnset
-	call .print_page_num
+	ld a, 1 << DEXENTRY_LVLUP
+	call HandlePageNumReset
 	call Pokedex_Calc_LvlMovesPtr
 	call Pokedex_Print_NextLvlMoves
 .Done
-	; We want to reset the Dex Entry back to 1 when we click "Page"
-	ld a, 1
-	ld [wPokedexStatus], a
-	ld a, [wPokedexEntryType]
-	bit DEXENTRY_MTS, a
-	call nz, .Restart_loop
-	ret
-.Restart_loop:
-	xor a
-	ld [wPokedexEntryPageNum], a
-	ld [wPokedexEntryType], a
-	ret
-.print_page_num:
-	ld a, [wPokedexEntryPageNum]
-	hlcoord 18, 8
-	call Pokedex_PrintPageNum
+; 	ld a, [wPokedexEntryType]
+; 	bit DEXENTRY_MTS, a
+; 	call nz, .Restart_loop
+; 	ret
+; .Restart_loop:
+; 	xor a
+; 	ld [wPokedexEntryPageNum], a
+; 	ld [wPokedexEntryType], a
 	ret
 
 Pokedex_Calc_LvlMovesPtr:
@@ -357,7 +412,7 @@ Pokedex_Calc_LvlMovesPtr:
 	and a ; cp 0
 	jr nz, .SkipEvoBytes
 .CalcPageoffset
-	ld a, [wPokedexEntryPageNum]
+	call Pokedex_PrintPageNum ; page num is also returned in a
 	ld c, 5
 	call SimpleMultiply 
 	; double this num and add to first byte after Evo's 0
@@ -423,13 +478,14 @@ Pokedex_Print_NextLvlMoves:
 	and a
 	jr z, .FoundEnd
 	; Shouldn't NEED to, but added check to make sure doesnt go over 8 rn
+	ld a, 1 << DEXENTRY_LVLUP
+	ld [wPokedexEntryType], a
 	call DexEntry_IncPageNum
 	ret
 .FoundEnd ; Set the LvlUp Learnset DONE bit (5?)
 	; DEBUG just zero-out to test effect
 	; ld a, 1 << DEXENTRY_EGG
 	ld a, 1 << DEXENTRY_MTS ; PLACEHOLDER
-	ld b,b
 	ld [wPokedexEntryType], a
 	ret
 
@@ -846,3 +902,609 @@ DisplayDexMonType:
 	inc hl
 	ld [hl], $4e
 	ret
+
+Pokedex_GBS_Stats:
+	ld de, BS_HP_text
+	hlcoord 3, 10
+	call PlaceString ; TEXT for 'HP' name
+	
+	ld de, BS_ATK_text
+	hlcoord 3, 11
+	call PlaceString ; TEXT for 'ATK' name
+	
+	ld de, BS_DEF_text
+	hlcoord 12, 11
+	call PlaceString ; TEXT for 'DEF' name
+	
+	ld de, BS_SPCL_text
+	hlcoord 3, 12
+	call PlaceString ; TEXT for 'SPCL' name
+	
+	ld de, BS_SPCLDEF_text
+	hlcoord 12, 12
+	call PlaceString 
+	
+	ld de, BS_SPEED_text
+	hlcoord 12, 10
+	call PlaceString 
+
+	hlcoord 7, 10
+	ld de, wBaseHP
+	ld c, 3 ;digits
+	ld b, 1 ;bytes
+	call PrintNum
+	hlcoord 16, 10
+	ld de, wBaseSpeed
+	ld c, 3 ;digits
+	ld b, 1 ;bytes
+	call PrintNum
+
+	hlcoord 7, 11
+	ld de, wBaseAttack
+	ld c, 3 ;digits
+	ld b, 1 ;bytes
+	call PrintNum
+	hlcoord 16, 11
+	ld de, wBaseDefense
+	ld c, 3 ;digits
+	ld b, 1 ;bytes
+	call PrintNum
+
+	hlcoord 7, 12
+	ld de, wBaseSpecialAttack
+	ld c, 3 ;digits
+	ld b, 1 ;bytes
+	call PrintNum
+	hlcoord 16, 12
+	ld de, wBaseSpecialDefense
+	ld c, 3 ;digits
+	ld b, 1 ;bytes
+	call PrintNum
+	ret
+
+DexEntry_NONE_text:
+	db "NONE@"
+BS_HP_text:
+	db " HP@"
+BS_SPEED_text:
+	db "SPE@"
+BS_ATK_text:
+	db "ATK@"
+BS_DEF_text:
+	db "DEF@"
+BS_SPCL_text:
+	db "SPC@"
+BS_SPCLDEF_text:
+	db "SPD@"
+
+Pokedex_Get_Items:
+; TODO: Add code to differentiate same items in both entries, special cases
+	hlcoord 2, 13
+	ld de, .BS_ITEM_text2
+	call PlaceString
+	hlcoord 3, 14
+	ld de, .BS_ITEM1
+	call PlaceString
+	hlcoord 3, 15
+	ld de, .BS_ITEM2
+	call PlaceString
+
+.WildHeldItems1:
+	ld de, .ThreeDashes
+	ld a, [wBaseItem1]
+	and a
+	jr z, .Item1Done
+	ld b, a
+	farcall TimeCapsule_ReplaceTeruSama
+	ld a, b
+	ld [wNamedObjectIndex], a
+	call GetItemName
+.Item1Done
+	hlcoord 7, 14
+	call PlaceString
+.WildHeldItems2:
+	ld de, .ThreeDashes
+	ld a, [wBaseItem2]
+	and a
+	jr z, .Item2Done
+	ld b, a
+	farcall TimeCapsule_ReplaceTeruSama
+	ld a, b
+	ld [wNamedObjectIndex], a
+	call GetItemName
+.Item2Done
+	hlcoord 7, 15
+	call PlaceString
+	ret
+.ThreeDashes:
+	db "---@"
+.BS_ITEM_text1:
+	db "Wild Held Item:@"
+.BS_ITEM_text2:
+	db "Wild Held Items:@"
+.BS_ITEM1:
+	db "[1]@"
+.BS_ITEM2:
+	db "[2]@"
+
+Pokedex_EggG_SetUp:
+	ld a, [wBaseEggGroups]
+	push af
+	and $f
+	ld b, a
+	pop af
+	and $f0
+	swap a
+	ld c, a
+	; push bc?
+	
+	;push bc
+	hlcoord 3, 11
+	ld de, .BS_Egg_text1
+	push bc
+	call PlaceString
+	pop bc
+	call Pokedex_Get_EggGroup
+	hlcoord 4, 12
+	push bc
+	call PlaceString
+	pop bc
+	ld a, b
+	cp c
+	jr z, .EggGroups_DONE
+;;; Print second egg group
+	hlcoord 3, 11
+	ld de, .BS_Egg_text2
+	push bc
+	call PlaceString
+	pop bc
+	ld b, c
+	call Pokedex_Get_EggGroup
+	hlcoord 4, 13
+	call PlaceString ;no longer need to preserve bc
+.EggGroups_DONE
+	ret
+.BS_Egg_text1:
+	db "Egg Group: @"
+.BS_Egg_text2:
+	db "Egg Groups: @"
+
+
+Pokedex_Get_EggGroup:
+;; have the fixed group num in 'a' already
+;; return 'de' as the text for matching group
+	ld a, b
+	ld de, .EggG_Monster_text
+	cp EGG_MONSTER
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Amphibian_text
+	cp EGG_WATER_1
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Bug_text
+	cp EGG_BUG
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Flying_text
+	cp EGG_FLYING
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Field_text
+	cp EGG_GROUND
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Fairy_text
+	cp EGG_FAIRY
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Grass_text
+	cp EGG_PLANT
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_HumanLike_text
+	cp EGG_HUMANSHAPE
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Invertebrate_text
+	cp EGG_WATER_3
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Mineral_text
+	cp EGG_MINERAL
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Amorphous_text
+	cp EGG_INDETERMINATE
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Fish_text
+	cp EGG_WATER_2
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Dragon_text
+	cp EGG_DRAGON
+	jr z, .Eggret
+	ld a, b
+	ld de, .EggG_Ditto_text
+	cp EGG_DITTO
+	jr z, .Eggret
+	ld de, DexEntry_NONE_text
+.Eggret
+	ret
+;;;Egg Groups
+.EggG_Monster_text:
+	db "Monster@"
+.EggG_Amphibian_text:
+	db "Amphibian@"
+.EggG_Bug_text:
+	db "Bug@"
+.EggG_Flying_text:
+	db "Flying@"
+.EggG_Field_text:
+	db "Field@"
+.EggG_Fairy_text:
+	db "Fairy@"
+.EggG_Grass_text:
+	db "Grass@"
+.EggG_HumanLike_text:
+	db "Humane-Like@"
+.EggG_Invertebrate_text:
+	db "Invertebrate@"
+.EggG_Mineral_text:
+	db "Mineral@"
+.EggG_Amorphous_text:
+	db "Amorphous@"
+.EggG_Fish_text:
+	db "Fish@"
+.EggG_Ditto_text:
+	db "ALL@"
+.EggG_Dragon_text:
+	db "Dragon@"
+
+Pokedex_Get_GenderRatio::
+	hlcoord 3, 14
+	ld de, .GR_Text
+	call PlaceString
+	ld a, [wBaseGender]
+	ld de, .GR_always_fem
+	cp GENDER_F100
+	jr z, .GR_print
+	ld a, [wBaseGender]
+	ld de, .GR_always_male
+	cp GENDER_F0
+	jr z, .GR_print
+	ld a, [wBaseGender]
+	ld de, .GR_QuarterF
+	cp GENDER_F25
+	jr z, .GR_print
+	ld a, [wBaseGender]
+	ld de, .GR_Equal
+	cp GENDER_F50
+	jr z, .GR_print
+	ld a, [wBaseGender]
+	ld de, .GR_QuartM
+	cp GENDER_F75
+	jr z, .GR_print
+	ld a, [wBaseGender]
+	ld de, .GR_MostMale
+	cp GENDER_F12_5
+	jr z, .GR_print
+	ld de, DexEntry_NONE_text
+.GR_print
+	hlcoord 14, 14
+	call PlaceString
+	ret
+
+.GR_Text
+	db "Gender: @"
+.GR_always_fem:
+	db "♀ Only@"
+.GR_always_male
+	db "♂ Only@"
+.GR_QuarterF
+	db "1♀:4♂@"
+.GR_Equal
+	db "1♂:1♀@"
+.GR_QuartM
+	db "4♀:1♂@"
+.GR_MostMale
+	db "8♂:1♀@"
+
+Pokedex_CatchRate:
+	hlcoord 3, 15
+	ld de, .BS_Catchrate
+	call PlaceString
+	hlcoord 16, 15
+	ld c, 3 ;digits
+	ld b, 1 ; how many bytes the num is
+	ld de, wBaseCatchRate
+	call PrintNum
+	ret
+;Catch Rate
+.BS_Catchrate:
+	db "Catch Rate: @"
+
+Pokedex_Get_Growth::
+;Growth rate
+	hlcoord 3, 14
+	ld de, .BS_Growth_text
+	call PlaceString
+	ld a, [wBaseGrowthRate]
+	ld de, .growth_Medfast
+	cp GROWTH_MEDIUM_FAST
+	jr z, .Growth_print
+	ld a, [wBaseGrowthRate]
+	ld de, .growth_slightfast
+	cp GROWTH_SLIGHTLY_FAST
+	jr z, .Growth_print
+	ld a, [wBaseGrowthRate]
+	ld de, .growth_slightslow
+	cp GROWTH_SLIGHTLY_SLOW
+	jr z, .Growth_print
+	ld a, [wBaseGrowthRate]
+	ld de, .growth_medslow
+	cp GROWTH_MEDIUM_SLOW
+	jr z, .Growth_print
+	ld a, [wBaseGrowthRate]
+	ld de, .growth_fast
+	cp GROWTH_FAST
+	jr z, .Growth_print
+	ld de, .growth_slow
+.Growth_print
+	hlcoord 4, 15
+	call PlaceString
+	ret
+.BS_Growth_text:
+	db "GROWTH RATE: @"
+.growth_Medfast:
+	db "Medium-Fast@"
+.growth_slightfast
+	db "Slightly Fast@"
+.growth_slightslow
+	db "Slightly Slow@"
+.growth_medslow
+	db "Medium-Slow@"
+.growth_fast
+	db "Fast@"
+.growth_slow
+	db "Slow@"
+
+Pokedex_PrintBaseExp:
+; wBaseExp
+	hlcoord 3, 11
+	ld de, .Exp_text
+	call PlaceString
+	hlcoord 8, 11
+	ld de, wBaseExp
+	lb bc, 1, 3
+	call PrintNum
+	ret
+.Exp_text:
+	db "EXP:@"
+
+Pokedex_PrintHatchSteps:
+; wBaseEggSteps
+	hlcoord 3, 12
+	ld de, .HatchSteps_text
+	call PlaceString
+	hlcoord 15, 12
+	ld de, wBaseEggSteps
+	lb bc, 1, 3
+	call PrintNum
+	ret
+.HatchSteps_text:
+	db "Egg Cycles:@"
+
+Pokedex_PrintBaseEVs:
+; wBaseHPAtkDefSpdEVs
+; wBaseSpAtkSpDefEVs
+; +	db (\1 << 6) | (\2 << 4) | (\3 << 2) | \4
+; +	db (\5 << 6) | (\6 << 4)
+	ld de, .EVyield_text
+	hlcoord 3, 10
+	call PlaceString
+	
+	ld a, $6
+	ld [wStatsScreenFlags], a
+	jp .prep_stack
+.start_print
+	ld a, [wBaseHPAtkDefSpdEVs]
+	and %11000000
+	jr z, .ev_atk
+	swap a
+	srl a
+	srl a
+	pop hl
+	add a, "0"
+	ld [hl], a
+	pop hl
+	ld de, BS_HP_text
+	call PlaceString
+	call .dec_stack_count
+.ev_atk
+	ld a, [wBaseHPAtkDefSpdEVs]
+	and %00110000
+	jr z, .ev_def
+	swap a
+	pop hl
+	add a, "0"
+	ld [hl], a
+	pop hl
+	ld de, BS_ATK_text
+	call PlaceString
+	call .dec_stack_count
+.ev_def
+	ld a, [wBaseHPAtkDefSpdEVs]
+	and %00001100
+	jr z, .ev_speed
+	srl a
+	srl a
+	pop hl
+	add a, "0"
+	ld [hl], a
+	pop hl
+	ld de, BS_DEF_text
+	call PlaceString
+	call .dec_stack_count
+.ev_speed
+	ld a, [wBaseHPAtkDefSpdEVs]
+	and %00000011
+	jr z, .ev_spatk
+	pop hl
+	add a, "0"
+	ld [hl], a
+
+	pop hl
+	ld de, BS_SPEED_text
+	call PlaceString
+	call .dec_stack_count
+.ev_spatk
+	ld a, [wBaseSpAtkSpDefEVs]
+	and %11000000
+	jr z, .ev_spdef
+	swap a
+	srl a
+	srl a
+	pop hl
+	add a, "0"
+	ld [hl], a
+	pop hl
+	ld de, BS_SPCL_text
+	call PlaceString
+	call .dec_stack_count
+.ev_spdef
+	ld a, [wBaseSpAtkSpDefEVs]
+	and %00110000
+	jr z, .ev_done
+	swap a
+	pop hl
+	add a, "0"
+	ld [hl], a
+	pop hl
+	ld de, BS_SPCLDEF_text
+	call PlaceString
+	call .dec_stack_count
+.ev_done
+	ld a, [wStatsScreenFlags]
+	and a
+	ret z
+	call .dec_stack_count
+	pop hl
+	pop hl
+	jr .ev_done
+.EVyield_text:
+	db "EV Yield:@"
+
+.prep_stack
+	hlcoord 12, 13
+	push hl
+	hlcoord 16, 13
+	push hl
+	hlcoord 4, 13
+	push hl
+	hlcoord 8, 13
+	push hl
+	hlcoord 12, 12
+	push hl
+	hlcoord 16, 12
+	push hl
+	hlcoord 4, 12
+	push hl
+	hlcoord 8, 12
+	push hl
+	hlcoord 12, 11
+	push hl
+	hlcoord 16, 11
+	push hl
+	hlcoord 4, 11
+	push hl
+	hlcoord 8, 11
+	push hl
+	jp .start_print
+.dec_stack_count:
+	ld a, [wStatsScreenFlags]
+	dec a
+	ld [wStatsScreenFlags], a
+	ret
+
+Pokedex_HeightWeight:
+	ld a, [wTempSpecies]
+	ld b, a
+	call GetDexEntryPointer
+	ld a, b
+	push af
+	hlcoord 3, 14
+	call PlaceFarString ; dex species
+	ld h, b
+	ld l, c
+	push de
+	pop hl
+	pop bc
+	ld [wCurSpecies], a
+	inc hl
+	ld a, b
+	push af
+	push hl
+	call GetFarWord
+	ld d, l
+	ld e, h
+	pop hl
+	inc hl
+	inc hl
+	ld a, d
+	or e
+	jr z, .skip_height
+	push hl
+	push de
+; Print the height, with two of the four digits in front of the decimal point
+	hlcoord 3, 14
+	ld de, .Height
+	call PlaceString
+	ld hl, sp+0
+	ld d, h
+	ld e, l
+	hlcoord 6, 14
+	lb bc, 2, (2 << 4) | 4
+	call PrintNum
+; Replace the decimal point with a ft symbol
+	hlcoord 8, 14
+	ld [hl], $5e
+	inc hl
+	inc hl
+	ld [hl], $5f
+	pop af
+	pop hl
+
+.skip_height
+	pop af
+	push af
+	inc hl
+	push hl
+	dec hl
+	call GetFarWord
+	ld d, l
+	ld e, h
+	ld a, e
+	or d
+	jr z, .skip_weight
+	push de
+; Print the weight, with four of the five digits in front of the decimal point
+	hlcoord 3, 15
+	ld de, .Weight
+	call PlaceString
+	ld hl, sp+0
+	ld d, h
+	ld e, l
+	hlcoord 5, 15
+	lb bc, 2, (4 << 4) | 5
+	call PrintNum
+	pop de
+.skip_weight
+	pop de
+	pop de
+	ret
+.Height:
+	db "HT  ? ?? @" ; HT  ?'??"
+.Weight:
+	db "WT   ???lb@"
