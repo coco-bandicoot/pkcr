@@ -2870,7 +2870,11 @@ wStartSecond:: db
 
 wRTC:: ds 4
 
-	ds 4
+	; ds 4
+wPokedexEntryType::     db
+wPokedexEntryPageNum::  db
+wPokedexEvoStage2::		db
+wPokedexEvoStage3::     db
 
 wDST::
 ; bit 7: dst
@@ -2927,8 +2931,8 @@ wTimeOfDayPalFlags:: db
 wTimeOfDayPalset:: db
 wCurTimeOfDay:: db
 
-	;ds 1
-wPokedexPagePos2:: db
+	ds 1
+
 wSecretID:: dw
 wStatusFlags::
 ; bit 0: pokedex
@@ -2994,8 +2998,7 @@ wPokegearFlags::
 	db
 wRadioTuningKnob:: db
 wLastDexMode:: db
-	;ds 1
-wPokedexPagePos1:: db
+	ds 1
 wWhichRegisteredItem:: db
 wRegisteredItem:: db
 

@@ -17,6 +17,7 @@
 
 DEF POKEDEX_SCX EQU 5
 EXPORT POKEDEX_SCX
+DEF SHINYTOGGLE_MASK EQU %10000000
 
 Pokedex:
 	ldh a, [hWX]
@@ -61,7 +62,6 @@ Pokedex:
 	ld a, [wCurDexMode]
 	ld [wLastDexMode], a
 
-	ld a, [wPokedexShinyToggle]
 	xor a
 	ld [wPokedexShinyToggle], a
 	
@@ -331,9 +331,11 @@ Pokedex_InitDexEntryScreen:
 	call LowVolume
 	xor a ; page 1
 	ld [wPokedexStatus], a
-	ld [wPokedexPagePos1], a
-	ld [wPokedexPagePos2], a
-	xor a
+	ld [wPokedexEntryPageNum], a
+	ld [wPokedexEntryType], a
+	ld [wPokedexEvoStage2], a
+	ld [wPokedexEvoStage3], a
+	; xor a ; ???
 	ldh [hBGMapMode], a
 	call ClearSprites
 	call Pokedex_GetSelectedMon
@@ -452,8 +454,11 @@ Pokedex_ReinitDexEntryScreen:
 	call Pokedex_BlackOutBG
 	xor a ; page 1
 	ld [wPokedexStatus], a
-	ld [wPokedexPagePos1], a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexEntryPageNum], a
+	ld [wPokedexEntryType], a
+	ld [wPokedexEvoStage2], a
+	ld [wPokedexEvoStage3], a
+
 	ldh [hBGMapMode], a
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_InitArrowCursor
@@ -484,22 +489,23 @@ DexEntryScreen_ArrowCursorData:
 
 DexEntryScreen_MenuActionJumptable:
 	dw Pokedex_Page
-	dw .BaseStats
-	dw .Moves
-	dw .Area
-	dw .Evos
+	dw BaseStat_Page
+	dw Moves_Page
+	dw Area_Page
+	dw Evos_Page
 	; dw .SpriteAnim
 
-.BaseStats:
+BaseStat_Page:
 	call Pokedex_GetSelectedMon
 	farcall DisplayDexMonStats
 	ret
-	ret
-.Moves:
+
+Moves_Page:
 	call Pokedex_GetSelectedMon
 	farcall DisplayDexMonMoves
 	ret
-.Area:
+
+Area_Page:
 	call Pokedex_BlackOutBG
 	xor a
 	ldh [hSCX], a
@@ -524,13 +530,19 @@ DexEntryScreen_MenuActionJumptable:
 	call Pokedex_RedisplayDexEntry
 	call Pokedex_LoadSelectedMonTiles
 	call WaitBGMap
+	xor a ; page 1
+	ld [wPokedexStatus], a
+	ld [wPokedexEntryPageNum], a
+	ld [wPokedexEntryType], a
+	ld [wPokedexEvoStage2], a
+	ld [wPokedexEvoStage3], a
 	call Pokedex_GetSelectedMon
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
 	ret
 
-.Evos:
+Evos_Page:
 	call Pokedex_BlackOutBG
 	hlcoord 0, 0
 	lb bc, SCREEN_HEIGHT, SCREEN_WIDTH
@@ -544,87 +556,95 @@ DexEntryScreen_MenuActionJumptable:
 	call Pokedex_GetSGBLayout
 
 	farcall DisplayDexMonEvos
-.evo_loop
+.evopage_loop
 	call JoyTextDelay
 	ld hl, hJoyPressed
 	ld a, [hl]
-	and A_BUTTON | B_BUTTON
-	jr nz, .evo_a_b
+	and B_BUTTON
+	jr nz, .evo_b
 	ldh a, [hJoypadDown]
 	call DelayFrame
-	jr .loop
-.evo_a_b
+	jr .evopage_loop
+.evo_b
 	call Pokedex_BlackOutBG
-	call ClearSprites
-
-	call WaitBGMap
-	call Pokedex_ResetBGMapMode
+	call DelayFrame
+	xor a
+	ldh [hBGMapMode], a
+	ld a, $90
+	ldh [hWY], a
+	ld a, POKEDEX_SCX
+	ldh [hSCX], a
 	farcall DrawDexEntryScreenRightEdge
-	call Pokedex_ResetBGMapMode
-
+	call DelayFrame
 	call Pokedex_RedisplayDexEntry
 	call Pokedex_LoadSelectedMonTiles
 	call WaitBGMap
+	xor a ; page 1
+	ld [wPokedexStatus], a
+	ld [wPokedexEntryPageNum], a
+	ld [wPokedexEvoStage2], a
+	ld [wPokedexEvoStage3], a
+	ld [wPokedexEntryType], a
 	call Pokedex_GetSelectedMon
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
 	call Pokedex_GetSGBLayout
 	ret
 
-.SpriteAnim:
-	call Pokedex_BlackOutBG
-	hlcoord 8, 0
-	lb bc, SCREEN_HEIGHT, 12
-	call ClearBox
-	hlcoord 0, 8
-	lb bc, 12, SCREEN_WIDTH
-	call ClearBox
-	hlcoord 0, 0
-	lb bc, 9, 1
-	call ClearBox
-	hlcoord 0, 0
-	lb bc, 1, 9
-	call ClearBox
-	farcall HDMATransferTilemapToWRAMBank3
-	call WaitBGMap
-	call DelayFrame
+; SpriteAnim:
+; 	call Pokedex_BlackOutBG
+; 	hlcoord 8, 0
+; 	lb bc, SCREEN_HEIGHT, 12
+; 	call ClearBox
+; 	hlcoord 0, 8
+; 	lb bc, 12, SCREEN_WIDTH
+; 	call ClearBox
+; 	hlcoord 0, 0
+; 	lb bc, 9, 1
+; 	call ClearBox
+; 	hlcoord 0, 0
+; 	lb bc, 1, 9
+; 	call ClearBox
+; 	farcall HDMATransferTilemapToWRAMBank3
+; 	call WaitBGMap
+; 	call DelayFrame
 
-	ld a, SCGB_POKEDEX
-	call Pokedex_GetSGBLayout
-	call Pokedex_GetSelectedMon
-	call Pokedex_PlaceAnimatedFrontpic
-	call Pokedex_PlayMonCry_AnimateFrontpic
-	call WaitBGMap
-.loop
-	call JoyTextDelay
-	ld hl, hJoyPressed
-	ld a, [hl]
-	and A_BUTTON | B_BUTTON
-	jr nz, .a_b
-	ldh a, [hJoypadDown]
-	; and SELECT
-	; jr nz, .select
-.next
-	call DelayFrame
-	jr .loop
-; .select
-; 	call .HideNestsShowPlayer
-.a_b
-	call ClearSprites
-	call Pokedex_BlackOutBG
-	call DelayFrame
-	call Pokedex_ResetBGMapMode
-	farcall DrawDexEntryScreenRightEdge
-	call Pokedex_ResetBGMapMode
+; 	ld a, SCGB_POKEDEX
+; 	call Pokedex_GetSGBLayout
+; 	call Pokedex_GetSelectedMon
+; 	call Pokedex_PlaceAnimatedFrontpic
+; 	call Pokedex_PlayMonCry_AnimateFrontpic
+; 	call WaitBGMap
+; .loop
+; 	call JoyTextDelay
+; 	ld hl, hJoyPressed
+; 	ld a, [hl]
+; 	and A_BUTTON | B_BUTTON
+; 	jr nz, .a_b
+; 	ldh a, [hJoypadDown]
+; 	; and SELECT
+; 	; jr nz, .select
+; .next
+; 	call DelayFrame
+; 	jr .loop
+; ; .select
+; ; 	call .HideNestsShowPlayer
+; .a_b
+; 	call ClearSprites
+; 	call Pokedex_BlackOutBG
+; 	call DelayFrame
+; 	call Pokedex_ResetBGMapMode
+; 	farcall DrawDexEntryScreenRightEdge
+; 	call Pokedex_ResetBGMapMode
 
-	call Pokedex_RedisplayDexEntry
-	call Pokedex_LoadSelectedMonTiles
-	call WaitBGMap
-	call Pokedex_GetSelectedMon
-	ld [wCurPartySpecies], a
-	ld a, SCGB_POKEDEX
-	call Pokedex_GetSGBLayout
-	ret
+; 	call Pokedex_RedisplayDexEntry
+; 	call Pokedex_LoadSelectedMonTiles
+; 	call WaitBGMap
+; 	call Pokedex_GetSelectedMon
+; 	ld [wCurPartySpecies], a
+; 	ld a, SCGB_POKEDEX
+; 	call Pokedex_GetSGBLayout
+; 	ret
 
 Pokedex_RedisplayDexEntry:
 	call Pokedex_DrawDexEntryScreenBG
@@ -2756,25 +2776,28 @@ Pokedex_PlaceAnimatedFrontpic:
 
 Pokedex_PlayMonCry_AnimateFrontpic:
 	xor a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexStatus], a
+	ld [wPokedexEntryType], a
+	ld [wPokedexEvoStage2], a
+	ld [wPokedexEvoStage3], a
 	; ld a, 1
-	; ld [wPokedexPagePos1], a
+	ld [wPokedexEntryPageNum], a
 .loop
 	call .Pokedex_WaitAnim
 	call .PokedexWaitCry
-	ld a, [wPokedexPagePos2]
+	ld a, [wPokedexEntryType]
 	bit 7, a
 	jr z, .loop
 	xor a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexEntryType], a
 
 	call WaitBGMap
 	ret
 
 .PokedexWaitCry:
-	ld a, [wPokedexPagePos2]
+	ld a, [wPokedexEntryType]
 	inc a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexEntryType], a
 	ret
 
 .Pokedex_WaitAnim:

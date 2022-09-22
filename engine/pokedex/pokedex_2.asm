@@ -1,3 +1,16 @@
+	const_def
+	const DEXENTRY_LORE
+	const DEXENTRY_BASESTATS
+	const DEXENTRY_LVLUP
+	const DEXENTRY_EGG
+	const DEXENTRY_FIELD
+	const DEXENTRY_TMS
+	const DEXENTRY_HMS
+	const DEXENTRY_MTS
+
+DEF MOVESPAGES_MASK EQU %00000111
+DEF ENTRYPAGE_MASK EQU %01111111
+
 AnimateDexSearchSlowpoke:
 	ld hl, .FrameIDs
 	ld b, 25
@@ -77,27 +90,48 @@ DoDexSearchSlowpokeFrame:
 	db -1
 
 DisplayDexEntry:
+	ld a, 1 << DEXENTRY_LORE
+	ld [wPokedexEntryType], a
 	lb bc, 8, SCREEN_WIDTH - 1
 	hlcoord 1, 8
 	call ClearBox
+	hlcoord 1, 8
+	ld bc, 19
+	ld a, $55
+	call ByteFill
 	ld a, [wTempSpecies]
 	ld [wCurSpecies], a
 	call DisplayDexMonType
 	call GetPokemonName
 	hlcoord 9, 4
 	call PlaceString ; mon species
+
+.print_dex_num
+; Print dex number
+	hlcoord 9, 2
+	ld a, $5c ; No
+	ld [hli], a
+	ld a, $e8 ; .
+	ld [hli], a
+	ld de, wTempSpecies
+	lb bc, PRINTNUM_LEADINGZEROS | 1, 3
+	call PrintNum
+; Check to see if we caught it.  Get out of here if we haven't.
+	ld a, [wTempSpecies]
+	dec a
+	call CheckCaughtMon
+	ret z
+
+	hlcoord 14, 2
+	ld [hl], $4f ; pokeball icon
+
 	ld a, [wTempSpecies]
 	ld b, a
 	call GetDexEntryPointer
 	ld a, b
 	push af
-	hlcoord 3, 9
+	hlcoord 2, 9
 	call PlaceFarString ; dex species nickname
-	hlcoord 1, 8
-	ld bc, 19
-	ld a, $55
-	call ByteFill
-	
 	ld h, b
 	ld l, c
 	push de
@@ -108,7 +142,6 @@ DisplayDexEntry:
 	jr z, .print_dex_num
 	cp $7f ; empty tile
 	jr z, .check_tile
-	
 	inc hl
 	inc hl
 	ld [hl], " "
@@ -116,24 +149,8 @@ DisplayDexEntry:
 	ld [hl], $e1
 	inc hl
 	ld [hl], $e2 
-
-.print_dex_num
-; Print dex number
-	hlcoord 9, 2
-	ld a, $5c ; No
-	ld [hli], a
-	ld a, $5d ; .
-	ld [hli], a
-	ld de, wTempSpecies
-	lb bc, PRINTNUM_LEADINGZEROS | 1, 3
-	call PrintNum
-; Check to see if we caught it.  Get out of here if we haven't.
-	ld a, [wTempSpecies]
-	dec a
-	call CheckCaughtMon
 	pop hl
 	pop bc
-	ret z
 ; Get the height of the Pokemon.
 	ld a, [wCurPartySpecies]
 	ld [wCurSpecies], a
@@ -145,9 +162,11 @@ DisplayDexEntry:
 	inc hl
 	inc hl
 	push hl
-
+	ld a, [wPokedexStatus]
+	or a ; check for page 2
+	jr nz, .page2
 ; Page 1
-	hlcoord 1, 8
+	hlcoord 18, 8
 	ld [hl], $56 ; P.
 	inc hl
 	ld [hl], $57 ; 1
@@ -158,15 +177,22 @@ DisplayDexEntry:
 	push af
 	call PlaceFarString
 	pop bc
-	ld a, [wPokedexStatus]
-	or a ; check for page 2
-	ret z
+	ret
 
 ; Page 2
+.page2
+	pop de
+	pop af
 	push bc
 	push de
-	call Pokedex_Clearbox
+	lb bc, 5, SCREEN_WIDTH - 1
+	hlcoord 1, 11
+	call ClearBox
 	hlcoord 1, 8
+	ld bc, 19
+	ld a, $55
+	call ByteFill
+	hlcoord 18, 8
 	ld [hl], $56 ; P.
 	inc hl
 	ld [hl], $58 ; 2
@@ -233,10 +259,16 @@ endr
 
 INCLUDE "data/pokemon/dex_entry_pointers.asm"
 
+DexEntry_IncPageNum:
+	ld a, [wPokedexEntryPageNum]
+	inc a
+	ld [wPokedexEntryPageNum], a
+	ret
+
 Pokedex_Clearbox:
 	;clear Area BC @ HL
-	lb bc, 6, SCREEN_WIDTH - 1
-	hlcoord 1, 10
+	lb bc, 7, SCREEN_WIDTH - 1
+	hlcoord 1, 9
 	call ClearBox
 	ret
 Pokedex_PrintPageNum:
@@ -259,6 +291,10 @@ Pokedex_PrintPageNum:
 	db $57, $58, $61, $62, $63, $64, $65, $6B, $6C
 
 DisplayDexMonStats:
+	ld a, [wTempSpecies]
+	ld [wCurSpecies], a
+	ld a, 1 << DEXENTRY_BASESTATS
+	ld [wPokedexEntryType], a
 	ret
 
 DisplayDexMonMoves:
@@ -267,11 +303,19 @@ DisplayDexMonMoves:
 
 ; Step 1 ClearBox, Page Num
 	call Pokedex_Clearbox
-	ld a, [wPokedexPagePos2]
-	cp 0
+	; the byte flag that tells us which type of table we're currently on
+	; 0 = Info, 1 = Stats, 2 = LVL UP, 3 = EGG, 2 = FIELD, 3 = TMs, 4 = HMs, 5 = MTs,  
+	; other menu options (Base stats, info, evos) should xor wPokedexEntryType before return 
+	ld b,b
+	ld a, [wPokedexEntryType] 
+	maskbits MOVESPAGES_MASK
+	jr nz, .LvlUpLearnset
+	and a
 	jr z, .LvlUpLearnset
-	; cp 1
-	; jr z, .EggMoves
+	; jr .Done
+	; ld a, [wPokedexEntryType]
+	; bit DEXENTRY_EGG
+	; jr nz, .EggMoves
 	jr .Done
 .LvlUpLearnset
 	call .print_page_num
@@ -281,81 +325,19 @@ DisplayDexMonMoves:
 	; We want to reset the Dex Entry back to 1 when we click "Page"
 	ld a, 1
 	ld [wPokedexStatus], a
-	ld a, [wPokedexPagePos2]
-	bit 7, a
+	ld a, [wPokedexEntryType]
+	bit DEXENTRY_MTS, a
 	call nz, .Restart_loop
 	ret
 .Restart_loop:
 	xor a
-	ld [wPokedexPagePos1], a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexEntryPageNum], a
+	ld [wPokedexEntryType], a
 	ret
 .print_page_num:
-	ld a, [wPokedexPagePos1]
-	hlcoord 1, 8
+	ld a, [wPokedexEntryPageNum]
+	hlcoord 18, 8
 	call Pokedex_PrintPageNum
-	ret
-
-DisplayDexMonType:
-	call GetBaseData
-	ld a, [wBaseType1]
-; Skip Bird
-	cp BIRD
-	jr c, .type1_adjust_done
-	cp UNUSED_TYPES
-	dec a
-	jr c, .type1_adjust_done
-	sub UNUSED_TYPES
-.type1_adjust_done
-; load the tiles
-	ld hl, TypeLightIconGFX
-	ld bc, 4 * LEN_2BPP_TILE
-	call AddNTimes
-	ld d, h
-	ld e, l
-	ld hl, vTiles2 tile $47
-	lb bc, BANK(TypeLightIconGFX), 4
-	call Request2bpp
-	hlcoord 9, 1
-	ld [hl], $47
-	inc hl
-	ld [hl], $48
-	inc hl
-	ld [hl], $49
-	inc hl
-	ld [hl], $4a
-; 2nd Type
-	ld a, [wBaseType1]
-	ld b, a
-	ld a, [wBaseType2]
-	cp b
-	ret z
-; Skip Bird
-	cp BIRD
-	jr c, .type2_adjust_done
-	cp UNUSED_TYPES
-	dec a
-	jr c, .type2_adjust_done
-	sub UNUSED_TYPES
-.type2_adjust_done
-; load type 2 tiles
-	ld hl, TypeDarkIconGFX
-	ld bc, 4 * LEN_2BPP_TILE
-	call AddNTimes
-	ld d, h
-	ld e, l
-	ld hl, vTiles2 tile $4b
-	lb bc, BANK(TypeDarkIconGFX), 4
-	call Request2bpp
-
-	hlcoord 13, 1
-	ld [hl], $4b
-	inc hl
-	ld [hl], $4c
-	inc hl
-	ld [hl], $4d
-	inc hl
-	ld [hl], $4e
 	ret
 
 Pokedex_Calc_LvlMovesPtr:
@@ -375,7 +357,7 @@ Pokedex_Calc_LvlMovesPtr:
 	and a ; cp 0
 	jr nz, .SkipEvoBytes
 .CalcPageoffset
-	ld a, [wPokedexPagePos1]
+	ld a, [wPokedexEntryPageNum]
 	ld c, 5
 	call SimpleMultiply 
 	; double this num and add to first byte after Evo's 0
@@ -384,22 +366,16 @@ Pokedex_Calc_LvlMovesPtr:
 	ld c, a
 	add hl, bc
 	add hl, bc
-	; add hl, bc
 	ret
 
 Pokedex_Print_NextLvlMoves:
 ; Print No more than 5 moves
-; check the next byte
-; if 0, set Lvl Up Done flag, or zero out
-; else, inc Page Counter wPokedexPagePos1 before exit
-; Start at 1, 11
-; LXX:@@
 	ld b, 0
 	ld c, 0 ; our move counter, max of 5
 	push bc ; our move counter
 	push hl ; our offset for the start of Moves
 	ld de, .lvl_moves_text
-	hlcoord 2, 10
+	hlcoord 2, 9
 	call PlaceString ; TEXT for 'LVL - Move'
 	pop hl
 	pop bc
@@ -410,12 +386,15 @@ Pokedex_Print_NextLvlMoves:
 	jr z, .FoundEnd
 	push hl
 	ld [wTextDecimalByte], a
-	hlcoord 1, 11
+	hlcoord 2, 11
+	call .adjusthlcoord
+	ld [hl], $5d
+	hlcoord 3, 11
 	call .adjusthlcoord
 	ld de, wTextDecimalByte
 	push bc
-	; lb bc, PRINTNUM_LEFTALIGN | 1, 2
-	lb bc, 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
+	; lb bc, 1, 2
 	call PrintNum
 	pop bc 
 	pop hl
@@ -425,44 +404,37 @@ Pokedex_Print_NextLvlMoves:
 	call GetFarByte
 	ld [wNamedObjectIndex], a
 	call GetMoveName
-	hlcoord 4, 11
+	hlcoord 7, 11
 	call .adjusthlcoord
 	push bc
 	call PlaceString
 	pop bc
 	pop hl
-	; inc hl
 	inc hl
 	inc bc
 	ld a, 5
 	cp c
 	jr nz, .learnset_loop
 	jr .MaxedPage
-
-.FoundEnd ; Set the LvlUp Learnset DONE bit (5?)
-	; DEBUG just zero-out to test effect
-	ld a, [wPokedexPagePos2]
-	;xor %00010000 ; setting the "egg" bit
-	set 7, a
-	ld [wPokedexPagePos2], a
-	ld a, [wPokedexPagePos1]
-	inc a
-	ld [wPokedexPagePos1], a
-	ret
 .MaxedPage ; Printed 5 moves. Moves are still left. Inc the Page counter
-	; check to see if any moves left
+	; check to see if really any moves left, we dont want a blank page
 	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte
 	and a
 	jr z, .FoundEnd
 	; Shouldn't NEED to, but added check to make sure doesnt go over 8 rn
-	ld a, [wPokedexPagePos1]
-	inc a
-	ld [wPokedexPagePos1], a
+	call DexEntry_IncPageNum
+	ret
+.FoundEnd ; Set the LvlUp Learnset DONE bit (5?)
+	; DEBUG just zero-out to test effect
+	; ld a, 1 << DEXENTRY_EGG
+	ld a, 1 << DEXENTRY_MTS ; PLACEHOLDER
+	ld b,b
+	ld [wPokedexEntryType], a
 	ret
 
 .lvl_moves_text:
-	db "LVL Move@"
+	db "LVL-UP MOVES@"
 .moveslvl_colon_Text:
 	;db "<COLON> @"
 	db ": @"	
@@ -480,11 +452,13 @@ Pokedex_Print_NextLvlMoves:
 
 DisplayDexMonEvos:
 ; print stage 1 first, then sus out how many evos it has
-	ld hl, wPokedexPagePos1
-	ld [hl], 0 ; evo stage
+	; ld hl, wPokedexEntryPageNum
+	; ld [hl], 0 ; evo stage
+
+; zero out the 
 	xor a
-	ld [wPokedexPagePos1], a
-	ld [wPokedexPagePos2], a
+	ld [wPokedexEntryPageNum], a
+	ld [wPokedexEntryType], a
 	call DisableSpriteUpdates
 	callfar InitPartyMenuPalettes
 	callfar ClearSpriteAnims2
@@ -522,7 +496,7 @@ DisplayDexMonEvos:
 	hlcoord 5, 1
 	call EVO_adjusthlcoord
 	call PlaceString ; mon species
-	ld a, [wPokedexPagePos1]
+	ld a, [wPokedexEntryPageNum]
 	cp 2
 	jr z, .stage3
 	cp 1
@@ -545,7 +519,6 @@ DisplayDexMonEvos:
 	; get and print Evo method
 	pop hl
 	inc hl
-	ld b,b
 	cp EVOLVE_LEVEL
 	call z, EVO_level
 	cp EVOLVE_ITEM
@@ -562,9 +535,9 @@ DisplayDexMonEvos:
 	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte ; if zero, no evos
 	ld b, a ; species
-	ld a, [wPokedexPagePos1]
+	ld a, [wPokedexEntryPageNum]
 	inc a ; evo stage
-	ld [wPokedexPagePos1], a
+	ld [wPokedexEntryPageNum], a
 	ld a, b
 	jr .loop ; print next evo stage
 
@@ -615,7 +588,7 @@ EVO_adjusthlcoord:
 	push af
 	push bc
 	push de
-	ld a, [wPokedexPagePos1]
+	ld a, [wPokedexEntryPageNum]
 .loop
 	cp 0
 	jr z, .done
@@ -811,3 +784,65 @@ EVO_stats:
 	db "& ATK > DEF@"
 .atk_lt_def_text:
 	db "& ATK < DEF@"
+
+DisplayDexMonType:
+	call GetBaseData
+	ld a, [wBaseType1]
+; Skip Bird
+	cp BIRD
+	jr c, .type1_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type1_adjust_done
+	sub UNUSED_TYPES
+.type1_adjust_done
+; load the tiles
+	ld hl, TypeLightIconGFX
+	ld bc, 4 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $47
+	lb bc, BANK(TypeLightIconGFX), 4
+	call Request2bpp
+	hlcoord 9, 6
+	ld [hl], $47
+	inc hl
+	ld [hl], $48
+	inc hl
+	ld [hl], $49
+	inc hl
+	ld [hl], $4a
+; 2nd Type
+	ld a, [wBaseType1]
+	ld b, a
+	ld a, [wBaseType2]
+	cp b
+	ret z
+; Skip Bird
+	cp BIRD
+	jr c, .type2_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type2_adjust_done
+	sub UNUSED_TYPES
+.type2_adjust_done
+; load type 2 tiles
+	ld hl, TypeDarkIconGFX
+	ld bc, 4 * LEN_2BPP_TILE
+	call AddNTimes
+	ld d, h
+	ld e, l
+	ld hl, vTiles2 tile $4b
+	lb bc, BANK(TypeDarkIconGFX), 4
+	call Request2bpp
+
+	hlcoord 13, 6
+	ld [hl], $4b
+	inc hl
+	ld [hl], $4c
+	inc hl
+	ld [hl], $4d
+	inc hl
+	ld [hl], $4e
+	ret

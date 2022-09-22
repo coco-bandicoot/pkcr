@@ -401,8 +401,8 @@ ld a, [wPokedexShinyToggle]
 	call FillBoxCGB
 
 ; mon base types
-	hlcoord 9, 1, wAttrmap
-	lb bc, 1, 8
+	hlcoord 9, 5, wAttrmap
+	lb bc, 2, 9
 	ld a, $7 ; mon base type pals
 	call FillBoxCGB
 

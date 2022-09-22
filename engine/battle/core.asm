@@ -4972,9 +4972,8 @@ BattleMenu:
 	jr z, .ok
 	cp BATTLETYPE_TUTORIAL
 	jr z, .ok
-	ld b, SCGB_BATTLE_COLORS
-	call GetSGBLayout
-
+	; ld b, SCGB_BATTLE_COLORS
+	; call GetSGBLayout
 	call EmptyBattleTextbox
 	call UpdateBattleHuds
 	call EmptyBattleTextbox
