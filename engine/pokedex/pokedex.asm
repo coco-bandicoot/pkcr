@@ -17,7 +17,6 @@
 
 DEF POKEDEX_SCX EQU 5
 EXPORT POKEDEX_SCX
-DEF SHINYTOGGLE_MASK EQU %10000000
 
 Pokedex:
 	ldh a, [hWX]
@@ -335,7 +334,6 @@ Pokedex_InitDexEntryScreen:
 	ld [wPokedexEntryType], a
 	ld [wPokedexEvoStage2], a
 	ld [wPokedexEvoStage3], a
-	; xor a ; ???
 	ldh [hBGMapMode], a
 	call ClearSprites
 	call Pokedex_GetSelectedMon
@@ -440,9 +438,6 @@ Pokedex_UpdateDexEntryScreen:
 	ret
 
 Pokedex_Page:
-	; ld a, [wPokedexStatus]
-	; xor 1 ; toggle page
-	; ld [wPokedexStatus], a
 	call Pokedex_GetSelectedMon
 	ld [wPrevDexEntry], a
 	farcall DisplayDexEntry
@@ -452,20 +447,53 @@ Pokedex_Page:
 Pokedex_ReinitDexEntryScreen:
 ; Reinitialize the Pokédex entry screen after changing the selected mon.
 	call Pokedex_BlackOutBG
-	xor a ; page 1
-	ld [wPokedexStatus], a
-	ld [wPokedexEntryPageNum], a
-	ld [wPokedexEntryType], a
-	ld [wPokedexEvoStage2], a
-	ld [wPokedexEvoStage3], a
-
 	ldh [hBGMapMode], a
 	call Pokedex_DrawDexEntryScreenBG
-	call Pokedex_InitArrowCursor
 	call Pokedex_LoadCurrentFootprint
 	call Pokedex_GetSelectedMon
 	ld [wPrevDexEntry], a
+
+	ld b,b
+	ld a, [wPokedexEntryType]
+	; ld a, 1 << DEXENTRY_LORE
+	; cp b
+	cp 1 << DEXENTRY_LORE
+	jr nz, .basestats_check
+	call Pokedex_InitArrowCursor
+	xor a
+	ld [wPokedexEntryPageNum], a
 	farcall DisplayDexEntry
+	jr .cont
+.basestats_check
+	; so we can preserve the place for easy swithing when comparing base stats
+	; since each mon will have the same number and layout of base stats
+	ld a, [wPokedexEntryType]
+	cp 1 << DEXENTRY_BASESTATS
+	jr nz, .moves
+	
+	; dec page
+	ld a, [wPokedexEntryPageNum]
+	dec a
+	ld b, a
+	ld a, $8
+	cp b
+	jr nc, .basestats
+	ld b, $3 ; page index for page 4
+.basestats
+	ld a, b
+	ld [wPokedexEntryPageNum], a
+	farcall DisplayDexMonStats
+	jr .cont
+
+; if not lore or base stats, it's moves
+.moves
+	; for moves, we can have different numbers of pages.
+	; but we can at least keep them on the first move page of the category they were in
+	xor a
+	ld [wPokedexEntryPageNum], a
+	farcall DisplayDexMonMoves
+
+.cont	
 	call Pokedex_DrawFootprint
 	call Pokedex_LoadSelectedMonTiles
 	call WaitBGMap
@@ -482,10 +510,10 @@ Pokedex_ReinitDexEntryScreen:
 DexEntryScreen_ArrowCursorData:
 	db D_RIGHT | D_LEFT, 5
 	dwcoord 1, 17  ; INFO
-	dwcoord 4, 17  ; STAT
-	dwcoord 8, 17  ; MOVES
-	dwcoord 12, 17 ; AREA
-	dwcoord 15, 17 ; EVO
+	dwcoord 5, 17  ; STAT
+	dwcoord 9, 17  ; MOVES
+	dwcoord 13, 17 ; AREA
+	dwcoord 17, 17 ; EVO
 
 DexEntryScreen_MenuActionJumptable:
 	dw Pokedex_Page
@@ -506,6 +534,7 @@ Moves_Page:
 	ret
 
 Area_Page:
+	call LoadTilemapToTempTilemap
 	call Pokedex_BlackOutBG
 	xor a
 	ldh [hSCX], a
@@ -530,12 +559,6 @@ Area_Page:
 	call Pokedex_RedisplayDexEntry
 	call Pokedex_LoadSelectedMonTiles
 	call WaitBGMap
-	xor a ; page 1
-	ld [wPokedexStatus], a
-	ld [wPokedexEntryPageNum], a
-	ld [wPokedexEntryType], a
-	ld [wPokedexEvoStage2], a
-	ld [wPokedexEvoStage3], a
 	call Pokedex_GetSelectedMon
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
@@ -543,6 +566,7 @@ Area_Page:
 	ret
 
 Evos_Page:
+	call LoadTilemapToTempTilemap
 	call Pokedex_BlackOutBG
 	hlcoord 0, 0
 	lb bc, SCREEN_HEIGHT, SCREEN_WIDTH
@@ -551,10 +575,8 @@ Evos_Page:
 	farcall HDMATransferTilemapToWRAMBank3
 	call WaitBGMap
 	call DelayFrame
-
 	ld a, SCGB_POKEDEX_EVO
 	call Pokedex_GetSGBLayout
-
 	farcall DisplayDexMonEvos
 .evopage_loop
 	call JoyTextDelay
@@ -579,12 +601,6 @@ Evos_Page:
 	call Pokedex_RedisplayDexEntry
 	call Pokedex_LoadSelectedMonTiles
 	call WaitBGMap
-	xor a ; page 1
-	ld [wPokedexStatus], a
-	ld [wPokedexEntryPageNum], a
-	ld [wPokedexEvoStage2], a
-	ld [wPokedexEvoStage3], a
-	ld [wPokedexEntryType], a
 	call Pokedex_GetSelectedMon
 	ld [wCurPartySpecies], a
 	ld a, SCGB_POKEDEX
@@ -649,7 +665,8 @@ Evos_Page:
 Pokedex_RedisplayDexEntry:
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_GetSelectedMon
-	farcall DisplayDexEntry
+	; farcall DisplayDexEntry
+	call SafeLoadTempTilemapToTilemap
 	call Pokedex_DrawFootprint
 	ret
 
@@ -1300,11 +1317,45 @@ Pokedex_DrawDexEntryScreenBG:
 	ld a, " "
 	call ByteFill
 
+	lb bc, 8, SCREEN_WIDTH - 1
+	hlcoord 1, 8
+	call ClearBox
+	
+	hlcoord 1, 8
+	ld bc, 19
+	ld a, $55
+	call ByteFill
+	
+	ld a, [wTempSpecies]
+	ld [wCurSpecies], a
+	farcall DisplayDexMonType
+
+	call GetPokemonName
+	hlcoord 9, 4
+	call PlaceString ; mon species
+
+.print_dex_num
+; Print dex number
+	hlcoord 9, 2
+	ld a, $5c ; No
+	ld [hli], a
+	ld a, $e8 ; .
+	ld [hli], a
+	ld de, wTempSpecies
+	lb bc, PRINTNUM_LEADINGZEROS | 1, 3
+	call PrintNum
+
 	hlcoord 0, 17
 	ld de, .MenuItems
 	call Pokedex_PlaceString	
-
 	call Pokedex_PlaceFrontpicTopLeftCorner
+; Check to see if we caught it.  Get out of here if we haven't.
+	ld a, [wTempSpecies]
+	dec a
+	call CheckCaughtMon
+	ret z
+	hlcoord 14, 2
+	ld [hl], $4f ; pokeball icon
 	ret
 
 .Height:
@@ -1312,8 +1363,11 @@ Pokedex_DrawDexEntryScreenBG:
 .Weight:
 	db "WT   ???lb", -1
 .MenuItems:
-	db $3b, " ", $79, $7a, " ", $71, $72, $73, " ", $74, $75, $76, \
-	        " ", $77, $78, " ", $7d, $7e, $31, $31, -1
+	db $3b, " ", $79, $7a, " ", " ", \ ; INFO
+		$71, $72, $73, " ", \ ; STATS
+		$74, $75, $76, " ", \ ; MOVES
+		$77, $78, " ", " ",\ ; AREA
+		$7d, $7e, $31, $31, -1 ; EVO
 
 Pokedex_LoadTextboxSpaceGFX:
 	nop

@@ -8,8 +8,15 @@
 	const DEXENTRY_HMS
 	const DEXENTRY_MTS
 
-DEF MOVESPAGES_MASK EQU %00000111
-DEF ENTRYPAGE_MASK EQU %01111111
+EXPORT DEXENTRY_LORE
+EXPORT DEXENTRY_BASESTATS
+EXPORT DEXENTRY_LVLUP
+; EXPORT DEXENTRY_EGG
+; EXPORT DEXENTRY_FIELD
+; EXPORT DEXENTRY_TMS
+; EXPORT DEXENTRY_HMS
+; EXPORT DEXENTRY_MTS
+DEF MOVESPAGES_CONT_MASK EQU %11000000
 
 AnimateDexSearchSlowpoke:
 	ld hl, .FrameIDs
@@ -101,40 +108,24 @@ HandlePageNumReset:
 	ret
 
 DisplayDexEntry:
-	ld a, 1 << DEXENTRY_LORE
-	call HandlePageNumReset
-	lb bc, 8, SCREEN_WIDTH - 1
-	hlcoord 1, 8
-	call ClearBox
-	hlcoord 1, 8
-	ld bc, 19
-	ld a, $55
-	call ByteFill
-	ld a, [wTempSpecies]
-	ld [wCurSpecies], a
-	call DisplayDexMonType
-	call GetPokemonName
-	hlcoord 9, 4
-	call PlaceString ; mon species
 
-.print_dex_num
-; Print dex number
-	hlcoord 9, 2
-	ld a, $5c ; No
-	ld [hli], a
-	ld a, $e8 ; .
-	ld [hli], a
-	ld de, wTempSpecies
-	lb bc, PRINTNUM_LEADINGZEROS | 1, 3
-	call PrintNum
 ; Check to see if we caught it.  Get out of here if we haven't.
 	ld a, [wTempSpecies]
 	dec a
 	call CheckCaughtMon
 	ret z
 
-	hlcoord 14, 2
-	ld [hl], $4f ; pokeball icon
+	ld a, 1 << DEXENTRY_LORE
+	call HandlePageNumReset
+
+	lb bc, 8, SCREEN_WIDTH - 1
+	hlcoord 1, 8
+	call ClearBox
+
+	hlcoord 1, 8
+	ld bc, 19
+	ld a, $55
+	call ByteFill
 
 	ld a, [wTempSpecies]
 	ld b, a
@@ -150,7 +141,7 @@ DisplayDexEntry:
 .check_tile
 	ld a, [hld]
 	cp $e2
-	jr z, .print_dex_num
+	jr z, .cont
 	cp $7f ; empty tile
 	jr z, .check_tile
 	inc hl
@@ -160,6 +151,7 @@ DisplayDexEntry:
 	ld [hl], $e1
 	inc hl
 	ld [hl], $e2 
+.cont
 	pop hl
 	pop bc
 ; Get the height of the Pokemon.
@@ -287,6 +279,7 @@ Pokedex_PrintPageNum:
 	push hl
 	push de
 	ld a, [wPokedexEntryPageNum]
+.print
 	; a = page num
 	push bc
 	ld b, 0
@@ -306,7 +299,7 @@ Pokedex_PrintPageNum:
 .PgNumPtrs
 	db $57, $58, $61, $62, $63, $64, $65, $6B, $6C
 
-DisplayDexMonStats:
+DisplayDexMonStats::
 	ld a, [wTempSpecies]
 	ld [wCurSpecies], a
 	ld a, [wPokedexEntryType]
@@ -323,30 +316,18 @@ DisplayDexMonStats:
 	cp 1
 	jr z, .print_page2
 	cp 2
-	jr z, .print_page3; must be page 3 then
+	jr z, .print_page3
 	jr .print_page4
 .print_page1
-	; Page 1:
-	; Base Stats (3 lines)
-	; Wild Held Items:
-	; Common: Item1
-	; Rare: Item2
 	call Pokedex_GBS_Stats
 	call Pokedex_Get_Items
 	jp DexEntry_IncPageNum
 .print_page2
-	;Page 2:
-	; Gender Ratio (1 line)
-	; Catch Rate (1 line)
-	; Base Exp (1 line) / EV Reward
-	; Egg Group(s) (3 lines)
 	call Pokedex_EggG_SetUp
 	call Pokedex_Get_GenderRatio
 	call Pokedex_CatchRate
 	jp DexEntry_IncPageNum
 .print_page3
-	;Page 3:
-	; Growth Rate: (2 lines)
 	call Pokedex_PrintBaseExp
 	call Pokedex_PrintHatchSteps
 	call Pokedex_Get_Growth
@@ -360,18 +341,17 @@ DisplayDexMonStats:
 .Base_stats_text:
 	db "BASE STATS@"
 
-DisplayDexMonMoves:
+DisplayDexMonMoves::
 	ld a, [wTempSpecies]
 	ld [wCurSpecies], a
-
-; Step 1 ClearBox, Page Num
 	call Pokedex_Clearbox
+
 	; the byte flag that tells us which type of table we're currently on
-	; 0 = Info, 1 = Stats, 2 = LVL UP, 3 = EGG, 2 = FIELD, 3 = TMs, 4 = HMs, 5 = MTs,  
-	; other menu options (Base stats, info, evos) should xor wPokedexEntryType before return 
+	; 0 = Info, 1 = Stats, 2 = LVL UP, 3 = EGG, 4 = FIELD, 5 = TMs, 6 = HMs, 7 = MTs
 	ld a, [wPokedexEntryType] 
-	maskbits MOVESPAGES_MASK
+	maskbits MOVESPAGES_CONT_MASK
 	jr nz, .LvlUpLearnset
+	ld a, [wPokedexEntryType] 
 	and a
 	jr z, .LvlUpLearnset
 	; jr .Done
@@ -508,13 +488,12 @@ Pokedex_Print_NextLvlMoves:
 
 DisplayDexMonEvos:
 ; print stage 1 first, then sus out how many evos it has
-	; ld hl, wPokedexEntryPageNum
-	; ld [hl], 0 ; evo stage
-
-; zero out the 
+; zero out the counters/flags 
 	xor a
-	ld [wPokedexEntryPageNum], a
-	ld [wPokedexEntryType], a
+	ld [wStatsScreenFlags], a
+	ld [wPokedexEvoStage2], a
+	ld [wPokedexEvoStage3], a
+
 	call DisableSpriteUpdates
 	callfar InitPartyMenuPalettes
 	callfar ClearSpriteAnims2
@@ -552,7 +531,7 @@ DisplayDexMonEvos:
 	hlcoord 5, 1
 	call EVO_adjusthlcoord
 	call PlaceString ; mon species
-	ld a, [wPokedexEntryPageNum]
+	ld a, [wStatsScreenFlags]
 	cp 2
 	jr z, .stage3
 	cp 1
@@ -591,9 +570,9 @@ DisplayDexMonEvos:
 	ld a, BANK("Evolutions and Attacks")
 	call GetFarByte ; if zero, no evos
 	ld b, a ; species
-	ld a, [wPokedexEntryPageNum]
+	ld a, [wStatsScreenFlags]
 	inc a ; evo stage
-	ld [wPokedexEntryPageNum], a
+	ld [wStatsScreenFlags], a
 	ld a, b
 	jr .loop ; print next evo stage
 
@@ -631,6 +610,8 @@ DisplayDexMonEvos:
 	call WaitBGMap
 	callfar PlaySpriteAnimations
 	call DelayFrame
+	xor a
+	ld [wStatsScreenFlags], a
 	ret
 
 .stage1_text:
@@ -644,7 +625,7 @@ EVO_adjusthlcoord:
 	push af
 	push bc
 	push de
-	ld a, [wPokedexEntryPageNum]
+	ld a, [wStatsScreenFlags]
 .loop
 	cp 0
 	jr z, .done
