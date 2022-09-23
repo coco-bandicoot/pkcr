@@ -453,10 +453,7 @@ Pokedex_ReinitDexEntryScreen:
 	call Pokedex_GetSelectedMon
 	ld [wPrevDexEntry], a
 
-	ld b,b
 	ld a, [wPokedexEntryType]
-	; ld a, 1 << DEXENTRY_LORE
-	; cp b
 	cp 1 << DEXENTRY_LORE
 	jr nz, .basestats_check
 	call Pokedex_InitArrowCursor
@@ -489,10 +486,23 @@ Pokedex_ReinitDexEntryScreen:
 .moves
 	; for moves, we can have different numbers of pages.
 	; but we can at least keep them on the first move page of the category they were in
+	; roll back category if page is 0
+	ld a, [wPokedexEntryPageNum]
+	and a
+	jr nz, .moves_done
+; .rollbackcategory
+	ld a, [wPokedexEntryType]
+	srl a
+	ld [wPokedexEntryType], a
+	cp 1 << DEXENTRY_BASESTATS
+	jr nz, .moves_done
+	ld a, 1 << DEXENTRY_EGG
+	ld [wPokedexEntryType], a
+
+.moves_done
 	xor a
 	ld [wPokedexEntryPageNum], a
 	farcall DisplayDexMonMoves
-
 .cont	
 	call Pokedex_DrawFootprint
 	call Pokedex_LoadSelectedMonTiles
