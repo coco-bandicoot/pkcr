@@ -530,7 +530,7 @@ Pokedex_Calc_EggMovesPtr:
 	hlcoord 3, 11
 	ld de, DexEntry_NONE_text
 	call PlaceString
-	ld a, 1 << DEXENTRY_LVLUP
+	ld a, 1 << DEXENTRY_HMS
 	call DexEntry_NextCategory
 	xor a
 	ret
@@ -577,12 +577,111 @@ Pokedex_Print_Egg_moves:
 	call DexEntry_IncPageNum
 	ret
 .FoundEnd
-	ld a, 1 << DEXENTRY_LVLUP
+	ld a, 1 << DEXENTRY_HMS
 	call DexEntry_NextCategory
 	ret
 
 Pokedex_PrintHMs:
+	call GetBaseData
+	farcall Pokedex_GetSelectedMon
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+	ld [wCurSpecies], a
+	ld [wCurSpecies], a
+	ld [wTempMonSpecies], a
+	hlcoord 2, 9
+	ld de, .dex_HM_text
+	call PlaceString
+	call Pokedex_PrintPageNum ; page num is also returned in a
+	ld c, $5
+	call SimpleMultiply
+	ld b, a ; result of simple multiply in a
+	ld c, 0 ; current line
+.hm_loop
+	push bc
 	ld a, HM01
+	add b
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr z, .notcompatible
+	call GetMoveName
+	push bc ; our count is in c
+	hlcoord 9, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+	ld a, HM01
+	add b
+	ld [wNamedObjectIndex], a
+	call GetItemName
+	push bc
+	hlcoord 4, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+	inc c ; since we printed a line
+	ld a, $5
+	cp c
+	jr nz, .notcompatible
+	ld b,b
+	call Pokedex_anymoreHMs
+	jr z, .done
+	ld a, 1 << DEXENTRY_HMS
+	ld [wPokedexEntryType], a
+	call DexEntry_IncPageNum
+	ret
+.notcompatible
+	ld a, NUM_HMS - 1
+	cp b
+	jr z, .done
+	inc b
+	jr .hm_loop
+.done
+	ld a, 1 << DEXENTRY_LVLUP
+	call DexEntry_NextCategory
+	ld a, c
+	and a
+	ret nz ; we've had at least one HM Move
+	hlcoord 4, 10
+	ld de, DexEntry_NONE_text
+	call PlaceString
+	ret
+.dex_HM_text:
+	db "HIDDEN MACHINES@"
+
+Pokedex_anymoreHMs:
+	; b has the current HM index
+	inc b
+.hmloop
+	push bc
+	ld a, HM01
+	add b
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]	
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr nz, .yes
+	ld a, NUM_HMS - 1
+	cp b
+	jr z, .none
+	inc b
+	jr .hmloop	
+.yes
+	ld a, 1
+	and a
+	ret
+.none
+	xor a
 	ret
 
 DisplayDexMonEvos:

@@ -496,7 +496,7 @@ Pokedex_ReinitDexEntryScreen:
 	ld [wPokedexEntryType], a
 	cp 1 << DEXENTRY_BASESTATS
 	jr nz, .moves_done
-	ld a, 1 << DEXENTRY_EGG
+	ld a, 1 << DEXENTRY_HMS
 	ld [wPokedexEntryType], a
 
 .moves_done
