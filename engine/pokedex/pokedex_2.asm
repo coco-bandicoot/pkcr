@@ -360,8 +360,12 @@ DisplayDexMonMoves::
 	ld a, [wPokedexEntryType]
 	bit DEXENTRY_EGG, a
 	jr nz, .EggMoves
+	bit DEXENTRY_TMS, a
+	jr nz, .TMs
 	bit DEXENTRY_HMS, a
 	jr nz, .HMs
+	bit DEXENTRY_MTS, a
+	jr nz, .MTs
 .LvlUpLearnset
 	ld a, 1 << DEXENTRY_LVLUP
 	call HandlePageNumReset
@@ -373,8 +377,14 @@ DisplayDexMonMoves::
 	ret z
 	call Pokedex_Print_Egg_moves
 	ret
+.TMs
+	call Pokedex_PrintTMs
+	ret
 .HMs
 	call Pokedex_PrintHMs
+	ret
+.MTs
+	call Pokedex_PrintMTs
 	ret
 
 Pokedex_Calc_LvlMovesPtr:
@@ -530,7 +540,7 @@ Pokedex_Calc_EggMovesPtr:
 	hlcoord 3, 11
 	ld de, DexEntry_NONE_text
 	call PlaceString
-	ld a, 1 << DEXENTRY_HMS
+	ld a, 1 << DEXENTRY_TMS
 	call DexEntry_NextCategory
 	xor a
 	ret
@@ -577,18 +587,123 @@ Pokedex_Print_Egg_moves:
 	call DexEntry_IncPageNum
 	ret
 .FoundEnd
-	ld a, 1 << DEXENTRY_HMS
+	ld a, 1 << DEXENTRY_TMS
 	call DexEntry_NextCategory
 	ret
 
-Pokedex_PrintHMs:
-	call GetBaseData
+Pokedex_PrintTMs:
 	farcall Pokedex_GetSelectedMon
-	ld a, [wTempSpecies]
-	ld [wCurPartySpecies], a
-	ld [wCurSpecies], a
-	ld [wCurSpecies], a
-	ld [wTempMonSpecies], a
+	hlcoord 2, 9
+	ld de, .dex_TM_text
+	call PlaceString
+	call Pokedex_PrintPageNum ; page num is also returned in a
+	ld b,b
+	ld a, [wPokedexStatus] ; machine moves index
+	; ld c, $5
+	; call SimpleMultiply
+	; ld b, a ; result of simple multiply in a
+	ld b, a
+	ld c, 0 ; current line
+.tm_loop
+	push bc
+	ld a, TM01
+	add b
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr z, .notcompatible
+	call GetMoveName
+	push bc ; our count is in c
+	hlcoord 8, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+	ld a, TM01
+	ld a, [wPokedexStatus]
+	ld b, a
+	ld a, TM01
+	add b
+	ld [wNamedObjectIndex], a
+	call GetItemName
+	push bc
+	hlcoord 3, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+	inc c ; since we printed a line
+	ld a, $5
+	cp c
+	jr nz, .notcompatible ; not yet printed all 5 slots
+	; We've printed all 5 slots
+	; check if we need to move to next category or if there are moves left
+	call Pokedex_anymoreTMs
+	jr z, .done ; there are no moves left
+	; moves left
+	ld a, 1 << DEXENTRY_TMS
+	ld [wPokedexEntryType], a
+	call DexEntry_IncPageNum
+	ret
+.notcompatible
+	ld a, NUM_TMS - 1
+	cp b
+	jr z, .done
+	inc b
+	ld a, b
+	ld [wPokedexStatus], a ; moves machines index
+	jr .tm_loop
+.done
+	ld a, 1 << DEXENTRY_HMS
+	call DexEntry_NextCategory
+	ld a, c
+	and a
+	ret nz ; we've had at least one HM Move
+	hlcoord 4, 11
+	ld de, DexEntry_NONE_text
+	call PlaceString
+	ret
+.dex_TM_text:
+	db "TECHNICAL MACHINES@"
+
+Pokedex_anymoreTMs:
+	ld b,b
+	; b has the current HM index
+	inc b
+.tmloop
+	push bc
+	ld a, TM01
+	add b
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]	
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr nz, .yes
+	ld a, NUM_TMS - 1
+	cp b
+	jr z, .none
+	inc b
+	jr .tmloop	
+.yes
+	ld a, b
+	ld [wPokedexStatus], a ; so we can start off at the next learnable machine
+	ld a, 1
+	and a
+	ret
+.none
+	xor a
+	ld [wPokedexStatus], a
+	ret
+
+Pokedex_PrintHMs:
+	farcall Pokedex_GetSelectedMon
 	hlcoord 2, 9
 	ld de, .dex_HM_text
 	call PlaceString
@@ -612,7 +727,7 @@ Pokedex_PrintHMs:
 	jr z, .notcompatible
 	call GetMoveName
 	push bc ; our count is in c
-	hlcoord 9, 11
+	hlcoord 8, 11
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -621,7 +736,7 @@ Pokedex_PrintHMs:
 	ld [wNamedObjectIndex], a
 	call GetItemName
 	push bc
-	hlcoord 4, 11
+	hlcoord 3, 11
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -629,7 +744,6 @@ Pokedex_PrintHMs:
 	ld a, $5
 	cp c
 	jr nz, .notcompatible
-	ld b,b
 	call Pokedex_anymoreHMs
 	jr z, .done
 	ld a, 1 << DEXENTRY_HMS
@@ -643,7 +757,7 @@ Pokedex_PrintHMs:
 	inc b
 	jr .hm_loop
 .done
-	ld a, 1 << DEXENTRY_LVLUP
+	ld a, 1 << DEXENTRY_MTS
 	call DexEntry_NextCategory
 	ld a, c
 	and a
@@ -676,6 +790,99 @@ Pokedex_anymoreHMs:
 	jr z, .none
 	inc b
 	jr .hmloop	
+.yes
+	ld a, 1
+	and a
+	ret
+.none
+	xor a
+	ret
+
+Pokedex_PrintMTs:
+	farcall Pokedex_GetSelectedMon
+	hlcoord 2, 9
+	ld de, .dex_MT_text
+	call PlaceString
+	call Pokedex_PrintPageNum ; page num is also returned in a
+	ld a, [wPokedexStatus] ; moves machines index
+	ld c, $5
+	call SimpleMultiply
+	ld b, a ; result of simple multiply in a
+	ld c, 0 ; current line
+.mt_loop
+	push bc
+	ld a, MT01
+	add b
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr z, .notcompatible
+	call GetMoveName
+	push bc ; our count is in c
+	hlcoord 3, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+	inc c ; since we printed a line
+	ld a, $5
+	cp c
+	jr nz, .notcompatible
+	; We've printed all 5 slots
+	; check if we need to move to next category or if there are moves left
+	call Pokedex_anymoreMTs
+	jr z, .done ; there are no moves left
+	; moves left
+	ld a, 1 << DEXENTRY_MTS
+	ld [wPokedexEntryType], a
+	call DexEntry_IncPageNum
+	ret
+.notcompatible
+	ld a, NUM_TUTORS - 1
+	cp b
+	jr z, .done
+	inc b
+	ld a, b
+	ld [wPokedexStatus], a ; moves machines index
+	jr .mt_loop
+.done
+	ld a, 1 << DEXENTRY_LVLUP
+	call DexEntry_NextCategory
+	ld a, c
+	and a
+	ret nz ; we've had at least one HM Move
+	hlcoord 4, 11
+	ld de, DexEntry_NONE_text
+	call PlaceString
+	ret
+.dex_MT_text:
+	db "MOVE TUTORS@"
+
+Pokedex_anymoreMTs:
+	; b has the current HM index
+	inc b
+.mtloop
+	push bc
+	ld a, MT01
+	add b
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]	
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr nz, .yes
+	ld a, NUM_TUTORS - 1
+	cp b
+	jr z, .none
+	inc b
+	jr .mtloop	
 .yes
 	ld a, 1
 	and a
@@ -1215,9 +1422,6 @@ Pokedex_EggG_SetUp:
 	and $f0
 	swap a
 	ld c, a
-	; push bc?
-	
-	;push bc
 	hlcoord 3, 11
 	ld de, .BS_Egg_text1
 	push bc

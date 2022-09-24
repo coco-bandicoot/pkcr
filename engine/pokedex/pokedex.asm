@@ -329,7 +329,7 @@ Pokedex_UpdateMainScreen:
 Pokedex_InitDexEntryScreen:
 	call LowVolume
 	xor a ; page 1
-	ld [wPokedexStatus], a
+	ld [wPokedexStatus], a ; moves machines index
 	ld [wPokedexEntryPageNum], a
 	ld [wPokedexEntryType], a
 	ld [wPokedexEvoStage2], a
@@ -496,12 +496,13 @@ Pokedex_ReinitDexEntryScreen:
 	ld [wPokedexEntryType], a
 	cp 1 << DEXENTRY_BASESTATS
 	jr nz, .moves_done
-	ld a, 1 << DEXENTRY_HMS
+	ld a, 1 << DEXENTRY_MTS
 	ld [wPokedexEntryType], a
 
 .moves_done
 	xor a
 	ld [wPokedexEntryPageNum], a
+	ld [wPokedexStatus], a ; moves machines index
 	farcall DisplayDexMonMoves
 .cont	
 	call Pokedex_DrawFootprint
