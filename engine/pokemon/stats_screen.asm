@@ -412,13 +412,15 @@ StatsScreen_InitUpperHalf:
 	call PlaceString
 	hlcoord 18, 0
 	call .PlaceGenderChar
-	hlcoord 9, 4
+	hlcoord 9, 3
 	ld a, "/"
 	ld [hli], a
 	ld a, [wBaseDexNo]
 	ld [wNamedObjectIndex], a
 	call GetPokemonName
 	call PlaceString
+	; hlcoord 9, 4
+	call PrintMonTypeTiles
 	call StatsScreen_PlaceHorizontalDivider
 	call StatsScreen_PlacePageSwitchArrows
 	call StatsScreen_PlaceShinyIcon
@@ -459,18 +461,18 @@ StatsScreen_InitUpperHalf:
 	dw sBoxMonNicknames
 	dw wBufferMonNickname
 
-StatsScreen_PlaceVerticalDivider: ; unreferenced
-; The Japanese stats screen has a vertical divider.
-	hlcoord 7, 0
-	ld bc, SCREEN_WIDTH
-	ld d, SCREEN_HEIGHT
-.loop
-	ld a, $31 ; vertical divider
-	ld [hl], a
-	add hl, bc
-	dec d
-	jr nz, .loop
-	ret
+; StatsScreen_PlaceVerticalDivider: ; unreferenced
+; ; The Japanese stats screen has a vertical divider.
+; 	hlcoord 7, 0
+; 	ld bc, SCREEN_WIDTH
+; 	ld d, SCREEN_HEIGHT
+; .loop
+; 	ld a, $31 ; vertical divider
+; 	ld [hl], a
+; 	add hl, bc
+; 	dec d
+; 	jr nz, .loop
+; 	ret
 
 StatsScreen_PlaceHorizontalDivider:
 	hlcoord 0, 7
@@ -553,13 +555,15 @@ StatsScreen_LoadGFX:
 	assert_table_length NUM_STAT_PAGES
 
 LoadPinkPage:
-	hlcoord 0, 9
+	call StatsScreen_PlaceItemName
+	call StatsScreen_PlaceOTInfo
+	hlcoord 0, 8
 	ld b, $0
 	predef DrawPlayerHP
-	hlcoord 8, 9
+	hlcoord 8, 8
 	ld [hl], $41 ; right HP/exp bar end cap
-	ld de, .Status_Type
-	hlcoord 0, 12
+	ld de, .Status_Text
+	hlcoord 0, 11
 	call PlaceString
 	ld a, [wTempMonPokerusStatus]
 	ld b, a
@@ -568,13 +572,13 @@ LoadPinkPage:
 	ld a, b
 	and $f0
 	jr z, .NotImmuneToPkrs
-	hlcoord 8, 8
+	hlcoord 8, 9
 	ld [hl], "." ; Pokérus immunity dot
 .NotImmuneToPkrs:
 	ld a, [wMonType]
 	cp BOXMON
 	jr z, .StatusOK
-	hlcoord 7, 12
+	hlcoord 7, 11
 	push hl
 	ld de, wTempMonStatus
 	predef GetStatusConditionIndex
@@ -602,25 +606,31 @@ LoadPinkPage:
 	jr .done_status
 .HasPokerus:
 	ld de, .PkrsStr
-	hlcoord 1, 13
+	hlcoord 7, 9
 	call PlaceString
 	jr .NotImmuneToPkrs
 .StatusOK:
 	ld de, .OK_str
 	call PlaceString
 .done_status
-	hlcoord 1, 15
-	; predef PrintMonTypes
-	call PrintMonTypeTiles
+
+; vertical divider
 	hlcoord 9, 8
 	ld de, SCREEN_WIDTH
-	ld b, 10
+	ld b, 7
 	ld a, $31 ; vertical divider
 .vertical_divider
 	ld [hl], a
 	add hl, de
 	dec b
 	jr nz, .vertical_divider
+; new horizontal div
+	ld a, $62
+	hlcoord 0, 15
+	ld bc, SCREEN_WIDTH
+	call ByteFill
+
+; EXP Points
 	ld de, .ExpPointStr
 	hlcoord 10, 9
 	call PlaceString
@@ -710,8 +720,7 @@ LoadPinkPage:
 	ret
 
 .Status_Type:
-	db   "STATUS/"
-	next "TYPE/@"
+	db   "STATUS/@"
 
 .OK_str:
 	db "OK @"
@@ -781,7 +790,7 @@ PrintMonTypeTiles:
 	call Request2bpp
 
 	call SetPalettes
-	hlcoord 5, 14
+	hlcoord 10, 4
 	push hl
 	ld [hl], $4c
 	inc hl
@@ -797,7 +806,7 @@ PrintMonTypeTiles:
 	pop hl
 	cp b
 	ret z
-	ld bc, 20
+	ld bc, 4
 	add hl, bc
 	ld [hl], $5c
 	inc hl
@@ -809,12 +818,9 @@ PrintMonTypeTiles:
 	ret
 
 LoadGreenPage:
-	ld de, .Item
-	hlcoord 0, 8
-	call PlaceString
-	call .GetItemName
-	hlcoord 8, 8
-	call PlaceString
+; item
+	; call StatsScreen_PlaceItemName
+; moves	
 	ld de, .Move
 	hlcoord 0, 10
 	call PlaceString
@@ -832,6 +838,13 @@ LoadGreenPage:
 	predef ListMovePP
 	ret
 
+StatsScreen_PlaceItemName:
+	ld de, .Item
+	hlcoord 0, 16
+	call PlaceString
+	call .GetItemName
+	hlcoord 8, 16
+	call PlaceString
 .GetItemName:
 	ld de, .ThreeDashes
 	ld a, [wTempMonItem]
@@ -854,7 +867,6 @@ LoadGreenPage:
 	db "MOVE@"
 
 LoadBluePage:
-	call .PlaceOTInfo
 	hlcoord 10, 8
 	ld de, SCREEN_WIDTH
 	ld b, 10
@@ -869,14 +881,14 @@ LoadBluePage:
 	predef PrintTempMonStats
 	ret
 
-.PlaceOTInfo:
+StatsScreen_PlaceOTInfo:
 	ld de, IDNoString
-	hlcoord 0, 9
-	call PlaceString
-	ld de, OTString
 	hlcoord 0, 12
 	call PlaceString
-	hlcoord 2, 10
+	ld de, OTString
+	hlcoord 0, 13
+	call PlaceString
+	hlcoord 3, 13
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	ld de, wTempMonID
 	call PrintNum
@@ -884,7 +896,7 @@ LoadBluePage:
 	call GetNicknamenamePointer
 	call CopyNickname
 	farcall CorrectNickErrors
-	hlcoord 2, 13
+	hlcoord 2, 14
 	call PlaceString
 	ld a, [wTempMonCaughtGender]
 	and a
@@ -896,7 +908,7 @@ LoadBluePage:
 	jr z, .got_gender
 	ld a, "♀"
 .got_gender
-	hlcoord 9, 13
+	hlcoord 1, 14
 	ld [hl], a
 .done
 	ret

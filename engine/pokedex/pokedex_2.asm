@@ -597,11 +597,7 @@ Pokedex_PrintTMs:
 	ld de, .dex_TM_text
 	call PlaceString
 	call Pokedex_PrintPageNum ; page num is also returned in a
-	ld b,b
 	ld a, [wPokedexStatus] ; machine moves index
-	; ld c, $5
-	; call SimpleMultiply
-	; ld b, a ; result of simple multiply in a
 	ld b, a
 	ld c, 0 ; current line
 .tm_loop
@@ -670,7 +666,6 @@ Pokedex_PrintTMs:
 	db "TECHNICAL MACHINES@"
 
 Pokedex_anymoreTMs:
-	ld b,b
 	; b has the current HM index
 	inc b
 .tmloop

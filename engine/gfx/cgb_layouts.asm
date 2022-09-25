@@ -309,15 +309,15 @@ _CGB_StatsScreenHPPals:
 	call FillBoxCGB
 
 	; mon type(s)
-	hlcoord 5, 14, wAttrmap
-	lb bc, 2, 4
+	hlcoord 10, 4, wAttrmap
+	lb bc, 1, 8
 	ld a, $7 ; mon base type light/dark pals
 	call FillBoxCGB
 
 	; mon status
 	hlcoord 7, 12, wAttrmap
 	lb bc, 1, 2
-	ld a, $6 ; mon base type light/dark pals
+	ld a, $6 ; mon status
 	call FillBoxCGB
 
 	call ApplyAttrmap

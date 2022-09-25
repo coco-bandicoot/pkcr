@@ -135,11 +135,13 @@ CheckPartyCanLearnMove:
 	and a
 	jr nz, .yes
 ; Check the Pokemon's Level-Up Learnset
-	ld a, d
+	; ld a, d
 	push de
-	call OW_CheckLvlUpMoves
+	farcall CheckLvlUpMoves
 	pop de
-	jr nc, .yes
+	ld a, c
+	and a
+	jr z, .yes
 ; done checking
 .next
 	inc e
@@ -155,61 +157,61 @@ CheckPartyCanLearnMove:
 	scf
 	ret
 
-OW_CheckLvlUpMoves:
-; move looking for in a
-	ld d, a
-	ld a, [wCurPartySpecies]
-	dec a
-	ld b, 0
-	ld c, a
-	ld hl, EvosAttacksPointers
-	add hl, bc
-	add hl, bc
-	ld a, BANK(EvosAttacksPointers)
-	ld b, a
-	call GetFarWord
-	ld a, b
-	call GetFarByte
-	inc hl
-	cp 0
-	jr z, .find_move
-	dec hl
-	call OW_SkipEvolutions
-.find_move
-	call OW_GetNextEvoAttackByte
-	and a
-	jr z, .notfound ; end of mon's lvl up learnset
-	call OW_GetNextEvoAttackByte
-	cp d ;MAKE SURE NOT CLOBBERED
-	jr z, .found
-	jr .find_move
-.found
-	xor a
-	ret ; move is in lvl up learnset
-.notfound
-	scf ; move isnt in lvl up learnset
-	ret
+; OW_CheckLvlUpMoves:
+; ; move looking for in a
+; 	ld d, a
+; 	ld a, [wCurPartySpecies]
+; 	dec a
+; 	ld b, 0
+; 	ld c, a
+; 	ld hl, EvosAttacksPointers
+; 	add hl, bc
+; 	add hl, bc
+; 	ld a, BANK(EvosAttacksPointers)
+; 	ld b, a
+; 	call GetFarWord
+; 	ld a, b
+; 	call GetFarByte
+; 	inc hl
+; 	cp 0
+; 	jr z, .find_move
+; 	dec hl
+; 	call OW_SkipEvolutions
+; .find_move
+; 	call OW_GetNextEvoAttackByte
+; 	and a
+; 	jr z, .notfound ; end of mon's lvl up learnset
+; 	call OW_GetNextEvoAttackByte
+; 	cp d ;MAKE SURE NOT CLOBBERED
+; 	jr z, .found
+; 	jr .find_move
+; .found
+; 	xor a
+; 	ret ; move is in lvl up learnset
+; .notfound
+; 	scf ; move isnt in lvl up learnset
+; 	ret
 
-OW_SkipEvolutions:
-; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
-	ld a, b
-	call GetFarByte
-	inc hl
-	and a
-	ret z
-	cp EVOLVE_STAT
-	jr nz, .no_extra_skip
-	inc hl
-.no_extra_skip
-	inc hl
-	inc hl
-	jr OW_SkipEvolutions
+; OW_SkipEvolutions:
+; ; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
+; 	ld a, b
+; 	call GetFarByte
+; 	inc hl
+; 	and a
+; 	ret z
+; 	cp EVOLVE_STAT
+; 	jr nz, .no_extra_skip
+; 	inc hl
+; .no_extra_skip
+; 	inc hl
+; 	inc hl
+; 	jr OW_SkipEvolutions
 
-OW_GetNextEvoAttackByte:
-	ld a, BANK(EvosAttacksPointers)
-	call GetFarByte
-	inc hl
-	ret
+; OW_GetNextEvoAttackByte:
+; 	ld a, BANK(EvosAttacksPointers)
+; 	call GetFarByte
+; 	inc hl
+; 	ret
 
 FieldMoveFailed:
 	ld hl, .CantUseItemText
@@ -1347,11 +1349,14 @@ DisappearWhirlpool:
 	ret
 
 TryWhirlpoolOW::
-	; ld b,b
+	ld b,b
 ; Step 1
 	ld de, ENGINE_GLACIERBADGE
-	call CheckBadge
-	jr c, .failed
+	ld b, CHECK_FLAG
+	farcall EngineFlagAction
+	ld a, c
+	and a
+	jr z, .failed  ; .fail, dont have needed badge
 ; Step 2
 	ld a, HM_WHIRLPOOL
 	ld [wCurItem], a
@@ -1376,35 +1381,12 @@ TryWhirlpoolOW::
 	scf
 	ret
 .failed
-	ld b,b
+	; ld b,b
 	ld a, BANK(Script_MightyWhirlpool)
 	ld hl, Script_MightyWhirlpool
 	call CallScript
 	scf
 	ret
-
-; TryWhirlpoolOW::
-; 	ld b,b
-; 	ld d, WHIRLPOOL
-; 	call CheckPartyMove
-; 	jr c, .failed
-; 	ld de, ENGINE_GLACIERBADGE
-; 	call CheckEngineFlag
-; 	jr c, .failed
-; 	call TryWhirlpoolMenu
-; 	jr c, .failed
-; 	ld a, BANK(Script_AskWhirlpoolOW)
-; 	ld hl, Script_AskWhirlpoolOW
-; 	call CallScript
-; 	scf
-; 	ret
-
-; .failed
-; 	ld a, BANK(Script_MightyWhirlpool)
-; 	ld hl, Script_MightyWhirlpool
-; 	call CallScript
-; 	scf
-; 	ret
 
 Script_MightyWhirlpool:
 	jumptext .MayPassWhirlpoolText

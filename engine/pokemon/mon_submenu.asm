@@ -281,12 +281,13 @@ CanUseFlash:
 	ret nc ; hm isnt in bag
 
 	ld a, FLASH
-	call CheckMonCanLearn_TM_HM
+	call CheckMonCanLearn_TM_HM_MT
 	jr c, .yes
 
 	ld a, FLASH
 	call CheckLvlUpMoves
-	ret c ; fail
+	and a
+	ret nz ; fail
 
 .yes
 	ld a, MONMENUITEM_FLASH
@@ -317,12 +318,13 @@ CanUseFly:
 	ret nc ; .fail, hm isnt in bag
 
 	ld a, FLY
-	call CheckMonCanLearn_TM_HM
+	call CheckMonCanLearn_TM_HM_MT
 	jr c, .yes
 
 	ld a, FLY
 	call CheckLvlUpMoves
-	ret c ; fail
+	and a
+	ret nz ; fail
 .yes
 	ld a, MONMENUITEM_FLY
 	call AddMonMenuItem
@@ -349,12 +351,13 @@ Can_Use_Sweet_Scent:
 	ret nc ; .fail, tm not in bag
 
 	ld a, SWEET_SCENT
-	call CheckMonCanLearn_TM_HM
+	call CheckMonCanLearn_TM_HM_MT
 	jr c, .yes
 
 	ld a, SWEET_SCENT
 	call CheckLvlUpMoves
-	ret c ; fail
+	and a
+	ret nz ; fail
 .yes
 	ld a, MONMENUITEM_SWEETSCENT
 	call AddMonMenuItem
@@ -380,12 +383,13 @@ CanUseDig:
 	ret nc ; .fail ; TM not in bag
 
 	ld a, DIG
-	call CheckMonCanLearn_TM_HM
+	call CheckMonCanLearn_TM_HM_MT
 	jr c, .yes
 
 	ld a, DIG
 	call CheckLvlUpMoves
-	ret c ; fail
+	and a
+	ret nz ; fail
 .yes
 	ld a, MONMENUITEM_DIG
 	call AddMonMenuItem
@@ -394,7 +398,7 @@ CanUseDig:
 CanUseTeleport:
 	call GetMapEnvironment
 	call CheckOutdoorMap
-	ret nz ; .fail
+	ret nz ; .fail	
 	
 	ld a, TELEPORT
 	call CheckMonKnowsMove
@@ -403,7 +407,8 @@ CanUseTeleport:
 
 	ld a, TELEPORT
 	call CheckLvlUpMoves
-	ret c ; fail
+	and a
+	ret nz ; fail
 .yes
 	ld a, MONMENUITEM_TELEPORT
 	call AddMonMenuItem	
@@ -428,7 +433,7 @@ CanUseMilkdrink:
 	call AddMonMenuItem
 	ret
 
-CheckMonCanLearn_TM_HM:
+CheckMonCanLearn_TM_HM_MT:
 ; Check if wCurPartySpecies can learn move in 'a'
 	ld [wPutativeTMHMMove], a
 	ld a, [wCurPartySpecies]
@@ -436,7 +441,7 @@ CheckMonCanLearn_TM_HM:
 .check
 	ld a, c
 	and a
-	ret z
+	ret z ; not found
 ; yes
 	scf
 	ret
@@ -459,15 +464,16 @@ CheckMonKnowsMove:
 	dec c
 	jr nz, .loop
 	ld a, -1
+	ld c, a
 	scf ; mon doesnt know move
 	ret
 .found
 	xor a
+	ld c, a
 	ret z
 
 CheckLvlUpMoves:
-; move looking for in a
-	ld d, a
+; move looking for in 'd'
 	ld a, [wCurPartySpecies]
 	dec a
 	ld b, 0
@@ -481,42 +487,63 @@ CheckLvlUpMoves:
 	ld a, b
 	call GetFarByte
 	inc hl
-	cp 0
-	jr z, .find_move
-	dec hl
-	call MonSubMenu_SkipEvolutions
-.find_move
-	call MonSubMenu_GetNextEvoAttackByte
 	and a
-	jr z, .notfound ; end of mon's lvl up learnset
-	call MonSubMenu_GetNextEvoAttackByte
-	cp d ;MAKE SURE NOT CLOBBERED
-	jr z, .found
-	jr .find_move
-.found
-	xor a
-	ret z ; move is in lvl up learnset
-.notfound
-	scf ; move isnt in lvl up learnset
-	ret
-
-MonSubMenu_SkipEvolutions:
+	jr z, .find_move ; does not evolve
+	dec hl
+; Skip Evo Bytes
 ; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
+.skip_evo_bytes	
 	ld a, b
 	call GetFarByte
 	inc hl
 	and a
-	ret z
+	jr z, .find_move ; found end
 	cp EVOLVE_STAT
 	jr nz, .no_extra_skip
 	inc hl
 .no_extra_skip
 	inc hl
 	inc hl
-	jr MonSubMenu_SkipEvolutions
-
-MonSubMenu_GetNextEvoAttackByte:
+	jr .skip_evo_bytes
+.find_move
 	ld a, BANK(EvosAttacksPointers)
 	call GetFarByte
 	inc hl
+	and a
+	jr z, .notfound ; end of mon's lvl up learnset
+	ld a, BANK(EvosAttacksPointers)
+	call GetFarByte
+	inc hl
+	cp d ; 'd' is not clobbered in any of the used funcs or farcalls
+	jr z, .found
+	jr .find_move
+.found
+	xor a
+	ld c, a
+	ret ; move is in lvl up learnset
+.notfound
+	ld a, 1
+	ld c, a
+	scf ; move isnt in lvl up learnset
 	ret
+
+; MonSubMenu_SkipEvolutionBytes:
+; ; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
+; 	ld a, b
+; 	call GetFarByte
+; 	inc hl
+; 	and a
+; 	ret z
+; 	cp EVOLVE_STAT
+; 	jr nz, .no_extra_skip
+; 	inc hl
+; .no_extra_skip
+; 	inc hl
+; 	inc hl
+; 	jr MonSubMenu_SkipEvolutions
+
+; MonSubMenu_GetNextEvoAttackByte:
+; 	ld a, BANK(EvosAttacksPointers)
+; 	call GetFarByte
+; 	inc hl
+; 	ret
