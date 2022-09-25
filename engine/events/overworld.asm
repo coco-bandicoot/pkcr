@@ -1347,7 +1347,7 @@ DisappearWhirlpool:
 	ret
 
 TryWhirlpoolOW::
-	ld b,b
+	; ld b,b
 ; Step 1
 	ld de, ENGINE_GLACIERBADGE
 	call CheckBadge
@@ -1376,6 +1376,7 @@ TryWhirlpoolOW::
 	scf
 	ret
 .failed
+	ld b,b
 	ld a, BANK(Script_MightyWhirlpool)
 	ld hl, Script_MightyWhirlpool
 	call CallScript

@@ -4840,6 +4840,7 @@ DrawEnemyHUD:
 
 	ld a, TEMPMON
 	ld [wMonType], a
+	ld b,b
 	callfar GetGender
 	ld a, " "
 	jr c, .got_gender
@@ -4852,10 +4853,10 @@ DrawEnemyHUD:
 	ld [hl], a
 
 	hlcoord 2, 1
-	push af
+	; push af
 	push hl
 	farcall Enemy_CheckToxicStatus
-	jr nc, .status_nottoxic
+	jr z, .status_nottoxic
 	pop hl
 	ld [hl], $72
 	inc hl
@@ -4866,14 +4867,14 @@ DrawEnemyHUD:
 	ld de, wEnemyMonStatus
 	predef Enemy_PlaceNonFaintStatus
 .status_done
-	pop bc
-	; jr nz, .skip_level
-	hlcoord 6, 1
-	ld a, b
-	cp " "
-	jr nz, .print_level
-	dec hl
-.print_level
+; 	pop bc
+; 	; jr nz, .skip_level
+; 	hlcoord 6, 1
+; 	ld a, b
+; 	cp " "
+; 	jr nz, .print_level
+; 	dec hl
+; .print_level
 	ld a, [wEnemyMonLevel]
 	ld [wTempMonLevel], a
 	call PrintLevel
