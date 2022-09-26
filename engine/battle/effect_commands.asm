@@ -3698,6 +3698,7 @@ BattleCommand_SleepTarget:
 	and a
 	jr nz, .dont_fail
 
+	ld a, [wInBattleTowerBattle]
 	and a
 	jr nz, .dont_fail
 
