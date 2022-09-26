@@ -38,31 +38,31 @@
 
 ; Actual characters (from gfx/font/font_extra.png)
 
-	charmap "<BOLD_A>",  $60 ; unused
-	charmap "<BOLD_B>",  $61 ; unused
-	charmap "<BOLD_C>",  $62 ; unused
-	charmap "<BOLD_D>",  $63 ; unused
-	charmap "<BOLD_E>",  $64 ; unused
-	charmap "<BOLD_F>",  $65 ; unused
-	charmap "<BOLD_G>",  $66 ; unused
-	charmap "<BOLD_H>",  $67 ; unused
-	charmap "<BOLD_I>",  $68 ; unused
+	; charmap "<BOLD_A>",  $60 ; unused
+	; charmap "<BOLD_B>",  $61 ; unused
+	; charmap "<BOLD_C>",  $62 ; unused
+	; charmap "<BOLD_D>",  $63 ; unused
+	; charmap "<BOLD_E>",  $64 ; unused
+	; charmap "<BOLD_F>",  $65 ; unused
+	; charmap "<BOLD_G>",  $66 ; unused
+	; charmap "<BOLD_H>",  $67 ; unused
+	; charmap "<BOLD_I>",  $68 ; unused
 	charmap "<BOLD_V>",  $69
 	charmap "<BOLD_S>",  $6a
-	charmap "<BOLD_L>",  $6b ; unused
-	charmap "<BOLD_M>",  $6c ; unused
-	charmap "<COLON>",   $6d ; colon with tinier dots than ":"
-	charmap "ぃ",         $6e ; hiragana small i, unused
-	charmap "ぅ",         $6f ; hiragana small u, unused
+	; charmap "<BOLD_L>",  $6b ; unused
+	; charmap "<BOLD_M>",  $6c ; unused
+	charmap "<COLON>",   $9c ; colon with tinier dots than ":"
+	; charmap "ぃ",         $6e ; hiragana small i, unused
+	; charmap "ぅ",         $6f ; hiragana small u, unused
 	charmap "<PO>",      $70
 	charmap "<KE>",      $71
 	charmap "“",         $72 ; opening quote
 	charmap "”",         $73 ; closing quote
-	charmap "·",         $74 ; middle dot, unused
-	charmap "…",         $75 ; ellipsis
-	charmap "ぁ",         $76 ; hiragana small a, unused
-	charmap "ぇ",         $77 ; hiragana small e, unused
-	charmap "ぉ",         $78 ; hiragana small o, unused
+	; charmap "·",         $74 ; middle dot, unused
+	charmap "…",         $9d ;$75 ; ellipsis
+	; charmap "ぁ",         $76 ; hiragana small a, unused
+	; charmap "ぇ",         $77 ; hiragana small e, unused
+	; charmap "ぉ",         $78 ; hiragana small o, unused
 
 	charmap "┌",         $79
 	charmap "─",         $7a
@@ -76,9 +76,9 @@
 
 	charmap "<LV>",      $6e
 
-	charmap "<DO>",      $70 ; hiragana small do, unused
+	; charmap "<DO>",      $70 ; hiragana small do, unused
 	charmap "◀",         $71
-	charmap "『",         $72 ; Japanese opening quote, unused
+	; charmap "『",         $72 ; Japanese opening quote, unused
 	charmap "<ID>",      $73
 	charmap "№",         $74
 
@@ -90,8 +90,8 @@
 	charmap "☎",         $62 ; gfx/font/phone_icon.2bpp
 
 	; needed for MagikarpHouseSign (see engine/events/magikarp.asm)
-	charmap "′",         $6e ; gfx/font/feet_inches.png
-	charmap "″",         $6f ; gfx/font/feet_inches.png
+	charmap "′",         $9e ; gfx/font/feet_inches.png
+	charmap "″",         $9f ; gfx/font/feet_inches.png
 
 	; needed for StatsScreen_PlaceShinyIcon and PrintPartyMonPage1
 	charmap "⁂",         $3f ; gfx/stats/stats_tiles.png, tile 14
@@ -128,7 +128,7 @@
 	charmap "(",         $9a
 	charmap ")",         $9b
 	charmap ":",         $9c
-	charmap ";",         $9d
+	charmap ";",         $7f
 	charmap "[",         $9e
 	charmap "]",         $9f
 
@@ -159,20 +159,23 @@
 	charmap "y",         $b8
 	charmap "z",         $b9
 
-	charmap "Ä",         $c0
-	charmap "Ö",         $c1
-	charmap "Ü",         $c2
-	charmap "ä",         $c3
-	charmap "ö",         $c4
-	charmap "ü",         $c5
+	charmap "'d",        $d4
+	charmap "'l",        $d5
+	charmap "'m",        $d6
+	charmap "'r",        $d7
+	charmap "'s",        $d8
+	charmap "'t",        $d9
+	charmap "'v",        $da
 
-	charmap "'d",        $d0
-	charmap "'l",        $d1
-	charmap "'m",        $d2
-	charmap "'r",        $d3
-	charmap "'s",        $d4
-	charmap "'t",        $d5
-	charmap "'v",        $d6
+	charmap ">",        $db
+	charmap "<",        $dc
+	charmap "=",        $dd
+	charmap "<PP>",		$de
+	charmap "<%>",      $f2
+	charmap "<DOT>",    $e8
+	charmap "<UP>",     $e4
+	charmap "<DOWN>",   $e5
+	charmap "<UNK_A>",  $ba
 
 	charmap "←",         $df
 	charmap "'",         $e0
@@ -193,7 +196,6 @@
 	charmap "♂",         $ef
 	charmap "¥",         $f0
 	charmap "×",         $f1
-	charmap "<DOT>",     $f2 ; decimal point; same as "." in English
 	charmap "/",         $f3
 	charmap ",",         $f4
 	charmap "♀",         $f5
@@ -209,7 +211,7 @@
 	charmap "8",         $fe
 	charmap "9",         $ff
 
-; Japanese control characters (see home/text.asm)
+; ; Japanese control characters (see home/text.asm)
 
 	charmap "<JP_18>",   $18 ; "ノ゛" (ungrammatical)
 	charmap "<NI>",      $1d ; "に　"
@@ -224,7 +226,7 @@
 	charmap "<KOKO_WA>", $37 ; "ここは"
 	charmap "<GA>",      $4a ; "が　"
 
-; Japanese kana, for those bits of text that were not translated to English
+; ; Japanese kana, for those bits of text that were not translated to English
 
 	charmap "ガ", $05
 	charmap "ギ", $06
@@ -282,8 +284,8 @@
 	charmap "「", $70
 	charmap "」", $71
 	charmap "』", $73
-	charmap "・", $74
-	charmap "⋯", $75
+	charmap "・", $e8
+	charmap "⋯", $9d
 
 	charmap "　", $7f
 
