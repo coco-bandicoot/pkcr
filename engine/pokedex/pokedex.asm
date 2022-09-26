@@ -450,9 +450,19 @@ Pokedex_ReinitDexEntryScreen:
 	ldh [hBGMapMode], a
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_LoadCurrentFootprint
+	; ld b,b
+	; ld a, [wTempSpecies]
+	; ld a, [wTempMonSpecies]
+	; ld a, [wCurSpecies]
+	; ld a, [wCurPartySpecies]
 	call Pokedex_GetSelectedMon
 	ld [wPrevDexEntry], a
+	; ld a, [wTempSpecies]
+	; ld a, [wTempMonSpecies]
+	; ld a, [wCurSpecies]
+	; ld a, [wCurPartySpecies]
 
+	
 	ld a, [wPokedexEntryType]
 	cp 1 << DEXENTRY_LORE
 	jr nz, .basestats_check
@@ -521,10 +531,10 @@ Pokedex_ReinitDexEntryScreen:
 DexEntryScreen_ArrowCursorData:
 	db D_RIGHT | D_LEFT, 5
 	dwcoord 1, 17  ; INFO
-	dwcoord 5, 17  ; STAT
-	dwcoord 9, 17  ; MOVES
-	dwcoord 13, 17 ; AREA
-	dwcoord 17, 17 ; EVO
+	dwcoord 4, 17  ; STAT
+	dwcoord 7, 17  ; MOVES
+	dwcoord 11, 17 ; AREA
+	dwcoord 14, 17 ; EVO
 
 DexEntryScreen_MenuActionJumptable:
 	dw Pokedex_Page
@@ -1374,11 +1384,12 @@ Pokedex_DrawDexEntryScreenBG:
 .Weight:
 	db "WT   ???lb", -1
 .MenuItems:
-	db $3b, " ", $79, $7a, " ", " ", \ ; INFO
-		$71, $72, $73, " ", \ ; STATS
+	db $3b, " ", $79, $7a, " ", \ ; INFO
+		$71, $72, " ", \ ; STATS
 		$74, $75, $76, " ", \ ; MOVES
-		$77, $78, " ", " ",\ ; AREA
-		$7d, $7e, $31, $31, -1 ; EVO
+		$77, $78, " ", \ ; AREA
+		$7d, $7e, \ ; EVO
+		$31, $31, $31, -1
 
 Pokedex_LoadTextboxSpaceGFX:
 	nop

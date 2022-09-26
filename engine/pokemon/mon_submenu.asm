@@ -287,7 +287,7 @@ CanUseFlash:
 	ld a, FLASH
 	call CheckLvlUpMoves
 	and a
-	ret nz ; fail
+	ret z ; fail
 
 .yes
 	ld a, MONMENUITEM_FLASH
@@ -324,7 +324,7 @@ CanUseFly:
 	ld a, FLY
 	call CheckLvlUpMoves
 	and a
-	ret nz ; fail
+	ret z ; fail
 .yes
 	ld a, MONMENUITEM_FLY
 	call AddMonMenuItem
@@ -357,7 +357,7 @@ Can_Use_Sweet_Scent:
 	ld a, SWEET_SCENT
 	call CheckLvlUpMoves
 	and a
-	ret nz ; fail
+	ret z ; fail
 .yes
 	ld a, MONMENUITEM_SWEETSCENT
 	call AddMonMenuItem
@@ -389,7 +389,7 @@ CanUseDig:
 	ld a, DIG
 	call CheckLvlUpMoves
 	and a
-	ret nz ; fail
+	ret z ; fail
 .yes
 	ld a, MONMENUITEM_DIG
 	call AddMonMenuItem
@@ -408,7 +408,7 @@ CanUseTeleport:
 	ld a, TELEPORT
 	call CheckLvlUpMoves
 	and a
-	ret nz ; fail
+	ret z ; fail
 .yes
 	ld a, MONMENUITEM_TELEPORT
 	call AddMonMenuItem	
@@ -511,6 +511,7 @@ CheckLvlUpMoves:
 	inc hl
 	and a
 	jr z, .notfound ; end of mon's lvl up learnset
+	ld c, a ; the lvl we learn move
 	ld a, BANK(EvosAttacksPointers)
 	call GetFarByte
 	inc hl
@@ -518,32 +519,9 @@ CheckLvlUpMoves:
 	jr z, .found
 	jr .find_move
 .found
-	xor a
-	ld c, a
+	; lvl learned move in c
 	ret ; move is in lvl up learnset
 .notfound
-	ld a, 1
+	xor a
 	ld c, a
-	scf ; move isnt in lvl up learnset
 	ret
-
-; MonSubMenu_SkipEvolutionBytes:
-; ; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
-; 	ld a, b
-; 	call GetFarByte
-; 	inc hl
-; 	and a
-; 	ret z
-; 	cp EVOLVE_STAT
-; 	jr nz, .no_extra_skip
-; 	inc hl
-; .no_extra_skip
-; 	inc hl
-; 	inc hl
-; 	jr MonSubMenu_SkipEvolutions
-
-; MonSubMenu_GetNextEvoAttackByte:
-; 	ld a, BANK(EvosAttacksPointers)
-; 	call GetFarByte
-; 	inc hl
-; 	ret

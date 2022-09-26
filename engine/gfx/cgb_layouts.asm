@@ -283,7 +283,7 @@ _CGB_StatsScreenHPPals:
 	ld a, $1 ; mon palette
 	call FillBoxCGB
 
-	hlcoord 10, 16, wAttrmap
+	hlcoord 10, 8, wAttrmap
 	ld bc, 10
 	ld a, $2 ; exp palette
 	call ByteFill
@@ -315,7 +315,7 @@ _CGB_StatsScreenHPPals:
 	call FillBoxCGB
 
 	; mon status
-	hlcoord 7, 12, wAttrmap
+	hlcoord 7, 11, wAttrmap
 	lb bc, 1, 2
 	ld a, $6 ; mon status
 	call FillBoxCGB
@@ -726,8 +726,14 @@ _CGB_PartyMenu:
 .FRZ
 	ld b, $5
 	cp b
-	jr nz, .next
+	jr nz, .next ;.FNT
 	ld a, $5 ; FRZ
+	; jr .done
+; .FNT
+; 	ld b, $6
+; 	cp b
+; 	jr nz, .next
+; 	ld a, $6 ; FNT
 .done
 	lb bc, 1, 2
 	call FillBoxCGB

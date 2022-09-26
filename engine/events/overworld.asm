@@ -135,13 +135,12 @@ CheckPartyCanLearnMove:
 	and a
 	jr nz, .yes
 ; Check the Pokemon's Level-Up Learnset
-	; ld a, d
 	push de
 	farcall CheckLvlUpMoves
 	pop de
 	ld a, c
 	and a
-	jr z, .yes
+	jr nz, .yes
 ; done checking
 .next
 	inc e
@@ -156,62 +155,6 @@ CheckPartyCanLearnMove:
 .no
 	scf
 	ret
-
-; OW_CheckLvlUpMoves:
-; ; move looking for in a
-; 	ld d, a
-; 	ld a, [wCurPartySpecies]
-; 	dec a
-; 	ld b, 0
-; 	ld c, a
-; 	ld hl, EvosAttacksPointers
-; 	add hl, bc
-; 	add hl, bc
-; 	ld a, BANK(EvosAttacksPointers)
-; 	ld b, a
-; 	call GetFarWord
-; 	ld a, b
-; 	call GetFarByte
-; 	inc hl
-; 	cp 0
-; 	jr z, .find_move
-; 	dec hl
-; 	call OW_SkipEvolutions
-; .find_move
-; 	call OW_GetNextEvoAttackByte
-; 	and a
-; 	jr z, .notfound ; end of mon's lvl up learnset
-; 	call OW_GetNextEvoAttackByte
-; 	cp d ;MAKE SURE NOT CLOBBERED
-; 	jr z, .found
-; 	jr .find_move
-; .found
-; 	xor a
-; 	ret ; move is in lvl up learnset
-; .notfound
-; 	scf ; move isnt in lvl up learnset
-; 	ret
-
-; OW_SkipEvolutions:
-; ; Receives a pointer to the evos and attacks for a mon in b:hl, and skips to the attacks.
-; 	ld a, b
-; 	call GetFarByte
-; 	inc hl
-; 	and a
-; 	ret z
-; 	cp EVOLVE_STAT
-; 	jr nz, .no_extra_skip
-; 	inc hl
-; .no_extra_skip
-; 	inc hl
-; 	inc hl
-; 	jr OW_SkipEvolutions
-
-; OW_GetNextEvoAttackByte:
-; 	ld a, BANK(EvosAttacksPointers)
-; 	call GetFarByte
-; 	inc hl
-; 	ret
 
 FieldMoveFailed:
 	ld hl, .CantUseItemText
@@ -1349,7 +1292,6 @@ DisappearWhirlpool:
 	ret
 
 TryWhirlpoolOW::
-	ld b,b
 ; Step 1
 	ld de, ENGINE_GLACIERBADGE
 	ld b, CHECK_FLAG
@@ -1381,7 +1323,6 @@ TryWhirlpoolOW::
 	scf
 	ret
 .failed
-	; ld b,b
 	ld a, BANK(Script_MightyWhirlpool)
 	ld hl, Script_MightyWhirlpool
 	call CallScript

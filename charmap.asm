@@ -51,7 +51,7 @@
 	charmap "<BOLD_S>",  $6a
 	; charmap "<BOLD_L>",  $6b ; unused
 	; charmap "<BOLD_M>",  $6c ; unused
-	charmap "<COLON>",   $6d ; colon with tinier dots than ":"
+	charmap "<COLON>",   $9c ; colon with tinier dots than ":"
 	; charmap "ぃ",         $6e ; hiragana small i, unused
 	; charmap "ぅ",         $6f ; hiragana small u, unused
 	charmap "<PO>",      $70
@@ -59,7 +59,7 @@
 	charmap "“",         $72 ; opening quote
 	charmap "”",         $73 ; closing quote
 	; charmap "·",         $74 ; middle dot, unused
-	charmap "…",         $e8 ;$75 ; ellipsis
+	charmap "…",         $9d ;$75 ; ellipsis
 	; charmap "ぁ",         $76 ; hiragana small a, unused
 	; charmap "ぇ",         $77 ; hiragana small e, unused
 	; charmap "ぉ",         $78 ; hiragana small o, unused
@@ -128,7 +128,7 @@
 	charmap "(",         $9a
 	charmap ")",         $9b
 	charmap ":",         $9c
-	charmap ";",         $9d
+	charmap ";",         $7f
 	charmap "[",         $9e
 	charmap "]",         $9f
 
@@ -211,7 +211,7 @@
 	charmap "8",         $fe
 	charmap "9",         $ff
 
-; Japanese control characters (see home/text.asm)
+; ; Japanese control characters (see home/text.asm)
 
 	charmap "<JP_18>",   $18 ; "ノ゛" (ungrammatical)
 	charmap "<NI>",      $1d ; "に　"
@@ -226,7 +226,7 @@
 	charmap "<KOKO_WA>", $37 ; "ここは"
 	charmap "<GA>",      $4a ; "が　"
 
-; Japanese kana, for those bits of text that were not translated to English
+; ; Japanese kana, for those bits of text that were not translated to English
 
 	charmap "ガ", $05
 	charmap "ギ", $06
@@ -284,8 +284,8 @@
 	charmap "「", $70
 	charmap "」", $71
 	charmap "』", $73
-	charmap "・", $74
-	charmap "⋯", $75
+	charmap "・", $e8
+	charmap "⋯", $9d
 
 	charmap "　", $7f
 

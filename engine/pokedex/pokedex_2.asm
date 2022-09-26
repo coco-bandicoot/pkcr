@@ -1,23 +1,23 @@
 	const_def
-	const DEXENTRY_LORE
-	const DEXENTRY_BASESTATS
-	const DEXENTRY_LVLUP
-	const DEXENTRY_EGG
-	const DEXENTRY_FIELD
-	const DEXENTRY_TMS
-	const DEXENTRY_HMS
-	const DEXENTRY_MTS
+	const DEXENTRY_LORE      ; bit 0, $1
+	const DEXENTRY_BASESTATS ; bit 1, $2
+	const DEXENTRY_LVLUP     ; bit 2, $4
+	const DEXENTRY_FIELD     ; bit 3, $8
+	const DEXENTRY_EGG		 ; bit 4, $10, 16
+	const DEXENTRY_TMS       ; bit 5, $20, 32
+	const DEXENTRY_HMS       ; bit 6, $40, 64
+	const DEXENTRY_MTS       ; bit 7, $80, 128
 
 EXPORT DEXENTRY_LORE
 EXPORT DEXENTRY_BASESTATS
 EXPORT DEXENTRY_LVLUP
-EXPORT DEXENTRY_EGG
 EXPORT DEXENTRY_FIELD
+EXPORT DEXENTRY_EGG
 EXPORT DEXENTRY_TMS
 EXPORT DEXENTRY_HMS
 EXPORT DEXENTRY_MTS
 
-
+DEF NUM_FIELD_MOVES EQU 14 
 DEF MOVESPAGES_CONT_MASK EQU %00000011
 
 AnimateDexSearchSlowpoke:
@@ -264,12 +264,7 @@ endr
 	ret
 
 INCLUDE "data/pokemon/dex_entry_pointers.asm"
-
-DexEntry_IncPageNum:
-	ld a, [wPokedexEntryPageNum]
-	inc a
-	ld [wPokedexEntryPageNum], a
-	ret
+INCLUDE "engine/pokedex/pokedex_evolution_page.asm"
 
 Pokedex_Clearbox:
 	;clear Area BC @ HL
@@ -277,6 +272,25 @@ Pokedex_Clearbox:
 	hlcoord 1, 9
 	call ClearBox
 	ret
+
+DexEntry_adjusthlcoord:
+	push de
+	ld a, 20
+	; the num of moves already printed should still be in bc
+	call SimpleMultiply
+	; result in a
+	ld d, 0
+	ld e, a
+	add hl, de ; allows us to print on the proper row lol
+	pop de
+	ret
+
+DexEntry_IncPageNum:
+	ld a, [wPokedexEntryPageNum]
+	inc a
+	ld [wPokedexEntryPageNum], a
+	ret
+
 Pokedex_PrintPageNum:
 	push hl
 	push de
@@ -300,6 +314,12 @@ Pokedex_PrintPageNum:
 	ret
 .PgNumPtrs
 	db $57, $58, $61, $62, $63, $64, $65, $6B, $6C
+
+DexEntry_NextCategory:
+	ld [wPokedexEntryType], a
+	xor a
+	ld [wPokedexEntryPageNum], a
+	ret
 
 DisplayDexMonStats::
 	ld a, [wTempSpecies]
@@ -360,6 +380,8 @@ DisplayDexMonMoves::
 	ld a, [wPokedexEntryType]
 	bit DEXENTRY_EGG, a
 	jr nz, .EggMoves
+	bit DEXENTRY_FIELD, a
+	jr nz, .Field_Moves
 	bit DEXENTRY_TMS, a
 	jr nz, .TMs
 	bit DEXENTRY_HMS, a
@@ -376,6 +398,9 @@ DisplayDexMonMoves::
 	call Pokedex_Calc_EggMovesPtr
 	ret z
 	call Pokedex_Print_Egg_moves
+	ret
+.Field_Moves
+	call Pokedex_PrintFieldMoves
 	ret
 .TMs
 	call Pokedex_PrintTMs
@@ -441,7 +466,6 @@ Pokedex_Print_NextLvlMoves:
 	ld de, wTextDecimalByte
 	push bc
 	lb bc, PRINTNUM_LEFTALIGN | 1, 2
-	; lb bc, 1, 2
 	call PrintNum
 	pop bc 
 	pop hl
@@ -475,32 +499,197 @@ Pokedex_Print_NextLvlMoves:
 	call DexEntry_IncPageNum
 	ret
 .FoundEnd
-	ld a, 1 << DEXENTRY_EGG
+	xor a
+	ld [wPokedexStatus], a
+	ld a, 1 << DEXENTRY_FIELD
 	call DexEntry_NextCategory
 	ret
 
 .lvl_moves_text:
 	db "LVL-UP MOVES@"
 
-DexEntry_adjusthlcoord:
-	push de
-	ld a, 20
-	; the num of moves already printed should still be in bc
-	call SimpleMultiply
-	; result in a
-	ld d, 0
-	ld e, a
-	add hl, de ; allows us to print on the proper row lol
-	pop de
-	ret
-
-DexEntry_NextCategory:
+Pokedex_PrintFieldMoves:
+; CheckLvlUpMoves, 1 for fail, 0 for yes, in c
+	ld a, 1 << DEXENTRY_FIELD
 	ld [wPokedexEntryType], a
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+	hlcoord 2, 9
+	ld de, .Field_Moves_text
+	call PlaceString
+	call Pokedex_PrintPageNum ; page num is also returned in a
+	ld a, [wPokedexStatus] ; machine moves index
+	ld b, a
+	ld c, 0 ; current line
+.fm_loop
+	push bc
+	ld c, b
+	ld b, 0
+	ld hl, Field_Moves_List
+	add hl, bc
+	ld a, [hl]
+	ld d, a
+	farcall CheckLvlUpMoves
+	ld a, c ; c has lvl we learn move
+	ld e, c
+	pop bc
+	and a
+	jr nz, .print_move_name
+
+.check_machines
+; check TM/HM
+	push bc
+	ld c, b 
+	ld b, 0
+	ld hl, Field_Moves_List
+	add hl, bc
+	ld a, [hl]
+	ld d, a
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr z, .notcompatible
+; check TM/HM done
+.print_move_name
+	push de
+	ld a, d
+	ld [wNamedObjectIndex], a
+	call GetMoveName
+	push bc ; our count is in c
+	hlcoord 7, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+; print TM/HM num
+	ld d, 0
+	ld e, b
+	ld hl, Field_Moves_Method_List
+	add hl, de
+	ld a, [hl]
+	pop de
+	and a
+	jr nz, .tm_or_hm
+	push bc
+	hlcoord 3, 11
+	call DexEntry_adjusthlcoord
+	ld [hl], $5d ; <LVL>
+	inc hl
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
+	ld a, e
+	ld [wTextDecimalByte], a
+	ld de, wTextDecimalByte
+	call PrintNum
+	pop bc
+	jr .inc_line_count  
+.tm_or_hm
+	ld [wNamedObjectIndex], a
+	call GetItemName
+	push bc
+	hlcoord 2, 11
+	call DexEntry_adjusthlcoord
+	call PlaceString
+	pop bc
+; print TM/HM num done
+.inc_line_count
+	inc c ; since we printed a line
+	ld a, $5
+	cp c
+	jr nz, .notcompatible ; not yet printed all 5 slots
+	; We've printed all 5 slots
+	; check if we need to move to next category or if there are moves left
+	call Pokedex_anymoreFieldMoves
+	jr z, .done ; there are no moves left
+	; moves left
+	call DexEntry_IncPageNum
+	ret
+.notcompatible
+	ld a, NUM_FIELD_MOVES - 1
+	cp b
+	jr z, .done
+	inc b
+	ld a, b
+	ld [wPokedexStatus], a ; moves machines index
+	jp .fm_loop
+.done
 	xor a
-	ld [wPokedexEntryPageNum], a
+	ld [wPokedexStatus], a
+	ld a, 1 << DEXENTRY_EGG
+	call DexEntry_NextCategory
+	ld a, c
+	and a
+	ret nz ; we've had at least one HM Move
+	hlcoord 4, 11
+	ld de, DexEntry_NONE_text
+	call PlaceString
+	ret
+.Field_Moves_text:
+	db "FIELD MOVES@"
+
+Field_Moves_List:
+	db TELEPORT, SOFTBOILED, MILK_DRINK, \
+		HEADBUTT, ROCK_SMASH, SWEET_SCENT, DIG,\
+		CUT, FLY, SURF, STRENGTH, FLASH, WATERFALL, WHIRLPOOL
+Field_Moves_Method_List:
+	db 0, 0, 0, TM01 + 1, TM01 + 7, TM01 + 11, TM01 + 27, HM01, \
+	HM01 + 1, HM01 + 2, HM01 + 3, HM01 + 4, HM01 + 5, HM01 + 6
+
+Pokedex_anymoreFieldMoves:
+	; b has the current machine index
+	inc b
+.fmloop
+	push bc
+	ld d, 0
+	ld e, b 
+	ld hl, Field_Moves_List
+	add hl, de
+	ld a, [hl]
+	ld d, a
+
+	farcall CheckLvlUpMoves
+	ld a, c ; c has lvl we learn move
+	ld d, a ; to preserve it for later
+	pop bc
+	and a
+	jr nz, .yes
+	push bc
+	ld d, 0
+	ld e, b
+	ld hl, Field_Moves_Method_List
+	add hl, de
+	ld a, [hl]
+	and a
+	jr z, .not_tm_or_hm
+	ld [wCurItem], a
+	farcall GetTMHMItemMove
+	ld a, [wTempTMHM]	
+	ld [wPutativeTMHMMove], a
+	farcall CanLearnTMHMMove
+	ld a, c
+	pop bc
+	and a
+	jr nz, .yes
+.not_tm_or_hm
+	ld a, NUM_FIELD_MOVES - 1
+	cp b
+	jr z, .none
+	inc b
+	jr .fmloop	
+.yes
+	ld a, b
+	ld [wPokedexStatus], a ; so we can start off at the next learnable machine
+	ld a, 1
+	and a
+	ret
+.none
+	xor a
+	ld [wPokedexStatus], a
 	ret
 
 Pokedex_Calc_EggMovesPtr:
+	ld a, 1 << DEXENTRY_EGG
+	ld [wPokedexEntryType], a
 	call Pokedex_PrintPageNum ; page num is also returned in a
 	ld a, [wPokedexEntryPageNum]
 	ld c, 5 ; we can print 5 Egg moves per page
@@ -509,9 +698,10 @@ Pokedex_Calc_EggMovesPtr:
 	ld c, a
 	push bc
 ; Step 4: Get First byte of learnset
+	ld b,b
 	ld a, [wTempSpecies]
 	ld [wCurPartySpecies], a
-	ld [wCurSpecies], a
+	push af
 	callfar GetPreEvolution
 	callfar GetPreEvolution
 	ld a, [wCurPartySpecies]
@@ -521,6 +711,9 @@ Pokedex_Calc_EggMovesPtr:
 	ld hl, EggMovePointers
 	add hl, bc ; trying to add the species number in only 'a' will overflow a
 	add hl, bc ; add twice to double the index, words/PTRs are TWO bytes ea
+	pop af
+	ld [wTempSpecies], a
+	ld [wCurPartySpecies], a
 	ld a, BANK(EggMovePointers)
 	call GetFarWord
 .check_if_any
@@ -543,6 +736,7 @@ Pokedex_Calc_EggMovesPtr:
 	ld a, 1 << DEXENTRY_TMS
 	call DexEntry_NextCategory
 	xor a
+	ld [wPokedexStatus], a
 	ret
 
 .EggMoves_text:
@@ -580,19 +774,18 @@ Pokedex_Print_Egg_moves:
 	call GetFarByte; Move # returned in "a"
 	cp -1
 	jr z, .FoundEnd
-
-	; Shouldn't NEED to, but plz add check to make sure doesnt go over 9
-	ld a, 1 << DEXENTRY_EGG
-	ld [wPokedexEntryType], a
 	call DexEntry_IncPageNum
 	ret
 .FoundEnd
+	xor a
+	ld [wPokedexStatus], a
 	ld a, 1 << DEXENTRY_TMS
 	call DexEntry_NextCategory
 	ret
 
 Pokedex_PrintTMs:
-	farcall Pokedex_GetSelectedMon
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
 	hlcoord 2, 9
 	ld de, .dex_TM_text
 	call PlaceString
@@ -615,7 +808,7 @@ Pokedex_PrintTMs:
 	jr z, .notcompatible
 	call GetMoveName
 	push bc ; our count is in c
-	hlcoord 8, 11
+	hlcoord 7, 11
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -627,7 +820,7 @@ Pokedex_PrintTMs:
 	ld [wNamedObjectIndex], a
 	call GetItemName
 	push bc
-	hlcoord 3, 11
+	hlcoord 2, 11
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -653,6 +846,8 @@ Pokedex_PrintTMs:
 	ld [wPokedexStatus], a ; moves machines index
 	jr .tm_loop
 .done
+	xor a
+	ld [wPokedexStatus], a
 	ld a, 1 << DEXENTRY_HMS
 	call DexEntry_NextCategory
 	ld a, c
@@ -667,6 +862,9 @@ Pokedex_PrintTMs:
 
 Pokedex_anymoreTMs:
 	; b has the current HM index
+	ld a, NUM_TMS - 1
+	cp b
+	jr z, .none
 	inc b
 .tmloop
 	push bc
@@ -698,7 +896,9 @@ Pokedex_anymoreTMs:
 	ret
 
 Pokedex_PrintHMs:
-	farcall Pokedex_GetSelectedMon
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
+
 	hlcoord 2, 9
 	ld de, .dex_HM_text
 	call PlaceString
@@ -722,7 +922,7 @@ Pokedex_PrintHMs:
 	jr z, .notcompatible
 	call GetMoveName
 	push bc ; our count is in c
-	hlcoord 8, 11
+	hlcoord 7, 11
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -731,7 +931,7 @@ Pokedex_PrintHMs:
 	ld [wNamedObjectIndex], a
 	call GetItemName
 	push bc
-	hlcoord 3, 11
+	hlcoord 2, 11
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -752,6 +952,8 @@ Pokedex_PrintHMs:
 	inc b
 	jr .hm_loop
 .done
+	xor a
+	ld [wPokedexStatus], a
 	ld a, 1 << DEXENTRY_MTS
 	call DexEntry_NextCategory
 	ld a, c
@@ -791,17 +993,18 @@ Pokedex_anymoreHMs:
 	ret
 .none
 	xor a
+	ld [wPokedexStatus], a
 	ret
 
 Pokedex_PrintMTs:
-	farcall Pokedex_GetSelectedMon
+	ld a, [wTempSpecies]
+	ld [wCurPartySpecies], a
 	hlcoord 2, 9
 	ld de, .dex_MT_text
 	call PlaceString
 	call Pokedex_PrintPageNum ; page num is also returned in a
 	ld a, [wPokedexStatus] ; moves machines index
-	ld c, $5
-	call SimpleMultiply
+	ld b,b
 	ld b, a ; result of simple multiply in a
 	ld c, 0 ; current line
 .mt_loop
@@ -845,12 +1048,14 @@ Pokedex_PrintMTs:
 	ld [wPokedexStatus], a ; moves machines index
 	jr .mt_loop
 .done
+	xor a
+	ld [wPokedexStatus], a
 	ld a, 1 << DEXENTRY_LVLUP
 	call DexEntry_NextCategory
 	ld a, c
 	and a
 	ret nz ; we've had at least one HM Move
-	hlcoord 4, 11
+	hlcoord 4, 12
 	ld de, DexEntry_NONE_text
 	call PlaceString
 	ret
@@ -885,342 +1090,6 @@ Pokedex_anymoreMTs:
 .none
 	xor a
 	ret
-
-DisplayDexMonEvos:
-; print stage 1 first, then sus out how many evos it has
-; zero out the counters/flags 
-	xor a
-	ld [wStatsScreenFlags], a
-	ld [wPokedexEvoStage2], a
-	ld [wPokedexEvoStage3], a
-
-	call DisableSpriteUpdates
-	callfar InitPartyMenuPalettes
-	callfar ClearSpriteAnims2
-
-	farcall Pokedex_GetSelectedMon
-	ld a, [wTempSpecies]
-	ld [wCurPartySpecies], a
-	ld [wCurSpecies], a
-	callfar GetPreEvolution
-	callfar GetPreEvolution
-	ld a, [wCurPartySpecies]
-	ld [wCurSpecies], a
-	ld [wTempMonSpecies], a
-;;;; loops?
-.loop
-	ld [wTempSpecies], a
-	ld [wCurSpecies], a
-	dec a
-	ld b, 0
-	ld c, a
-	ld hl, EvosAttacksPointers
-	add hl, bc
-	add hl, bc
-	ld a, BANK(EvosAttacksPointers)
-	call GetFarWord
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte ; if zero, no evos
-	push hl ; rn pointing to 1st EevoAttkPtr byte
-	push af
-;;;; print info
-	hlcoord 6, 2
-	call EVO_adjusthlcoord
-	; call DisplayDexMonType
-	call GetPokemonName
-	hlcoord 5, 1
-	call EVO_adjusthlcoord
-	call PlaceString ; mon species
-	ld a, [wStatsScreenFlags]
-	cp 2
-	jr z, .stage3
-	cp 1
-	jr z, .stage2
-.stage1
-	ld de, .stage1_text
-	jr .print_stage
-.stage2
-	ld de, .stage2_text
-	jr .print_stage
-.stage3
-	ld de, .stage3_text
-.print_stage	
-	hlcoord 1, 0
-	call EVO_adjusthlcoord
-	call PlaceString ; mon species	
-	pop af
-	and a
-	jr z, .evoline_done
-	; get and print Evo method
-	pop hl
-	inc hl
-	cp EVOLVE_LEVEL
-	call z, EVO_level
-	cp EVOLVE_ITEM
-	call z, EVO_item
-	cp EVOLVE_TRADE
-	call z, EVO_trade
-	cp EVOLVE_HAPPINESS
-	call z, EVO_happiness
-	cp EVOLVE_STAT
-	call z, EVO_stats
-	; cp EVOLVE_LOCATION ; TODO
-.get_evo_species
-	; hl points to species word
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte ; if zero, no evos
-	ld b, a ; species
-	ld a, [wStatsScreenFlags]
-	inc a ; evo stage
-	ld [wStatsScreenFlags], a
-	ld a, b
-	jr .loop ; print next evo stage
-
-;;;;;;;;;;;;;;;;;	
-	; ld [wTempIconSpecies], a
-	; ld e, MONICON_MOVES
-	; farcall LoadMenuMonIcon
-;;;;;;;;;;;;;;;;;
-; 	ld hl, wPartyCount ; -> Evo Line Num
-; 	ld a, [hli]
-; 	and a
-; 	ret z
-; 	ld c, a
-; 	xor a
-; 	ldh [hObjectStructIndex], a
-; .loop
-; 	push bc
-; 	push hl
-; 	ld hl, LoadMenuMonIcon
-; 	ld a, BANK(LoadMenuMonIcon)
-; 	ld e, MONICON_PARTYMENU
-; 	rst FarCall
-; 	ldh a, [hObjectStructIndex]
-; 	inc a
-; 	ldh [hObjectStructIndex], a
-; 	pop hl
-; 	pop bc
-; 	dec c
-; 	jr nz, .loop
-;;;;;;;;;;;;;;;;;
-.evoline_done
-	pop hl
-.done
-	call SetPalettes
-	call WaitBGMap
-	callfar PlaySpriteAnimations
-	call DelayFrame
-	xor a
-	ld [wStatsScreenFlags], a
-	ret
-
-.stage1_text:
-	db "STAGE 1:@"
-.stage2_text:
-	db "STAGE 2:@"
-.stage3_text:
-	db "STAGE 3:@"
-
-EVO_adjusthlcoord:
-	push af
-	push bc
-	push de
-	ld a, [wStatsScreenFlags]
-.loop
-	cp 0
-	jr z, .done
-	ld b, 0
-	ld c, 120
-	add hl, bc
-	dec a
-	jr .loop
-.done
-	pop de
-	pop bc
-	pop af
-	ret
-
-EVO_level:
-	push hl
-	hlcoord 6, 4
-	call EVO_adjusthlcoord
-	ld de, .level_text
-	call PlaceString ; mon species
-	pop hl
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte
-	push hl
-	ld [wTextDecimalByte], a
-	ld de, wTextDecimalByte
-	lb bc, 1, 2
-	hlcoord 12, 4
-	call EVO_adjusthlcoord
-	call PrintNum
-	pop hl
-	inc hl
-	ret
-.level_text:
-	db "LVL@"
-
-EVO_item:
-	push hl
-	hlcoord 6, 4
-	call EVO_adjusthlcoord
-	ld de, .item_text
-	call PlaceString ; mon species
-	pop hl
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte
-	push hl
-	ld [wNamedObjectIndex], a
-	call GetItemName
-	hlcoord 7, 5
-	call EVO_adjusthlcoord
-	call PlaceString
-	pop hl
-	inc hl
-	ret
-.item_text:
-	db "ITEM:@"
-
-EVO_trade:
-	push hl
-	hlcoord 6, 4
-	call EVO_adjusthlcoord
-	ld de, .trade_text
-	call PlaceString ; mon species
-	pop hl
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte
-	cp -1
-	jr z, .done
-	ld [wNamedObjectIndex], a
-	push hl
-	hlcoord 12, 4
-	call EVO_adjusthlcoord
-	ld [hl], $e9
-	hlcoord 14, 4
-	call EVO_adjusthlcoord
-	ld de, .hold_text
-	call PlaceString
-	call GetItemName
-	hlcoord 6, 5
-	call EVO_adjusthlcoord
-	call PlaceString
-	pop hl
-.done	
-	inc hl
-	ret
-.trade_text:
-	db "TRADE@"
-.hold_text:
-	db "HOLD@"
-
-EVO_happiness:
-	push hl
-	hlcoord 6, 4
-	call EVO_adjusthlcoord
-	ld de, .happiness_text
-	call PlaceString ; mon species
-	pop hl
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte
-	inc hl
-	push hl
-	cp TR_ANYTIME
-	jr z, .anytime
-	cp TR_MORNDAY
-	jr z, .mornday
-	cp TR_NITE
-	jr z, .nite
-.done
-	pop hl
-	ret
-
-.anytime
-	hlcoord 6, 5
-	call EVO_adjusthlcoord
-	ld de, .anytime_text
-	call PlaceString
-	jr .done
-.mornday
-	hlcoord 6, 5
-	call EVO_adjusthlcoord
-	ld de, .sunup_text
-	call PlaceString
-	jr .done
-.nite
-	hlcoord 6, 5
-	call EVO_adjusthlcoord
-	ld de, .nite_text
-	call PlaceString
-	jr .done
-
-.happiness_text:
-	db "HAPPINESS@"
-.anytime_text:
-	db "ANYTIME@"
-.sunup_text:
-	db "MORN/DAY@"
-.nite_text:
-	db "NITE@"
-
-EVO_stats:
-;  ATK_EQ_DEF
-;  ATK_GT_DEF
-;  ATK_LT_DEF
-	push hl
-	hlcoord 6, 4
-	call EVO_adjusthlcoord
-	ld de, .stats_text
-	call PlaceString ; mon species
-	pop hl
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte ; level
-	inc hl
-	push hl
-	ld [wTextDecimalByte], a
-	ld de, wTextDecimalByte
-	lb bc, 1, 2
-	hlcoord 12, 4
-	call EVO_adjusthlcoord
-	call PrintNum
-	pop hl
-	ld a, BANK("Evolutions and Attacks")
-	call GetFarByte ; Stats Const, ATK >= DEF etc
-	inc hl
-	push hl
-	cp ATK_EQ_DEF
-	jr z, .atk_eq_def
-	cp ATK_LT_DEF
-	jr z, .atk_lt_def
-	cp ATK_GT_DEF
-	jr z, .atk_gt_def
-.done
-	hlcoord 7, 5
-	call EVO_adjusthlcoord
-	call PlaceString
-	pop hl
-	ret
-
-.atk_eq_def
-	ld de, .atk_eq_def_text
-	jr .done
-.atk_gt_def
-	ld de, .atk_gt_def_text
-	jr .done
-.atk_lt_def
-	ld de, .atk_lt_def_text
-	jr .done
-
-.stats_text:
-	db "LVL UP TO@"
-.atk_eq_def_text:
-	db "& ATK = DEF@"
-.atk_gt_def_text:
-	db "& ATK > DEF@"
-.atk_lt_def_text:
-	db "& ATK < DEF@"
 
 DisplayDexMonType:
 	call GetBaseData

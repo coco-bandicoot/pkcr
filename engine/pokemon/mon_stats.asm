@@ -273,7 +273,7 @@ ListMovePP:
 	pop hl
 	inc hl
 	inc hl
-	inc hl
+	; inc hl
 	ld d, h
 	ld e, l
 	ld hl, wTempMonMoves

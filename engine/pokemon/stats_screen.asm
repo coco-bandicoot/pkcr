@@ -557,6 +557,7 @@ StatsScreen_LoadGFX:
 LoadPinkPage:
 	call StatsScreen_PlaceItemName
 	call StatsScreen_PlaceOTInfo
+	
 	hlcoord 0, 8
 	ld b, $0
 	predef DrawPlayerHP
@@ -577,28 +578,26 @@ LoadPinkPage:
 .NotImmuneToPkrs:
 	ld a, [wMonType]
 	cp BOXMON
-	jr z, .StatusOK
-	hlcoord 7, 11
-	push hl
+	jr z, .done_status
+	
 	ld de, wTempMonStatus
 	predef GetStatusConditionIndex
 	ld a, d
-	pop hl
+	and a
 	jr z, .StatusOK
 
-	push hl
 	; status index in a
 	ld hl, StatusIconGFX
 	ld bc, 2 * LEN_2BPP_TILE
 	call AddNTimes
 	ld d, h
 	ld e, l
-	ld hl, vTiles2 tile $5e
+	ld hl, vTiles2 tile $50
 	lb bc, BANK(StatusIconGFX), 2
 	call Request2bpp
 
-	pop hl
-	ld a, $5e
+	hlcoord 7, 11
+	ld a, $50
 	ld [hli], a
 	inc a
 	ld [hl], a
@@ -606,10 +605,11 @@ LoadPinkPage:
 	jr .done_status
 .HasPokerus:
 	ld de, .PkrsStr
-	hlcoord 7, 9
+	hlcoord 1, 10
 	call PlaceString
 	jr .NotImmuneToPkrs
 .StatusOK:
+	hlcoord 7, 11
 	ld de, .OK_str
 	call PlaceString
 .done_status
@@ -632,11 +632,11 @@ LoadPinkPage:
 
 ; EXP Points
 	ld de, .ExpPointStr
-	hlcoord 10, 9
+	hlcoord 10, 10
 	call PlaceString
-	hlcoord 17, 14
+	hlcoord 13, 12
 	call .PrintNextLevel
-	hlcoord 13, 10
+	hlcoord 13, 9
 	lb bc, 3, 7
 	ld de, wTempMonExp
 	ld a, [de]
@@ -649,24 +649,21 @@ LoadPinkPage:
 	ld de, wStringBuffer1
 	call PrintNum
 	call .CalcExpToNextLevel
-	hlcoord 13, 13
+	hlcoord 13, 11
 	lb bc, 3, 7
 	ld de, wExpToNextLevel
 	call PrintNum
 	ld de, .LevelUpStr
 	hlcoord 10, 12
 	call PlaceString
-	ld de, .ToStr
-	hlcoord 14, 14
-	call PlaceString
-	hlcoord 11, 16
+	hlcoord 11, 8
 	ld a, [wTempMonLevel]
 	ld b, a
 	ld de, wTempMonExp + 2
 	predef FillInExpBar
-	hlcoord 10, 16
+	hlcoord 10, 8
 	ld [hl], $40 ; left exp bar end cap
-	hlcoord 19, 16
+	hlcoord 19, 8
 	ld [hl], $41 ; right exp bar end cap
 	ret
 
@@ -719,9 +716,8 @@ LoadPinkPage:
 	ld [hl], a
 	ret
 
-.Status_Type:
+.Status_Text:
 	db   "STATUS/@"
-
 .OK_str:
 	db "OK @"
 
@@ -729,9 +725,6 @@ LoadPinkPage:
 	db "EXP POINTS@"
 
 .LevelUpStr:
-	db "LEVEL UP@"
-
-.ToStr:
 	db "TO@"
 
 .PkrsStr:
@@ -818,32 +811,29 @@ PrintMonTypeTiles:
 	ret
 
 LoadGreenPage:
-; item
-	; call StatsScreen_PlaceItemName
-; moves	
-	ld de, .Move
-	hlcoord 0, 10
-	call PlaceString
+	call StatsScreen_placeCaughtLocation
+	call StatsScreen_placeCaughtTime
+	call StatsScreen_placeCaughtLevel
 	ld hl, wTempMonMoves
 	ld de, wListMoves_MoveIndicesBuffer
 	ld bc, NUM_MOVES
 	call CopyBytes
-	hlcoord 8, 10
-	ld a, SCREEN_WIDTH * 2
+	hlcoord 0, 8
+	ld a, SCREEN_WIDTH * 1
 	ld [wListMovesLineSpacing], a
 	predef ListMoves
-	hlcoord 12, 11
-	ld a, SCREEN_WIDTH * 2
+	hlcoord 13, 8
+	ld a, SCREEN_WIDTH * 1
 	ld [wListMovesLineSpacing], a
 	predef ListMovePP
 	ret
 
 StatsScreen_PlaceItemName:
 	ld de, .Item
-	hlcoord 0, 16
+	hlcoord 1, 16
 	call PlaceString
 	call .GetItemName
-	hlcoord 8, 16
+	hlcoord 7, 16
 	call PlaceString
 .GetItemName:
 	ld de, .ThreeDashes
@@ -856,15 +846,13 @@ StatsScreen_PlaceItemName:
 	ld [wNamedObjectIndex], a
 	call GetItemName
 	ret
-
 .Item:
 	db "ITEM@"
 
 .ThreeDashes:
 	db "---@"
 
-.Move:
-	db "MOVE@"
+
 
 LoadBluePage:
 	hlcoord 10, 8
@@ -876,19 +864,19 @@ LoadBluePage:
 	add hl, de
 	dec b
 	jr nz, .vertical_divider
-	hlcoord 11, 8
+	hlcoord 0, 8
 	ld bc, 6
 	predef PrintTempMonStats
 	ret
 
 StatsScreen_PlaceOTInfo:
 	ld de, IDNoString
-	hlcoord 0, 12
+	hlcoord 10, 14
 	call PlaceString
 	ld de, OTString
 	hlcoord 0, 13
 	call PlaceString
-	hlcoord 3, 13
+	hlcoord 15, 14
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	ld de, wTempMonID
 	call PrintNum
@@ -926,14 +914,14 @@ OTString:
 	db "OT/@"
 
 LoadOrangePage:
-	call .placeCaughtLocation
-	ld de, MetAtMapString
-	hlcoord 1, 9
-	call PlaceString
-	call .placeCaughtLevel
+	call StatsScreen_placeCaughtLocation
+	call StatsScreen_placeCaughtTime
 	ret
 
-.placeCaughtLocation
+StatsScreen_placeCaughtLocation:
+	ld de, .MetAtMapString
+	hlcoord 1, 14
+	call PlaceString
 	ld a, [wTempMonCaughtLocation]
 	and CAUGHT_LOCATION_MASK
 	jr z, .unknown_location
@@ -944,8 +932,20 @@ LoadOrangePage:
 	ld e, a
 	farcall GetLandmarkName
 	ld de, wStringBuffer1
-	hlcoord 2, 10
+	hlcoord 2, 15
 	call PlaceString
+	ret	
+.unknown_location:
+	ld de, .MetUnknownMapString
+	hlcoord 2, 15
+	call PlaceString
+	ret
+.MetAtMapString:
+	db "MET AT:@"
+.MetUnknownMapString:
+	db "UNKNOWN@"
+
+StatsScreen_placeCaughtTime:
 	ld a, [wTempMonCaughtTime]
 	and CAUGHT_TIME_MASK
 	ret z ; no time
@@ -958,22 +958,15 @@ LoadOrangePage:
 	ld e, l
 	call CopyName1
 	ld de, wStringBuffer2
-	hlcoord 2, 11
+	hlcoord 2, 16
 	call PlaceString
 	ret
-
-.unknown_location:
-	ld de, MetUnknownMapString
-	hlcoord 2, 10
-	call PlaceString
-	ret
-
 .times
 	db "MORN@"
 	db "DAY@"
 	db "NITE@"
 
-.placeCaughtLevel
+StatsScreen_placeCaughtLevel:
 	; caught level
 	; Limited to between 1 and 63 since it's a 6-bit quantity.
 	ld a, [wTempMonCaughtLevel]
@@ -985,33 +978,26 @@ LoadOrangePage:
 
 .print
 	ld [wTextDecimalByte], a
-	hlcoord 3, 13
+	hlcoord 17, 14
 	ld de, wTextDecimalByte
 	lb bc, PRINTNUM_LEFTALIGN | 1, 3
 	call PrintNum
-	ld de, MetAtLevelString
-	hlcoord 1, 12
+	ld de, .MetAtLevelString
+	hlcoord 12, 14
 	call PlaceString
-	hlcoord 2, 13
+	hlcoord 16, 14
 	ld [hl], "<LV>"
 	ret
 
 .unknown_level
-	ld de, MetUnknownLevelString
+	ld de, .MetUnknownLevelString
 	hlcoord 2, 12
 	call PlaceString
 	ret
-
-MetAtMapString:
-	db "MET AT:@"
-
-MetUnknownMapString:
-	db "UNKNOWN@"
-	
-MetAtLevelString:
-	db "MET LEVEL:@"    
-MetUnknownLevelString:
-	db "???@"
+.MetAtLevelString:
+	db "MET@"    
+.MetUnknownLevelString:
+	db "TRD@"
 
 StatsScreen_PlaceFrontpic:
 	ld hl, wTempMonDVs

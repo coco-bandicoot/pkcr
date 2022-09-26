@@ -4840,7 +4840,6 @@ DrawEnemyHUD:
 
 	ld a, TEMPMON
 	ld [wMonType], a
-	ld b,b
 	callfar GetGender
 	ld a, " "
 	jr c, .got_gender
@@ -4875,6 +4874,7 @@ DrawEnemyHUD:
 ; 	jr nz, .print_level
 ; 	dec hl
 ; .print_level
+	hlcoord 6, 1
 	ld a, [wEnemyMonLevel]
 	ld [wTempMonLevel], a
 	call PrintLevel
@@ -8222,7 +8222,7 @@ PlaceExpBar:
 	jr z, .loop2
 	push hl
 	push af
-	hlcoord 0, 9
+	hlcoord 0, 8 ; coord of HP bar label, usually 0,9
 	ld a, [hl]
 	ld b, $62
 	cp $60 ; if we are in stats screen

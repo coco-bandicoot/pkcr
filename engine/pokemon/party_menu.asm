@@ -35,8 +35,9 @@ InitPartyMenuLayout:
 	ret
 
 LoadPartyMenuGFX:
-	call LoadStatusIconSet
 	call LoadFontsBattleExtra
+	call LoadStatusIconSet
+	
 	callfar InitPartyMenuPalettes
 	callfar ClearSpriteAnims2
 	ret
@@ -920,13 +921,13 @@ LoadStatusIconSet:
 	call Request2bpp
 
 	ld a, $6 ; FNT
-	ld hl, EnemyStatusIconGFX
+	ld hl, StatusIconGFX
 	ld bc, 2 * LEN_2BPP_TILE
 	call AddNTimes
 	ld d, h
 	ld e, l
 	ld hl, vTiles2 tile $5a
-	lb bc, BANK(EnemyStatusIconGFX), 2
+	lb bc, BANK(StatusIconGFX), 2
 	call Request2bpp
 	pop hl
 	pop bc
