@@ -5462,6 +5462,8 @@ MoveSelectionScreen:
 
 .battle_player_moves
 	call MoveInfoBox
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 	ld a, [wSwappingMove]
 	and a
 	jr z, .interpret_joypad
@@ -5510,7 +5512,8 @@ MoveSelectionScreen:
 .use_move
 	pop af
 	ret nz
-
+	ld b, SCGB_BATTLE_COLORS
+	call GetSGBLayout
 	ld hl, wBattleMonPP
 	ld a, [wMenuCursorY]
 	ld c, a
@@ -5740,12 +5743,11 @@ MoveInfoBox:
 	db "Disabled!@"
 
 .PrintPP:
+	hlcoord 3, 11
+	ld a, $76
+	ld [hli], a
+	ld [hl], a 
 	hlcoord 5, 11
-	ld a, [wLinkMode] ; What's the point of this check?
-	cp LINK_MOBILE
-	jr c, .ok
-	hlcoord 5, 11
-.ok
 	push hl
 	ld de, wStringBuffer1
 	lb bc, 1, 2
@@ -8004,7 +8006,18 @@ PlaceExpBar:
 .next
 	add $8
 	jr z, .loop2
-	add $54 ; tile to the left of small exp bar tile
+	push hl
+	push af
+	hlcoord 9, 0 ; coord of HP bar label, usually 0,9
+	ld a, [hl]
+	ld b, $62
+	cp $e8 ; if we are in stats screen
+	jr nz, .inbattle
+	ld b, $54
+.inbattle
+	pop af
+	pop hl
+	add b
 	jr .skip
 
 .loop2

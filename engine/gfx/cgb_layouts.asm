@@ -142,6 +142,33 @@ _CGB_FinishBattleScreenLayout:
 	ld bc, 6 * SCREEN_WIDTH
 	ld a, PAL_BATTLE_BG_TEXT
 	call ByteFill
+
+; flip reused tiles
+; HUD vertical bar thingy
+	hlcoord 18, 10, wAttrmap
+	ld bc, 1
+	ld a, PAL_BATTLE_BG_PLAYER_HP
+	set 5, a ; flips tiles on x axis
+	call ByteFill
+
+; player exp
+	hlcoord 10, 11, wAttrmap
+	lb bc, 1, 8
+	ld a, PAL_BATTLE_BG_EXP
+	set 5, a ; flips tiles on x axis
+	call FillBoxCGB
+; check if we're in the MoveInfoBox
+	hlcoord 0, 12
+	ld a, [hl]
+	cp $7d
+	jr nz, .done
+	hlcoord 10, 11, wAttrmap
+	ld bc, 1
+	ld a, PAL_BATTLE_BG_EXP
+	; set 5, a ; flips tiles on x axis
+	call ByteFill
+
+.done
 	ld hl, BattleObjectPals
 	ld de, wOBPals1 palette PAL_BATTLE_OB_GRAY
 	ld bc, 6 palettes
