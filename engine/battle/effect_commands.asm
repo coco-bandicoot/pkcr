@@ -3602,32 +3602,6 @@ UpdateMoveData:
 	call GetMoveName
 	jp CopyName1
 
-CheckForStatusIfAlreadyHasAny:
-	ld a, BATTLE_VARS_STATUS_OPP
-	call GetBattleVarAddr
-	ld d, h
-	ld e, l
-	and SLP_MASK
-	ld hl, AlreadyAsleepText
-	ret nz
-	
-	ld a, [de]
-	bit FRZ, a
-	ld hl, AlreadyFrozenText
-	ret nz
-	
-	bit PAR, a
-	ld hl, AlreadyParalyzedText
-	ret nz
-	
-	bit PSN, a
-	ld hl, AlreadyPoisonedText
-	ret nz
-	
-	bit BRN, a
-	ld hl, AlreadyBurnedText
-	ret
-
 BattleCommand_SleepTarget:
 	call GetOpponentItem
 	ld a, b
@@ -3641,7 +3615,13 @@ BattleCommand_SleepTarget:
 	jr .fail
 
 .not_protected_by_item
-	call CheckForStatusIfAlreadyHasAny
+	ld a, BATTLE_VARS_STATUS_OPP
+	call GetBattleVarAddr
+	ld d, h
+	ld e, l
+	ld a, [de]
+	and SLP_MASK
+	ld hl, AlreadyAsleepText
 	jr nz, .fail
 
 	ld a, [wAttackMissed]
@@ -3651,6 +3631,10 @@ BattleCommand_SleepTarget:
 	ld hl, DidntAffect1Text
 	call .CheckAIRandomFail
 	jr c, .fail
+
+	ld a, [de]
+	and a
+	jr nz, .fail
 
 	call CheckSubstituteOpp
 	jr nz, .fail
@@ -3757,7 +3741,11 @@ BattleCommand_Poison:
 	call CheckIfTargetIsPoisonType
 	jp z, .failed
 
-	call CheckForStatusIfAlreadyHasAny
+	ld a, BATTLE_VARS_STATUS_OPP
+	call GetBattleVar
+	ld b, a
+	ld hl, AlreadyPoisonedText
+	and 1 << PSN
 	jp nz, .failed
 
 	call GetOpponentItem
@@ -3801,7 +3789,6 @@ BattleCommand_Poison:
 	ld hl, ProtectingItselfText
 	call CheckSubstituteOpp
 	jr nz, .failed
-	ld hl, EvadedText
 	ld a, [wAttackMissed]
 	and a
 	jr nz, .failed
@@ -5874,7 +5861,9 @@ BattleCommand_Confuse_CheckSnore_Swagger_ConfuseHit:
 	jp PrintDidntAffect2
 
 BattleCommand_Paralyze:
-	call CheckForStatusIfAlreadyHasAny
+	ld a, BATTLE_VARS_STATUS_OPP
+	call GetBattleVar
+	bit PAR, a
 	jr nz, .paralyzed
 	ld a, [wTypeModifier]
 	and $7f
@@ -5939,9 +5928,8 @@ BattleCommand_Paralyze:
 	jp CallBattleCore
 
 .paralyzed
-	push hl
 	call AnimateFailedMove
-	pop hl
+	ld hl, AlreadyParalyzedText
 	jp StdBattleTextbox
 
 .failed
@@ -6267,8 +6255,8 @@ PrintDidntAffect:
 
 PrintDidntAffect2:
 	call AnimateFailedMove
-	ld hl, EvadedText ; 'evaded the attack'
-	ld de, ProtectingItselfText ; 'protecting itself'
+	ld hl, DidntAffect1Text ; 'it didn't affect'
+	ld de, DidntAffect2Text ; 'it didn't affect'
 	jp FailText_CheckOpponentProtect
 
 PrintParalyze:
