@@ -515,7 +515,7 @@ Pokedex_Calc_LvlMovesPtr:
 	jr nz, .SkipEvoBytes
 .CalcPageoffset
 	call Pokedex_PrintPageNum ; page num is also returned in a
-	ld c, 5
+	ld c, 6
 	call SimpleMultiply 
 	; double this num and add to first byte after Evo's 0
 	; for p16, triple the num
@@ -533,7 +533,7 @@ Pokedex_Print_NextLvlMoves:
 	push bc ; our move counter
 	push hl ; our offset for the start of Moves
 	ld de, .lvl_moves_text
-	hlcoord 2, 9
+	hlcoord 1, 9
 	call PlaceString ; TEXT for 'LVL - Move'
 	pop hl
 	pop bc
@@ -544,10 +544,10 @@ Pokedex_Print_NextLvlMoves:
 	jr z, .FoundEnd
 	push hl
 	ld [wTextDecimalByte], a
-	hlcoord 2, 11
+	hlcoord 2, 10
 	call DexEntry_adjusthlcoord
 	ld [hl], $5d
-	hlcoord 3, 11
+	hlcoord 3, 10
 	call DexEntry_adjusthlcoord
 	ld de, wTextDecimalByte
 	push bc
@@ -561,7 +561,7 @@ Pokedex_Print_NextLvlMoves:
 	call GetFarByte
 	ld [wNamedObjectIndex], a
 	call GetMoveName
-	hlcoord 7, 11
+	hlcoord 7, 10
 	call DexEntry_adjusthlcoord
 	push bc
 	call PlaceString
@@ -569,7 +569,7 @@ Pokedex_Print_NextLvlMoves:
 	pop hl
 	inc hl
 	inc bc
-	ld a, 5
+	ld a, 6
 	cp c
 	jr nz, .learnset_loop
 	jr .MaxedPage
@@ -590,7 +590,7 @@ Pokedex_Print_NextLvlMoves:
 
 Pokedex_PrintFieldMoves:
 ; CheckLvlUpMoves, 1 for fail, 0 for yes, in c
-	hlcoord 2, 9
+	hlcoord 1, 9
 	ld de, .Field_Moves_text
 	call PlaceString
 	call Pokedex_PrintPageNum ; page num is also returned in a
@@ -633,7 +633,7 @@ Pokedex_PrintFieldMoves:
 	ld [wNamedObjectIndex], a
 	call GetMoveName
 	push bc ; our count is in c
-	hlcoord 7, 11
+	hlcoord 7, 10
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -647,7 +647,7 @@ Pokedex_PrintFieldMoves:
 	and a
 	jr nz, .tm_or_hm
 	push bc
-	hlcoord 3, 11
+	hlcoord 3, 10
 	call DexEntry_adjusthlcoord
 	ld [hl], $5d ; <LVL>
 	inc hl
@@ -662,14 +662,14 @@ Pokedex_PrintFieldMoves:
 	ld [wNamedObjectIndex], a
 	call GetItemName
 	push bc
-	hlcoord 2, 11
+	hlcoord 2, 10
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
 ; print TM/HM num done
 .inc_line_count
 	inc c ; since we printed a line
-	ld a, $5
+	ld a, $6
 	cp c
 	jr nz, .notcompatible ; not yet printed all 5 slots
 	; We've printed all 5 slots
@@ -693,7 +693,7 @@ Pokedex_PrintFieldMoves:
 	ld a, c
 	and a
 	ret nz ; we've had at least one HM Move
-	hlcoord 4, 11
+	hlcoord 2, 11
 	ld de, DexEntry_NONE_text
 	call PlaceString
 	ret
@@ -764,7 +764,7 @@ Pokedex_Calc_EggMovesPtr:
 	ld [wPokedexEntryType], a
 	call Pokedex_PrintPageNum ; page num is also returned in a
 	ld a, [wPokedexEntryPageNum]
-	ld c, 5 ; we can print 5 Egg moves per page
+	ld c, 6 ; we can print 5 Egg moves per page
 	call SimpleMultiply ; double this num and add to first byte after Evo's 0
 	ld b, 0
 	ld c, a
@@ -792,7 +792,7 @@ Pokedex_Calc_EggMovesPtr:
 	add hl, bc
 	push af ; -1 if no egg moves
 	push hl
-	hlcoord 2, 9
+	hlcoord 1, 9
 	ld de, .EggMoves_text
 	call PlaceString
 	pop hl
@@ -805,7 +805,7 @@ Pokedex_Calc_EggMovesPtr:
 	ld a, 1 << DEXENTRY_TMS
 	call DexEntry_NextCategory
 	;print NONE
-	hlcoord 3, 11
+	hlcoord 2, 11
 	ld de, DexEntry_NONE_text
 	call PlaceString
 	ret
@@ -826,13 +826,13 @@ Pokedex_Print_Egg_moves:
 	push hl
 	ld [wNamedObjectIndex], a ; all the "Name" Funcs use this 
 	call GetMoveName ; returns the string pointer in de
-	hlcoord 3, 11
+	hlcoord 2, 10
 	call DexEntry_adjusthlcoord
 	push bc
 	call PlaceString ; places Move Name
 	pop bc
 	pop hl
-	ld a, $4 ; means we just printed 5th move
+	ld a, $5 ; means we just printed 6th move
 	cp c
 	jr z, .MaxedPage
 	inc c
@@ -851,7 +851,7 @@ Pokedex_Print_Egg_moves:
 	ret
 
 Pokedex_PrintTMs:
-	hlcoord 2, 9
+	hlcoord 1, 9
 	ld de, .dex_TM_text
 	call PlaceString
 	call Pokedex_PrintPageNum ; page num is also returned in a
@@ -873,7 +873,7 @@ Pokedex_PrintTMs:
 	jr z, .notcompatible
 	call GetMoveName
 	push bc ; our count is in c
-	hlcoord 7, 11
+	hlcoord 7, 10
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
@@ -885,12 +885,12 @@ Pokedex_PrintTMs:
 	ld [wNamedObjectIndex], a
 	call GetItemName
 	push bc
-	hlcoord 2, 11
+	hlcoord 2, 10
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
 	inc c ; since we printed a line
-	ld a, $5
+	ld a, $6
 	cp c
 	jr nz, .notcompatible ; not yet printed all 5 slots
 	; We've printed all 5 slots
@@ -915,7 +915,7 @@ Pokedex_PrintTMs:
 	ld a, c
 	and a
 	ret nz ; we've had at least one HM Move
-	hlcoord 4, 11
+	hlcoord 2, 11
 	ld de, DexEntry_NONE_text
 	call PlaceString
 	ret
@@ -958,7 +958,7 @@ Pokedex_anymoreTMs:
 	ret
 
 Pokedex_PrintMTs:
-	hlcoord 2, 9
+	hlcoord 1, 9
 	ld de, .dex_MT_text
 	call PlaceString
 	call Pokedex_PrintPageNum ; page num is also returned in a
@@ -980,12 +980,12 @@ Pokedex_PrintMTs:
 	jr z, .notcompatible
 	call GetMoveName
 	push bc ; our count is in c
-	hlcoord 3, 11
+	hlcoord 3, 10
 	call DexEntry_adjusthlcoord
 	call PlaceString
 	pop bc
 	inc c ; since we printed a line
-	ld a, $5
+	ld a, $6
 	cp c
 	jr nz, .notcompatible
 	; We've printed all 5 slots
@@ -1009,7 +1009,7 @@ Pokedex_PrintMTs:
 	ld a, c
 	and a
 	ret nz ; we've had at least one HM Move
-	hlcoord 4, 11
+	hlcoord 2, 11
 	ld de, DexEntry_NONE_text
 	call PlaceString
 	ret
@@ -1048,99 +1048,98 @@ Pokedex_anymoreMTs:
 	xor a
 	ret
 
-Pokedex_PrintHMs:
-	hlcoord 2, 9
-	ld de, .dex_HM_text
-	call PlaceString
-	call Pokedex_PrintPageNum ; page num is also returned in a
-	ld c, $5
-	ld a, [wPokedexStatus]
-	ld b, a
-	ld c, 0 ; current line
-.hm_loop
-	push bc
-	ld a, HM01
-	add b
-	ld [wCurItem], a
-	farcall GetTMHMItemMove
-	ld a, [wTempTMHM]
-	ld [wPutativeTMHMMove], a
-	farcall CanLearnTMHMMove
-	ld a, c
-	pop bc
-	and a
-	jr z, .notcompatible
-	call GetMoveName
-	push bc ; our count is in c
-	hlcoord 7, 11
-	call DexEntry_adjusthlcoord
-	call PlaceString
-	pop bc
-	ld a, HM01
-	add b
-	ld [wNamedObjectIndex], a
-	call GetItemName
-	push bc
-	hlcoord 2, 11
-	call DexEntry_adjusthlcoord
-	call PlaceString
-	pop bc
-	inc c ; since we printed a line
-	ld a, $5
-	cp c
-	jr nz, .notcompatible
-	call Pokedex_anymoreHMs
-	jr z, .done
-	call DexEntry_IncPageNum
-	ret
-.notcompatible
-	ld a, NUM_HMS - 1
-	cp b
-	jr z, .done
-	inc b
-	jr .hm_loop
-.done
-	ld a, 1 << DEXENTRY_MTS
-	call DexEntry_NextCategory
-	ld a, c
-	and a
-	ret nz ; we've had at least one HM Move
-	hlcoord 4, 11
-	ld de, DexEntry_NONE_text
-	call PlaceString
-	ret
-.dex_HM_text:
-	db "HIDDEN MACHINES@"
+; Pokedex_PrintHMs:
+; 	hlcoord 1, 9
+; 	ld de, .dex_HM_text
+; 	call PlaceString
+; 	call Pokedex_PrintPageNum ; page num is also returned in a
+; 	ld a, [wPokedexStatus]
+; 	ld b, a
+; 	ld c, 0 ; current line
+; .hm_loop
+; 	push bc
+; 	ld a, HM01
+; 	add b
+; 	ld [wCurItem], a
+; 	farcall GetTMHMItemMove
+; 	ld a, [wTempTMHM]
+; 	ld [wPutativeTMHMMove], a
+; 	farcall CanLearnTMHMMove
+; 	ld a, c
+; 	pop bc
+; 	and a
+; 	jr z, .notcompatible
+; 	call GetMoveName
+; 	push bc ; our count is in c
+; 	hlcoord 7, 10
+; 	call DexEntry_adjusthlcoord
+; 	call PlaceString
+; 	pop bc
+; 	ld a, HM01
+; 	add b
+; 	ld [wNamedObjectIndex], a
+; 	call GetItemName
+; 	push bc
+; 	hlcoord 2, 10
+; 	call DexEntry_adjusthlcoord
+; 	call PlaceString
+; 	pop bc
+; 	inc c ; since we printed a line
+; 	ld a, $6
+; 	cp c
+; 	jr nz, .notcompatible
+; 	call Pokedex_anymoreHMs
+; 	jr z, .done
+; 	call DexEntry_IncPageNum
+; 	ret
+; .notcompatible
+; 	ld a, NUM_HMS - 1
+; 	cp b
+; 	jr z, .done
+; 	inc b
+; 	jr .hm_loop
+; .done
+; 	ld a, 1 << DEXENTRY_MTS
+; 	call DexEntry_NextCategory
+; 	ld a, c
+; 	and a
+; 	ret nz ; we've had at least one HM Move
+; 	hlcoord 2, 11
+; 	ld de, DexEntry_NONE_text
+; 	call PlaceString
+; 	ret
+; .dex_HM_text:
+; 	db "HIDDEN MACHINES@"
 
-Pokedex_anymoreHMs:
-	ld a, NUM_HMS - 1
-	cp b
-	jr z, .none
-	; b has the current HM index
-	inc b
-.hmloop
-	push bc
-	ld a, HM01
-	add b
-	ld [wCurItem], a
-	farcall GetTMHMItemMove
-	ld a, [wTempTMHM]	
-	ld [wPutativeTMHMMove], a
-	farcall CanLearnTMHMMove
-	ld a, c
-	pop bc
-	and a
-	jr nz, .yes
-	ld a, NUM_HMS - 1
-	cp b
-	jr z, .none
-	inc b
-	jr .hmloop	
-.yes
-	ld a, 1
-	and a
-	ret
-.none
-	xor a
-	ld [wPokedexStatus], a
-	ret
+; Pokedex_anymoreHMs:
+; 	ld a, NUM_HMS - 1
+; 	cp b
+; 	jr z, .none
+; 	; b has the current HM index
+; 	inc b
+; .hmloop
+; 	push bc
+; 	ld a, HM01
+; 	add b
+; 	ld [wCurItem], a
+; 	farcall GetTMHMItemMove
+; 	ld a, [wTempTMHM]	
+; 	ld [wPutativeTMHMMove], a
+; 	farcall CanLearnTMHMMove
+; 	ld a, c
+; 	pop bc
+; 	and a
+; 	jr nz, .yes
+; 	ld a, NUM_HMS - 1
+; 	cp b
+; 	jr z, .none
+; 	inc b
+; 	jr .hmloop	
+; .yes
+; 	ld a, 1
+; 	and a
+; 	ret
+; .none
+; 	xor a
+; 	ld [wPokedexStatus], a
+; 	ret
