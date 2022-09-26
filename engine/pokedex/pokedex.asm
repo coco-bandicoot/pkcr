@@ -450,17 +450,8 @@ Pokedex_ReinitDexEntryScreen:
 	ldh [hBGMapMode], a
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_LoadCurrentFootprint
-	; ld b,b
-	; ld a, [wTempSpecies]
-	; ld a, [wTempMonSpecies]
-	; ld a, [wCurSpecies]
-	; ld a, [wCurPartySpecies]
 	call Pokedex_GetSelectedMon
 	ld [wPrevDexEntry], a
-	; ld a, [wTempSpecies]
-	; ld a, [wTempMonSpecies]
-	; ld a, [wCurSpecies]
-	; ld a, [wCurPartySpecies]
 
 	
 	ld a, [wPokedexEntryType]
@@ -478,14 +469,16 @@ Pokedex_ReinitDexEntryScreen:
 	cp 1 << DEXENTRY_BASESTATS
 	jr nz, .moves
 	
-	; dec page
+	; dec page, since it's auto inc'd after printing
 	ld a, [wPokedexEntryPageNum]
 	dec a
 	ld b, a
-	ld a, $8
+	ld a, $3 ; currently max supported possible pages (we have tiles for up to 9 tho)
+	; by dec'ing the current page num, we could now have -1 (255)
 	cp b
 	jr nc, .basestats
-	ld b, $3 ; page index for page 4
+	; so if carry flag set, we know we had been on page 4, and after printing it became 4
+	ld b, $3 ; page index for page 4, our max page
 .basestats
 	ld a, b
 	ld [wPokedexEntryPageNum], a
@@ -497,18 +490,20 @@ Pokedex_ReinitDexEntryScreen:
 	; for moves, we can have different numbers of pages.
 	; but we can at least keep them on the first move page of the category they were in
 	; roll back category if page is 0
+	; since it auto inc's category and xors page num after printing last page of move category
 	ld a, [wPokedexEntryPageNum]
 	and a
 	jr nz, .moves_done
 ; .rollbackcategory
 	ld a, [wPokedexEntryType]
-	srl a
+	srl a ; make sure the order of the consts is right!!!
 	ld [wPokedexEntryType], a
 	cp 1 << DEXENTRY_BASESTATS
 	jr nz, .moves_done
+	; if a is now DEXENTRY_BASESTATS, we know we were in LVLUP moves category
+	; meaning, the last actuall printed category was for the last const, DEXENTRY_MTS 
 	ld a, 1 << DEXENTRY_MTS
 	ld [wPokedexEntryType], a
-
 .moves_done
 	xor a
 	ld [wPokedexEntryPageNum], a
@@ -686,7 +681,6 @@ Evos_Page:
 Pokedex_RedisplayDexEntry:
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_GetSelectedMon
-	; farcall DisplayDexEntry
 	call SafeLoadTempTilemapToTilemap
 	call Pokedex_DrawFootprint
 	ret
@@ -1288,7 +1282,7 @@ Pokedex_DrawMainScreenBG:
 	hlcoord 5, 15
 	lb bc, 1, 3
 	call PrintNum
-	hlcoord 1, 17
+	hlcoord 0, 17
 	ld de, String_SELECT_OPTION
 	call Pokedex_PlaceString
 	hlcoord 8, 1
@@ -1315,10 +1309,11 @@ String_SEEN:
 String_OWN:
 	db "OWN", -1
 String_SELECT_OPTION:
-	db $32, $3b, $43, $44, $ed, $45, $46, " " ; SELECT > OPTION
+	; db $3b, $43, $44, $ed, $45, $46, $3c, $32, $32 ; SELECT > OPTION
+	db $3b, $43, $44, $ed, "O", "P", "T", "N", $3c ; SELECT > OPTION
 	; fallthrough
 String_START_SEARCH:
-	db $3c, $32, $3b, $41, $42, $ed, "?", $3c, -1 ; START > SEARCH
+	db $32, $3b, $41, $42, $ed, "S", "E", "A", "R", "C", "H", $3c, -1 ; START > SEARCH
 
 Pokedex_DrawDexEntryScreenBG:
 	call Pokedex_FillBackgroundColor2
@@ -1378,11 +1373,6 @@ Pokedex_DrawDexEntryScreenBG:
 	hlcoord 14, 2
 	ld [hl], $4f ; pokeball icon
 	ret
-
-.Height:
-	db "HT  ?", $5e, "??", $5f, -1 ; HT  ?'??"
-.Weight:
-	db "WT   ???lb", -1
 .MenuItems:
 	db $3b, " ", $79, $7a, " ", \ ; INFO
 		$71, $72, " ", \ ; STATS

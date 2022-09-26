@@ -1,0 +1,1004 @@
+abra:
+	HT 2'11"
+	WT 43.0 lbs
+
+aerodactyl:
+	HT 5'11"
+	WT 130.0 lbs
+
+aipom:
+	HT 2'07"
+	WT 25.0 lbs
+
+alakazam:
+	HT 4'11"
+	WT 106.0 lbs
+
+ampharos:
+	HT 4'07"
+	WT 136.0 lbs
+
+arbok:
+	HT 11'06"
+	WT 143.0 lbs
+
+arcanine:
+	HT 6'03"
+	WT 342.0 lbs
+
+ariados:
+	HT 3'07"
+	WT 74.0 lbs
+
+articuno:
+	HT 5'07"
+	WT 122.0 lbs
+
+azumarill:
+	HT 2'07"
+	WT 63.0 lbs
+
+bayleef:
+	HT 3'11"
+	WT 35.0 lbs
+
+beedrill:
+	HT 3'03"
+	WT 65.0 lbs
+
+bellossom:
+	HT 1'04"
+	WT 13.0 lbs
+
+bellsprout:
+	HT 2'04"
+	WT 9.0 lbs
+
+blastoise:
+	HT 5'03"
+	WT 189.0 lbs
+
+blissey:
+	HT 4'11"
+	WT 103.0 lbs
+
+bulbasaur:
+	HT 2'04"
+	WT 15.0 lbs
+
+butterfree:
+	HT 3'07"
+	WT 71.0 lbs
+
+caterpie:
+	HT 1'00"
+	WT 6.0 lbs
+
+celebi:
+	HT 2'00"
+	WT 11.0 lbs
+
+chansey:
+	HT 3'07"
+	WT 76.0 lbs
+
+charizard:
+	HT 5'07"
+	WT 200.0 lbs
+
+charmander:
+	HT 2'00"
+	WT 19.0 lbs
+
+charmeleon:
+	HT 3'07"
+	WT 42.0 lbs
+
+chikorita:
+	HT 2'11"
+	WT 14.0 lbs
+
+chinchou:
+	HT 1'08"
+	WT 26.0 lbs
+
+clefable:
+	HT 4'03"
+	WT 88.0 lbs
+
+clefairy:
+	HT 2'00"
+	WT 17.0 lbs
+
+cleffa:
+	HT 1'00"
+	WT 7.0 lbs
+
+cloyster:
+	HT 4'11"
+	WT 292.0 lbs
+
+corsola:
+	HT 2'00"
+	WT 11.0 lbs
+
+crobat:
+	HT 5'11"
+	WT 165.0 lbs
+
+croconaw:
+	HT 3'07"
+	WT 55.0 lbs
+
+cubone:
+	HT 1'04"
+	WT 14.0 lbs
+
+cyndaquil:
+	HT 1'08"
+	WT 17.0 lbs
+
+delibird:
+	HT 2'11"
+	WT 35.0 lbs
+
+dewgong:
+	HT 5'07"
+	WT 265.0 lbs
+
+diglett:
+	HT '8"
+	WT 2.0 lbs
+
+ditto:
+	HT 1'00"
+	WT 9.0 lbs
+
+dodrio:
+	HT 5'11"
+	WT 188.0 lbs
+
+doduo:
+	HT 4'07"
+	WT 86.0 lbs
+
+donphan:
+	HT 3'07"
+	WT 265.0 lbs
+
+dragonair:
+	HT 13'01"
+	WT 36.0 lbs
+
+dragonite:
+	HT 7'03"
+	WT 463.0 lbs
+
+dratini:
+	HT 5'11"
+	WT 7.0 lbs
+
+drowzee:
+	HT 3'03"
+	WT 71.0 lbs
+
+dugtrio:
+	HT 2'04"
+	WT 73.0 lbs
+
+dunsparce:
+	HT 4'11"
+	WT 31.0 lbs
+
+eevee:
+	HT 1'00"
+	WT 14.0 lbs
+
+ekans:
+	HT 6'07"
+	WT 15.0 lbs
+
+electabuzz:
+	HT 3'07"
+	WT 66.0 lbs
+
+electrode:
+	HT 3'11"
+	WT 147.0 lbs
+
+elekid:
+	HT 2'00"
+	WT 52.0 lbs
+
+entei:
+	HT 6'07"
+	WT 437.0 lbs
+
+espeon:
+	HT 2'11"
+	WT 58.0 lbs
+
+exeggcute:
+	HT 1'04"
+	WT 6.0 lbs
+
+exeggutor:
+	HT 6'07"
+	WT 265.0 lbs
+
+farfetch_d:
+	HT 2'07"
+	WT 33.0 lbs
+
+fearow:
+	HT 3'11"
+	WT 84.0 lbs
+
+feraligatr:
+	HT 7'07"
+	WT 196.0 lbs
+
+flaaffy:
+	HT 2'07"
+	WT 29.0 lbs
+
+flareon:
+	HT 2'11"
+	WT 55.0 lbs
+
+forretress:
+	HT 3'11"
+	WT 277.0 lbs
+
+furret:
+	HT 5'11"
+	WT 72.0 lbs
+
+gastly:
+	HT 4'03"
+	WT .2 lbs
+
+gengar:
+	HT 4'11"
+	WT 89.0 lbs
+
+geodude:
+	HT 1'04"
+	WT 44.0 lbs
+
+girafarig:
+	HT 4'11"
+	WT 91.0 lbs
+
+gligar:
+	HT 3'07"
+	WT 143.0 lbs
+
+gloom:
+	HT 2'07"
+	WT 19.0 lbs
+
+golbat:
+	HT 5'03"
+	WT 121.0 lbs
+
+goldeen:
+	HT 2'00"
+	WT 33.0 lbs
+
+golduck:
+	HT 5'07"
+	WT 169.0 lbs
+
+golem:
+	HT 4'07"
+	WT 662.0 lbs
+
+granbull:
+	HT 4'07"
+	WT 107.0 lbs
+
+graveler:
+	HT 3'03"
+	WT 232.0 lbs
+
+grimer:
+	HT 2'11"
+	WT 66.0 lbs
+
+growlithe:
+	HT 2'04"
+	WT 42.0 lbs
+
+gyarados:
+	HT 21'04"
+	WT 518.0 lbs
+
+haunter:
+	HT 5'03"
+	WT .2 lbs
+
+heracross:
+	HT 4'11"
+	WT 119.0 lbs
+
+hitmonchan:
+	HT 4'07"
+	WT 111.0 lbs
+
+hitmonlee:
+	HT 4'11"
+	WT 110.0 lbs
+
+hitmontop:
+	HT 4'07"
+	WT 106.0 lbs
+
+hoothoot:
+	HT 2'04"
+	WT 47.0 lbs
+
+hoppip:
+	HT 1'04"
+	WT 1.0 lbs
+
+horsea:
+	HT 1'04"
+	WT 18.0 lbs
+
+houndoom:
+	HT 4'07"
+	WT 77.0 lbs
+
+houndour:
+	HT 2'00"
+	WT 24.0 lbs
+
+ho_oh:
+	HT 12'06"
+	WT 439.0 lbs
+
+hypno:
+	HT 5'03"
+	WT 167.0 lbs
+
+igglybuff:
+	HT 1'00"
+	WT 2.0 lbs
+
+ivysaur:
+	HT 3'03"
+	WT 29.0 lbs
+
+jigglypuff:
+	HT 1'08"
+	WT 12.0 lbs
+
+jolteon:
+	HT 2'07"
+	WT 54.0 lbs
+
+jumpluff:
+	HT 2'07"
+	WT 7.0 lbs
+
+jynx:
+	HT 4'07"
+	WT 90.0 lbs
+
+kabuto:
+	HT 1'08"
+	WT 25.0 lbs
+
+kabutops:
+	HT 4'03"
+	WT 89.0 lbs
+
+kadabra:
+	HT 4'03"
+	WT 125.0 lbs
+
+kakuna:
+	HT 2'00"
+	WT 22.0 lbs
+
+kangaskhan:
+	HT 7'03"
+	WT 176.0 lbs
+
+kingdra:
+	HT 5'11"
+	WT 335.0 lbs
+
+kingler:
+	HT 4'03"
+	WT 132.0 lbs
+
+koffing:
+	HT 2'00"
+	WT 2.0 lbs
+
+krabby:
+	HT 1'04"
+	WT 14.0 lbs
+
+lanturn:
+	HT 3'11"
+	WT 50.0 lbs
+
+lapras:
+	HT 8'02"
+	WT 485.0 lbs
+
+larvitar:
+	HT 2'00"
+	WT 159.0 lbs
+
+ledian:
+	HT 4'07"
+	WT 78.0 lbs
+
+ledyba:
+	HT 3'03"
+	WT 24.0 lbs
+
+lickitung:
+	HT 3'11"
+	WT 144.0 lbs
+
+lugia:
+	HT 17'01"
+	WT 476.0 lbs
+
+machamp:
+	HT 5'03"
+	WT 287.0 lbs
+
+machoke:
+	HT 4'11"
+	WT 155.0 lbs
+
+machop:
+	HT 2'07"
+	WT 43.0 lbs
+
+magby:
+	HT 2'04"
+	WT 47.0 lbs
+
+magcargo:
+	HT 2'07"
+	WT 121.0 lbs
+
+magikarp:
+	HT 2'11"
+	WT 22.0 lbs
+
+magmar:
+	HT 4'03"
+	WT 98.0 lbs
+
+magnemite:
+	HT 1'00"
+	WT 13.0 lbs
+
+magneton:
+	HT 3'03"
+	WT 132.0 lbs
+
+mankey:
+	HT 1'08"
+	WT 62.0 lbs
+
+mantine:
+	HT 6'11"
+	WT 485.0 lbs
+
+mareep:
+	HT 2'00"
+	WT 17.0 lbs
+
+marill:
+	HT 1'04"
+	WT 19.0 lbs
+
+marowak:
+	HT 3'03"
+	WT 99.0 lbs
+
+meganium:
+	HT 5'11"
+	WT 222.0 lbs
+
+meowth:
+	HT 1'04"
+	WT 9.0 lbs
+
+metapod:
+	HT 2'04"
+	WT 22.0 lbs
+
+mew:
+	HT 1'04"
+	WT 9.0 lbs
+
+mewtwo:
+	HT 6'07"
+	WT 269.0 lbs
+
+miltank:
+	HT 3'11"
+	WT 166.0 lbs
+
+misdreavus:
+	HT 2'04"
+	WT 2.0 lbs
+
+moltres:
+	HT 6'07"
+	WT 132.0 lbs
+
+mr__mime:
+	HT 4'03"
+	WT 120.0 lbs
+
+muk:
+	HT 3'11"
+	WT 66.0 lbs
+
+murkrow:
+	HT 1'08"
+	WT 5.0 lbs
+
+natu:
+	HT '8"
+	WT 4.0 lbs
+
+nidoking:
+	HT 4'07"
+	WT 137.0 lbs
+
+nidoqueen:
+	HT 4'03"
+	WT 132.0 lbs
+
+nidoran_f:
+	HT 1'04"
+	WT 15.0 lbs
+
+nidoran_m:
+	HT 1'08"
+	WT 20.0 lbs
+
+nidorina:
+	HT 2'07"
+	WT 44.0 lbs
+
+nidorino:
+	HT 2'11"
+	WT 43.0 lbs
+
+ninetales:
+	HT 3'07"
+	WT 44.0 lbs
+
+noctowl:
+	HT 5'03"
+	WT 90.0 lbs
+
+octillery:
+	HT 2'11"
+	WT 63.0 lbs
+
+oddish:
+	HT 1'08"
+	WT 12.0 lbs
+
+omanyte:
+	HT 1'04"
+	WT 17.0 lbs
+
+omastar:
+	HT 3'03"
+	WT 77.0 lbs
+
+onix:
+	HT 28'10"
+	WT 463.0 lbs
+
+paras:
+	HT 1'00"
+	WT 12.0 lbs
+
+parasect:
+	HT 3'03"
+	WT 65.0 lbs
+
+persian:
+	HT 3'03"
+	WT 71.0 lbs
+
+phanpy:
+	HT 1'08"
+	WT 74.0 lbs
+
+pichu:
+	HT 1'00"
+	WT 4.0 lbs
+
+pidgeot:
+	HT 4'11"
+	WT 87.0 lbs
+
+pidgeotto:
+	HT 3'07"
+	WT 66.0 lbs
+
+pidgey:
+	HT 1'00"
+	WT 4.0 lbs
+
+pikachu:
+	HT 1'04"
+	WT 13.0 lbs
+
+piloswine:
+	HT 3'07"
+	WT 123.0 lbs
+
+pineco:
+	HT 2'00"
+	WT 16.0 lbs
+
+pinsir:
+	HT 4'11"
+	WT 121.0 lbs
+
+politoed:
+	HT 3'07"
+	WT 75.0 lbs
+
+poliwag:
+	HT 2'00"
+	WT 27.0 lbs
+
+poliwhirl:
+	HT 3'03"
+	WT 44.0 lbs
+
+poliwrath:
+	HT 4'03"
+	WT 119.0 lbs
+
+ponyta:
+	HT 3'03"
+	WT 66.0 lbs
+
+porygon:
+	HT 2'07"
+	WT 80.0 lbs
+
+porygon2:
+	HT 2'00"
+	WT 72.0 lbs
+
+primeape:
+	HT 3'03"
+	WT 71.0 lbs
+
+psyduck:
+	HT 2'07"
+	WT 43.0 lbs
+
+pupitar:
+	HT 3'11"
+	WT 335.0 lbs
+
+quagsire:
+	HT 4'07"
+	WT 165.0 lbs
+
+quilava:
+	HT 2'11"
+	WT 42.0 lbs
+
+qwilfish:
+	HT 1'08"
+	WT 9.0 lbs
+
+raichu:
+	HT 2'07"
+	WT 66.0 lbs
+
+raikou:
+	HT 6'03"
+	WT 392.0 lbs
+
+rapidash:
+	HT 5'07"
+	WT 209.0 lbs
+
+raticate:
+	HT 2'04"
+	WT 41.0 lbs
+
+rattata:
+	HT 1'00"
+	WT 8.0 lbs
+
+remoraid:
+	HT 2'00"
+	WT 26.0 lbs
+
+rhydon:
+	HT 6'03"
+	WT 265.0 lbs
+
+rhyhorn:
+	HT 3'03"
+	WT 254.0 lbs
+
+sandshrew:
+	HT 2'00"
+	WT 26.0 lbs
+
+sandslash:
+	HT 3'03"
+	WT 65.0 lbs
+
+scizor:
+	HT 5'11"
+	WT 260.0 lbs
+
+scyther:
+	HT 4'11"
+	WT 123.0 lbs
+
+seadra:
+	HT 3'11"
+	WT 55.0 lbs
+
+seaking:
+	HT 4'03"
+	WT 86.0 lbs
+
+seel:
+	HT 3'07"
+	WT 198.0 lbs
+
+sentret:
+	HT 2'07"
+	WT 13.0 lbs
+
+shellder:
+	HT 1'00"
+	WT 9.0 lbs
+
+shuckle:
+	HT 2'00"
+	WT 45.0 lbs
+
+skarmory:
+	HT 5'07"
+	WT 111.0 lbs
+
+skiploom:
+	HT 2'00"
+	WT 2.0 lbs
+
+slowbro:
+	HT 5'03"
+	WT 173.0 lbs
+
+slowking:
+	HT 6'07"
+	WT 175.0 lbs
+
+slowpoke:
+	HT 3'11"
+	WT 79.0 lbs
+
+slugma:
+	HT 2'04"
+	WT 77.0 lbs
+
+smeargle:
+	HT 3'11"
+	WT 128.0 lbs
+
+smoochum:
+	HT 1'04"
+	WT 13.0 lbs
+
+sneasel:
+	HT 2'11"
+	WT 62.0 lbs
+
+snorlax:
+	HT 6'11"
+	WT 1014.0 lbs
+
+snubbull:
+	HT 2'00"
+	WT 17.0 lbs
+
+spearow:
+	HT 1'00"
+	WT 4.0 lbs
+
+spinarak:
+	HT 1'08"
+	WT 19.0 lbs
+
+squirtle:
+	HT 1'08"
+	WT 20.0 lbs
+
+stantler:
+	HT 4'07"
+	WT 157.0 lbs
+
+starmie:
+	HT 3'07"
+	WT 176.0 lbs
+
+staryu:
+	HT 2'07"
+	WT 76.0 lbs
+
+steelix:
+	HT 30'02"
+	WT 882.0 lbs
+
+sudowoodo:
+	HT 3'11"
+	WT 84.0 lbs
+
+suicune:
+	HT 6'07"
+	WT 412.0 lbs
+
+sunflora:
+	HT 2'07"
+	WT 19.0 lbs
+
+sunkern:
+	HT 1'00"
+	WT 4.0 lbs
+
+swinub:
+	HT 1'04"
+	WT 14.0 lbs
+
+tangela:
+	HT 3'03"
+	WT 77.0 lbs
+
+tauros:
+	HT 4'07"
+	WT 195.0 lbs
+
+teddiursa:
+	HT 2'00"
+	WT 19.0 lbs
+
+tentacool:
+	HT 2'11"
+	WT 100.0 lbs
+
+tentacruel:
+	HT 5'03"
+	WT 121.0 lbs
+
+togepi:
+	HT 1'00"
+	WT 3.0 lbs
+
+togetic:
+	HT 2'00"
+	WT 7.0 lbs
+
+totodile:
+	HT 2'00"
+	WT 21.0 lbs
+
+typhlosion:
+	HT 5'07"
+	WT 175.0 lbs
+
+tyranitar:
+	HT 6'07"
+	WT 445.0 lbs
+
+tyrogue:
+	HT 2'04"
+	WT 46.0 lbs
+
+umbreon:
+	HT 3'03"
+	WT 60.0 lbs
+
+unown:
+	HT 1'08"
+	WT 11.0 lbs
+
+ursaring:
+	HT 5'11"
+	WT 277.0 lbs
+
+vaporeon:
+	HT 3'03"
+	WT 64.0 lbs
+
+venomoth:
+	HT 4'11"
+	WT 28.0 lbs
+
+venonat:
+	HT 3'03"
+	WT 66.0 lbs
+
+venusaur:
+	HT 6'07"
+	WT 221.0 lbs
+
+victreebel:
+	HT 5'07"
+	WT 34.0 lbs
+
+vileplume:
+	HT 3'11"
+	WT 41.0 lbs
+
+voltorb:
+	HT 1'08"
+	WT 23.0 lbs
+
+vulpix:
+	HT 2'00"
+	WT 22.0 lbs
+
+wartortle:
+	HT 3'03"
+	WT 50.0 lbs
+
+weedle:
+	HT 1'00"
+	WT 7.0 lbs
+
+weepinbell:
+	HT 3'03"
+	WT 14.0 lbs
+
+weezing:
+	HT 3'11"
+	WT 21.0 lbs
+
+wigglytuff:
+	HT 3'03"
+	WT 26.0 lbs
+
+wobbuffet:
+	HT 4'03"
+	WT 63.0 lbs
+
+wooper:
+	HT 1'04"
+	WT 19.0 lbs
+
+xatu:
+	HT 4'11"
+	WT 33.0 lbs
+
+yanma:
+	HT 3'11"
+	WT 84.0 lbs
+
+zapdos:
+	HT 5'03"
+	WT 116.0 lbs
+
+zubat:
+	HT 2'07"
+	WT 17.0 lbs
+
