@@ -753,8 +753,8 @@ LoadBluePage:
 	hlcoord 0, 10
 	ld bc, 9
 	call StatsScreen_Print_Stats
-	call StatsScreen_StatsExpInfo
-	; call StatsScreen_EVInfo
+	; call StatsScreen_StatsExpInfo
+	call StatsScreen_EVInfo
 	ret
 .Stats_text:
 	db "STATS@"
@@ -860,80 +860,80 @@ StatsScreen_Print_Stats:
 .StatName_SPE:
 	db "SPEED@"
 
-StatsScreen_StatsExpInfo:
-	hlcoord 14, 8
-	ld de, .EXP_text
-	call PlaceString
-	hlcoord 14, 9
-	ld de, .EXP_Max_text
-	call PlaceString
-
-	ld de, wTempMonHPExp
-	hlcoord 15, 10
-	lb bc, 2, 5
-	call PrintNum
-	ld de, wTempMonAtkExp
-	hlcoord 15, 11
-	lb bc, 2, 5
-	call PrintNum
-	ld de, wTempMonDefExp
-	hlcoord 15, 12
-	lb bc, 2, 5
-	call PrintNum
-	ld de, wTempMonSpcExp
-	hlcoord 15, 13
-	lb bc, 2, 5
-	call PrintNum
-	; ld de, wTempMonSpcExp
-	; hlcoord 15, 14
-	; lb bc, 2, 5
-	; call PrintNum
-	ld de, wTempMonSpdExp
-	hlcoord 15, 15
-	lb bc, 2, 5
-	call PrintNum
-	ret
-.EXP_text:
-	db "EXP@"
-.EXP_Max_text:
-	db "/65535@"
-
-; StatsScreen_EVInfo:
+; StatsScreen_StatsExpInfo:
 ; 	hlcoord 14, 8
-; 	ld de, .EV_text
+; 	ld de, .EXP_text
 ; 	call PlaceString
-; 	hlcoord 15, 9
-; 	ld de, .EV_Max_text
+; 	hlcoord 14, 9
+; 	ld de, .EXP_Max_text
 ; 	call PlaceString
-; 	ld de, wTempMonHPEV
-; 	hlcoord 15, 9
-; 	lb bc, 1, 3
+
+; 	ld de, wTempMonHPExp
+; 	hlcoord 15, 10
+; 	lb bc, 2, 5
 ; 	call PrintNum
-; 	ld de, wTempMonAtkEV
+; 	ld de, wTempMonAtkExp
 ; 	hlcoord 15, 11
-; 	lb bc,  1, 3
+; 	lb bc, 2, 5
 ; 	call PrintNum
-; 	ld de, wTempMonDefEV
+; 	ld de, wTempMonDefExp
+; 	hlcoord 15, 12
+; 	lb bc, 2, 5
+; 	call PrintNum
+; 	ld de, wTempMonSpcExp
 ; 	hlcoord 15, 13
-; 	lb bc, 1, 3
+; 	lb bc, 2, 5
 ; 	call PrintNum
-; 	ld de, wTempMonSpdEV
+; 	; ld de, wTempMonSpcExp
+; 	; hlcoord 15, 14
+; 	; lb bc, 2, 5
+; 	; call PrintNum
+; 	ld de, wTempMonSpdExp
 ; 	hlcoord 15, 15
-; 	lb bc,  1, 3
-; 	call PrintNum
-; 	ld de, wTempMonSpclAtkEV
-; 	hlcoord 15, 17
-; 	lb bc, 1, 3
-; 	call PrintNum
-; 	ld de, wTempMonSpclAtkEV
-; 	hlcoord 15, 19
-; 	lb bc, 1, 3
+; 	lb bc, 2, 5
 ; 	call PrintNum
 ; 	ret
-; .EV_text:
-; 	db "EVS@"
-; .EV_Max_text:
-; 	db "/510@"
+; .EXP_text:
+; 	db "EXP@"
+; .EXP_Max_text:
+; 	db "/65535@"
+
+StatsScreen_EVInfo:
+	hlcoord 14, 8
+	ld de, .EV_text
+	call PlaceString
+	hlcoord 15, 9
+	ld de, .EV_Max_text
+	call PlaceString
+	ld de, wTempMonHPEV
+	hlcoord 15, 9
+	lb bc, 1, 3
+	call PrintNum
+	ld de, wTempMonAtkEV
+	hlcoord 15, 11
+	lb bc,  1, 3
+	call PrintNum
+	ld de, wTempMonDefEV
+	hlcoord 15, 13
+	lb bc, 1, 3
+	call PrintNum
+	ld de, wTempMonSpdEV
+	hlcoord 15, 15
+	lb bc,  1, 3
+	call PrintNum
+	ld de, wTempMonSpclAtkEV
+	hlcoord 15, 17
+	lb bc, 1, 3
+	call PrintNum
+	ld de, wTempMonSpclAtkEV
+	hlcoord 15, 19
+	lb bc, 1, 3
+	call PrintNum
+	ret
+.EV_text:
+	db "EVS@"
+.EV_Max_text:
+	db "/510@"
 
 StatsScreen_PlaceOTInfo:
 	ld de, IDNoString

@@ -160,6 +160,8 @@ INCLUDE "engine/battle/read_trainer_party.asm"
 SECTION "Battle Core", ROMX
 
 INCLUDE "engine/battle/core.asm"
+
+SECTION "Battle Core 2", ROMX
 INCLUDE "data/battle/effect_command_pointers.asm"
 
 
@@ -502,6 +504,7 @@ INCLUDE "engine/link/mystery_gift.asm"
 INCLUDE "engine/battle/used_move_text.asm"
 INCLUDE "mobile/mobile_41.asm"
 INCLUDE "engine/gfx/load_overworld_font.asm"
+INCLUDE "engine/gfx/item_icons.asm"
 
 
 SECTION "mobile42", ROMX
@@ -685,8 +688,10 @@ INCLUDE "engine/events/battle_tower/load_trainer.asm"
 INCLUDE "engine/events/odd_egg.asm"
 
 SECTION "Battle Weather Images", ROMX
-
 INCLUDE "gfx/weather_images.asm"
+
+SECTION "Rangi Item Icons", ROMX
+INCLUDE "gfx/items.asm"
 
 SECTION "Stadium 2 Checksums", ROMX[$7DE0], BANK[$7F]
 

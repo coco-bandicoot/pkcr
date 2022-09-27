@@ -76,28 +76,28 @@ Unused_CheckShininess:
 	and a
 	ret
 
-SGB_ApplyCreditsPals: ; unreferenced
-	push de
-	push bc
-	ld hl, PalPacket_Pal01
-	ld de, wSGBPals
-	ld bc, PALPACKET_LENGTH
-	call CopyBytes
-	pop bc
-	pop de
-	ld a, c
-	ld [wSGBPals + 3], a
-	ld a, b
-	ld [wSGBPals + 4], a
-	ld a, e
-	ld [wSGBPals + 5], a
-	ld a, d
-	ld [wSGBPals + 6], a
-	ld hl, wSGBPals
-	call PushSGBPals
-	ld hl, BlkPacket_AllPal0
-	call PushSGBPals
-	ret
+; SGB_ApplyCreditsPals: ; unreferenced
+; 	push de
+; 	push bc
+; 	ld hl, PalPacket_Pal01
+; 	ld de, wSGBPals
+; 	ld bc, PALPACKET_LENGTH
+; 	call CopyBytes
+	; pop bc
+	; pop de
+	; ld a, c
+	; ld [wSGBPals + 3], a
+	; ld a, b
+	; ld [wSGBPals + 4], a
+	; ld a, e
+	; ld [wSGBPals + 5], a
+	; ld a, d
+	; ld [wSGBPals + 6], a
+	; ld hl, wSGBPals
+	; call PushSGBPals
+	; ld hl, BlkPacket_AllPal0
+	; call PushSGBPals
+	; ret
 
 InitPartyMenuPalettes:
 	ld hl, PalPacket_PartyMenu + 1
@@ -133,27 +133,27 @@ SGB_ApplyPartyMenuHPPals:
 	ld [hl], e
 	ret
 
-Intro_LoadMagikarpPalettes: ; unreferenced
-	call CheckCGB
-	ret z
+; Intro_LoadMagikarpPalettes: ; unreferenced
+; 	call CheckCGB
+; 	ret z
 
-; CGB only
-	ld hl, .MagikarpBGPal
-	ld de, wBGPals1
-	ld bc, 1 palettes
-	ld a, BANK(wBGPals1)
-	call FarCopyWRAM
+; ; CGB only
+; 	ld hl, .MagikarpBGPal
+; 	ld de, wBGPals1
+; 	ld bc, 1 palettes
+; 	ld a, BANK(wBGPals1)
+; 	call FarCopyWRAM
 
-	ld hl, .MagikarpOBPal
-	ld de, wOBPals1
-	ld bc, 1 palettes
-	ld a, BANK(wOBPals1)
-	call FarCopyWRAM
+; 	ld hl, .MagikarpOBPal
+; 	ld de, wOBPals1
+; 	ld bc, 1 palettes
+; 	ld a, BANK(wOBPals1)
+; 	call FarCopyWRAM
 
-	call ApplyPals
-	ld a, TRUE
-	ldh [hCGBPalUpdate], a
-	ret
+; 	call ApplyPals
+; 	ld a, TRUE
+; 	ldh [hCGBPalUpdate], a
+; 	ret
 
 .MagikarpBGPal:
 INCLUDE "gfx/intro/gs_magikarp_bg.pal"
@@ -185,52 +185,52 @@ Intro_LoadBetaIntroVenusaurPalettes: ; unreferenced
 	call GetPredefPal
 	jp LoadHLPaletteIntoDE
 
-Intro_LoadPackPalettes: ; unreferenced
-	call CheckCGB
-	jr nz, .cgb
-	ldh a, [hSGB]
-	and a
-	ret z
-	ld hl, PalPacket_Pack
-	jp PushSGBPals
+; Intro_LoadPackPalettes: ; unreferenced
+; 	call CheckCGB
+; 	jr nz, .cgb
+; 	ldh a, [hSGB]
+; 	and a
+; 	ret z
+; 	ld hl, PalPacket_Pack
+; 	jp PushSGBPals
 
-.cgb
-	ld de, wOBPals1
-	ld a, PREDEFPAL_PACK
-	call GetPredefPal
-	jp LoadHLPaletteIntoDE
+; .cgb
+; 	ld de, wOBPals1
+; 	ld a, PREDEFPAL_PACK
+; 	call GetPredefPal
+; 	jp LoadHLPaletteIntoDE
 
-GSIntro_LoadMonPalette: ; unreferenced
-	call CheckCGB
-	jr nz, .cgb
-	ldh a, [hSGB]
-	and a
-	ret z
-	ld a, c
-	push af
-	ld hl, PalPacket_Pal01
-	ld de, wSGBPals
-	ld bc, PALPACKET_LENGTH
-	call CopyBytes
-	pop af
-	call GetMonPalettePointer
-	ld a, [hli]
-	ld [wSGBPals + 3], a
-	ld a, [hli]
-	ld [wSGBPals + 4], a
-	ld a, [hli]
-	ld [wSGBPals + 5], a
-	ld a, [hl]
-	ld [wSGBPals + 6], a
-	ld hl, wSGBPals
-	jp PushSGBPals
+; GSIntro_LoadMonPalette: ; unreferenced
+; 	call CheckCGB
+; 	jr nz, .cgb
+; 	ldh a, [hSGB]
+; 	and a
+; 	ret z
+; 	ld a, c
+; 	push af
+; 	ld hl, PalPacket_Pal01
+; 	ld de, wSGBPals
+; 	ld bc, PALPACKET_LENGTH
+; 	call CopyBytes
+; 	pop af
+; 	call GetMonPalettePointer
+; 	ld a, [hli]
+; 	ld [wSGBPals + 3], a
+; 	ld a, [hli]
+; 	ld [wSGBPals + 4], a
+; 	ld a, [hli]
+; 	ld [wSGBPals + 5], a
+; 	ld a, [hl]
+; 	ld [wSGBPals + 6], a
+; 	ld hl, wSGBPals
+; 	jp PushSGBPals
 
-.cgb
-	ld de, wOBPals1
-	ld a, c
-	call GetMonPalettePointer
-	call LoadPalette_White_Col1_Col2_Black
-	ret
+; .cgb
+; 	ld de, wOBPals1
+; 	ld a, c
+; 	call GetMonPalettePointer
+; 	call LoadPalette_White_Col1_Col2_Black
+; 	ret
 
 LoadTrainerClassPaletteAsNthBGPal:
 	ld a, [wTrainerClass]
@@ -480,6 +480,63 @@ LoadCategoryAndTypePals:
 	ld bc, 2
 	jp FarCopyColorWRAM
 
+LoadKeyItemIconPalette:
+	ld a, [wCurItem]
+	dec a
+	ld bc, ItemIconPalettes
+	jr LoadIconPalette
+
+LoadKeyItemIconPaletteForOverworld:
+	ld a, [wCurItem]
+	ld bc, ItemIconPalettes
+	jr LoadIconPalette
+
+LoadApricornIconPalette:
+	ld a, [wCurFruit]
+	dec a
+	ld bc, ApricornIconPalettes
+	jr LoadIconPalette
+
+LoadItemIconPalette:
+	ld a, [wCurSpecies]
+	ld bc, ItemIconPalettes
+LoadIconPalette:
+	dec a
+	ld l, a
+	ld h, 0
+	add hl, hl
+	add hl, hl
+	add hl, bc
+	ld de, wBGPals1 palette 7 + 2
+	ld bc, 4
+	call FarCopyColorWRAM
+	ld hl, BlackPalette
+	ld bc, 2
+	jp FarCopyColorWRAM
+
+LoadTMHMIconPalette:
+	ld a, [wNamedObjectIndex]
+	ld hl, Moves + MOVE_TYPE
+	dec a
+	ld bc, MOVE_LENGTH
+	call AddNTimes
+	ld a, BANK(Moves)
+	call GetFarByte
+	and TYPE_MASK
+	ld hl, TMHMTypeIconPals
+	ld c, a
+	ld b, 0
+rept 4
+	add hl, bc
+endr
+	ld de, wBGPals1 palette 7 + 2
+	ld bc, 4
+	call FarCopyColorWRAM
+	ld hl, BlackPalette
+	ld bc, 2
+	jp FarCopyColorWRAM
+BlackPalette:
+	RGB 00, 00, 00
 LoadGenderPal:
 	hlcoord 18, 0
 	ld a, [hl]
@@ -915,51 +972,51 @@ GetMonPalettePointer:
 	call _GetMonPalettePointer
 	ret
 
-CGBCopyBattleObjectPals: ; unreferenced
-; dummied out
-	ret
-	call CheckCGB
-	ret z
-	ld hl, BattleObjectPals
-	ld a, (1 << rOBPI_AUTO_INCREMENT) | $10
-	ldh [rOBPI], a
-	ld c, 6 palettes
-.loop
-	ld a, [hli]
-	ldh [rOBPD], a
-	dec c
-	jr nz, .loop
-	ld hl, BattleObjectPals
-	ld de, wOBPals1 palette 2
-	ld bc, 2 palettes
-	ld a, BANK(wOBPals1)
-	call FarCopyWRAM
-	ret
+; CGBCopyBattleObjectPals: ; unreferenced
+; ; dummied out
+; 	ret
+; 	call CheckCGB
+; 	ret z
+; 	ld hl, BattleObjectPals
+; 	ld a, (1 << rOBPI_AUTO_INCREMENT) | $10
+; 	ldh [rOBPI], a
+; 	ld c, 6 palettes
+; .loop
+; 	ld a, [hli]
+; 	ldh [rOBPD], a
+; 	dec c
+; 	jr nz, .loop
+; 	ld hl, BattleObjectPals
+; 	ld de, wOBPals1 palette 2
+; 	ld bc, 2 palettes
+; 	ld a, BANK(wOBPals1)
+; 	call FarCopyWRAM
+; 	ret
 
 BattleObjectPals:
 INCLUDE "gfx/battle_anims/battle_anims.pal"
 
-CGBCopyTwoPredefObjectPals: ; unreferenced
-	call CheckCGB
-	ret z
-	ld a, (1 << rOBPI_AUTO_INCREMENT) | $10
-	ldh [rOBPI], a
-	ld a, PREDEFPAL_TRADE_TUBE
-	call GetPredefPal
-	call .PushPalette
-	ld a, PREDEFPAL_RB_GREENMON
-	call GetPredefPal
-	call .PushPalette
-	ret
+; CGBCopyTwoPredefObjectPals: ; unreferenced
+; 	call CheckCGB
+; 	ret z
+; 	ld a, (1 << rOBPI_AUTO_INCREMENT) | $10
+; 	ldh [rOBPI], a
+; 	ld a, PREDEFPAL_TRADE_TUBE
+; 	call GetPredefPal
+; 	call .PushPalette
+; 	ld a, PREDEFPAL_RB_GREENMON
+; 	call GetPredefPal
+; 	call .PushPalette
+; 	ret
 
-.PushPalette:
-	ld c, 1 palettes
-.loop
-	ld a, [hli]
-	ldh [rOBPD], a
-	dec c
-	jr nz, .loop
-	ret
+; .PushPalette:
+; 	ld c, 1 palettes
+; .loop
+; 	ld a, [hli]
+; 	ldh [rOBPD], a
+; 	dec c
+; 	jr nz, .loop
+; 	ret
 
 _GetMonPalettePointer:
 	ld l, a
@@ -1152,19 +1209,19 @@ _InitSGBBorderPals:
 	dw DataSndPacket7
 	dw DataSndPacket8
 
-UpdateSGBBorder: ; unreferenced
-	di
-	xor a
-	ldh [rJOYP], a
-	ld hl, MaskEnFreezePacket
-	call _PushSGBPals
-	call PushSGBBorder
-	call SGBDelayCycles
-	call SGB_ClearVRAM
-	ld hl, MaskEnCancelPacket
-	call _PushSGBPals
-	ei
-	ret
+; UpdateSGBBorder: ; unreferenced
+; 	di
+; 	xor a
+; 	ldh [rJOYP], a
+; 	ld hl, MaskEnFreezePacket
+; 	call _PushSGBPals
+; 	call PushSGBBorder
+; 	call SGBDelayCycles
+; 	call SGB_ClearVRAM
+; 	ld hl, MaskEnCancelPacket
+; 	call _PushSGBPals
+; 	ei
+; 	ret
 
 PushSGBBorder:
 	call .LoadSGBBorderPointers
@@ -1370,6 +1427,7 @@ SGBDelayCycles:
 INCLUDE "gfx/sgb/blk_packets.asm"
 INCLUDE "gfx/sgb/pal_packets.asm"
 INCLUDE "data/sgb_ctrl_packets.asm"
+INCLUDE "engine/gfx/palettes.asm"
 
 PredefPals:
 	table_width PALETTE_SIZE, PredefPals
@@ -1521,8 +1579,8 @@ INCLUDE "gfx/diploma/diploma.pal"
 PartyMenuOBPals:
 INCLUDE "gfx/stats/party_menu_ob.pal"
 
-UnusedBattleObjectPals: ; unreferenced
-INCLUDE "gfx/battle_anims/unused_battle_anims.pal"
+; UnusedBattleObjectPals: ; unreferenced
+; INCLUDE "gfx/battle_anims/unused_battle_anims.pal"
 
 UnusedGSTitleBGPals:
 INCLUDE "gfx/title/unused_gs_bg.pal"
@@ -1542,16 +1600,16 @@ INCLUDE "gfx/beta_poker/beta_poker.pal"
 SlotMachinePals:
 INCLUDE "gfx/slots/slots.pal"
 
-; Input: E must contain the offset of the selected palette from PartyMenuOBPals.
-SetFirstOBJPalette::
-	ld hl, PartyMenuOBPals
-	ld d, 0
-	add hl, de
- 	ld de, wOBPals1
-	ld bc, 1 palettes
-	ld a, BANK(wOBPals1)
-	call FarCopyWRAM
-	ld a, TRUE
- 	ldh [hCGBPalUpdate], a
- 	call ApplyPals
- 	ret
+; ; Input: E must contain the offset of the selected palette from PartyMenuOBPals.
+; SetFirstOBJPalette::
+; 	ld hl, PartyMenuOBPals
+; 	ld d, 0
+; 	add hl, de
+;  	ld de, wOBPals1
+; 	ld bc, 1 palettes
+; 	ld a, BANK(wOBPals1)
+; 	call FarCopyWRAM
+; 	ld a, TRUE
+;  	ldh [hCGBPalUpdate], a
+;  	call ApplyPals
+;  	ret

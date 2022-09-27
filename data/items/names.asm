@@ -1,194 +1,201 @@
 ItemNames::
 	list_start ItemNames
-	li "MASTER BALL"
-	li "ULTRA BALL"
-	li "BRIGHTPOWDER"
-	li "GREAT BALL"
-	li "# BALL"
-	li "TERU-SAMA"
-	li "BICYCLE"
-	li "MOON STONE"
-	li "ANTIDOTE"
-	li "BURN HEAL"
-	li "ICE HEAL"
-	li "AWAKENING"
-	li "PARLYZ HEAL"
-	li "FULL RESTORE"
-	li "MAX POTION"
-	li "HYPER POTION"
-	li "SUPER POTION"
-	li "POTION"
-	li "ESCAPE ROPE"
-	li "REPEL"
-	li "MAX ELIXER"
-	li "FIRE STONE"
-	li "THUNDERSTONE"
-	li "WATER STONE"
-	li "ZINC"
-	li "HP UP"
-	li "PROTEIN"
-	li "IRON"
-	li "CARBOS"
-	li "LUCKY PUNCH"
-	li "CALCIUM"
-	li "RARE CANDY"
-	li "X ACCURACY"
-	li "LEAF STONE"
-	li "METAL POWDER"
-	li "NUGGET"
-	li "# DOLL"
-	li "FULL HEAL"
-	li "REVIVE"
-	li "MAX REVIVE"
-	li "GUARD SPEC."
-	li "SUPER REPEL"
-	li "MAX REPEL"
-	li "DIRE HIT"
-	li "TERU-SAMA"
-	li "FRESH WATER"
-	li "SODA POP"
-	li "LEMONADE"
-	li "X ATTACK"
-	li "TERU-SAMA"
-	li "X DEFEND"
-	li "X SPEED"
+; balls
+	li "# BALL"    ; 05
+	li "GREAT BALL"   ; 04
+	li "ULTRA BALL"   ; 02
+	li "MASTER BALL"  ; 01
+	li "PARK BALL"    ; b1
+	li "LEVEL BALL"   ; 9f
+	li "LURE BALL"    ; a0
+	li "MOON BALL"    ; a5
+	li "FRIEND BALL"  ; a4
+	li "FAST BALL"    ; a1
+	li "HEAVY BALL"   ; 9d
+	li "LOVE BALL"    ; a6
+; meds
+	li "POTION"       ; 12
+	li "SUPER POTION" ; 11
+	li "HYPER POTION" ; 10
+	li "MAX POTION"   ; 0f
+	li "ANTIDOTE"     ; 09
+	li "BURN HEAL"    ; 0a
+	li "PARLYZ HEAL"  ; 0d
+	li "AWAKENING"    ; 0c
+	li "ICE HEAL"     ; 0b
+	li "FULL HEAL"    ; 26
+	li "FULL RESTORE" ; 0e
+	li "REVIVE"       ; 27
+	li "MAX REVIVE"   ; 28
+	li "ETHER"        ; 3f
+	li "MAX ETHER"    ; 40
+	li "ELIXER"       ; 41
+	li "MAX ELIXER"   ; 15
+	li "HP UP"        ; 1a
+	li "PROTEIN"      ; 1b
+	li "IRON"         ; 1c
+	li "CARBOS"       ; 1d
+	li "CALCIUM"      ; 1f
+	li "ZINC"      ; 19
+	li "RARE CANDY"   ; 20
+	li "PP UP"        ; 3e
+	li "FRESH WATER"  ; 2e
+	li "SODA POP"     ; 2f
+	li "LEMONADE"     ; 30
+	li "MOOMOO MILK"  ; 48
+	li "RAGECANDYBAR" ; 72
+	li "SACRED ASH"   ; 9c
+	li "ENERGYPOWDER" ; 79
+	li "ENERGY ROOT"  ; 7a
+	li "HEAL POWDER"  ; 7b
+	li "REVIVAL HERB" ; 7c
+	li "X ATTACK"     ; 31
+	li "X DEFEND"     ; 33
+	li "X SPEED"     ; 34
 	li "X SPECIAL"
-	li "COIN CASE"
-	li "ITEMFINDER"
+	li "X ACCURACY"   ; 21
+	li "DIRE HIT"     ; 2c
+	li "GUARD SPEC"   ; 29
+	li "REPEL"        ; 14
+	li "SUPER REPEL"  ; 2a
+	li "MAX REPEL"    ; 2b
+; etc
+	li "ESCAPE ROPE"  ; 13
+	li "# DOLL"    ; 25
+	li "LEAF STONE"   ; 22
+	li "FIRE STONE"   ; 16
+	li "WATER STONE"  ; 18
+	li "THUNDERSTONE" ; 17
+	li "MOON STONE"   ; 08
+	li "SUN STONE"    ; a9
+	li "EVERSTONE"    ; 70
+	li "EXP SHARE"    ; 39
+; berries/apricorns
+	li "PRZCUREBERRY" ; 4e
+	li "MINT BERRY"   ; 54
+	li "PSNCUREBERRY" ; 4a
+	li "ICE BERRY"    ; 50
+	li "BURNT BERRY"  ; 4f
+	li "MYSTERYBERRY" ; 96
+	li "BERRY"        ; ad
+	li "BITTER BERRY" ; 53
+	li "MIRACLEBERRY" ; 6d
+	li "GOLD BERRY"   ; ae
+	li "BERRY JUICE"  ; 8b
+	li "RED APRICORN" ; 55
+	li "BLU APRICORN" ; 59
+	li "YLW APRICORN" ; 5c
+	li "GRN APRICORN" ; 5d
+	li "WHT APRICORN" ; 61
+	li "BLK APRICORN" ; 63
+	li "PNK APRICORN" ; 65
+; hold items
+	li "SILK SCARF"   ; 68
+	li "BLACKBELT"  ; 62
+	li "SHARP BEAK"   ; 4d
+	li "POISON BARB"  ; 51
+	li "SOFT SAND"    ; 4c
+	li "HARD STONE"   ; 7d
+	li "SILVERPOWDER" ; 58
+	li "SPELL TAG"    ; 71
+	li "METAL COAT"   ; 8f
+	li "CHARCOAL"     ; 8a
+	li "MYSTIC WATER" ; 5f
+	li "MIRACLE SEED" ; 75
+	li "MAGNET"       ; 6c
+	li "TWISTEDSPOON" ; 60
+	li "NEVERMELTICE" ; 6b
+	li "DRAGON FANG"  ; 90
+	li "BLACKGLASSES" ; 66
+	li "PINK BOW"     ; aa
+	li "BRIGHTPOWDER" ; 03
+	li "SCOPE LENS"   ; 8c
+	li "QUICK CLAW"   ; 49
+	li "KINGS ROCK"   ; 52
+	li "FOCUS BAND"   ; 77
+	li "LEFTOVERS"    ; 92
+	li "LUCKY EGG"    ; 7e
+	li "AMULET COIN"  ; 5b
+	li "CLEANSE TAG"  ; 5e
+	li "SMOKE BALL"   ; 6a
+	li "BERSERK GENE" ; 98
+	li "LIGHT BALL"   ; a3
+	li "STICK"        ; 69
+	li "THICK CLUB"   ; 76
+	li "LUCKY PUNCH"  ; 1e
+	li "METAL POWDER" ; 23
+	li "DRAGON SCALE" ; 97
+	li "UP GRADE"     ; ac
+	li "NUGGET"       ; 24
+	li "TINYMUSHROOM" ; 56
+	li "BIG MUSHROOM" ; 57
+	li "PEARL"        ; 6e
+	li "BIG PEARL"    ; 6f
+	li "STARDUST"     ; 83
+	li "STAR PIECE"   ; 84
+	li "BRICK PIECE"  ; b4
+	li "SILVER LEAF"  ; 3c
+	li "GOLD LEAF"    ; 4b
+	li "SLOWPOKETAIL" ; 67
+; mails
+	li "FLOWER MAIL"  ; 9e
+	li "SURF MAIL"    ; b5
+	li "LITEBLUEMAIL" ; b6
+	li "PORTRAITMAIL" ; b7
+	li "LOVELY MAIL"  ; b8
+	li "EON MAIL"     ; b9
+	li "MORPH MAIL"   ; ba
+	li "BLUESKY MAIL" ; bb
+	li "MUSIC MAIL"   ; bc
+	li "MIRAGE MAIL"  ; bd
+; key items
+	li "BICYCLE"      ; 07
+	li "OLD ROD"      ; 3a
+	li "GOOD ROD"     ; 3b
+	li "SUPER ROD"    ; 3d
+	li "COIN CASE"    ; 36
+	li "ITEMFINDER"   ; 37
+	li "MYSTERY EGG"  ; 45
+	li "SQUIRTBOTTLE" ; af
+	li "SECRETPOTION" ; 43
+	li "RED SCALE"    ; 42
+	li "CARD KEY"     ; 7f
+	li "BASEMENT KEY" ; 85
+	li "S.S. TICKET"   ; 44
+	li "PASS"         ; 86
+	li "MACHINE PART" ; 80
+	li "LOST ITEM"    ; 82
+	li "RAINBOW WING" ; b2
+	li "SILVER WING"  ; 47
+	li "CLEAR BELL"   ; 46
+	li "GS BALL"      ; 73
+	li "BLUE CARD"    ; 74
 	li "TERU-SAMA"
-	li "EXP.SHARE"
-	li "OLD ROD"
-	li "GOOD ROD"
-	li "SILVER LEAF"
-	li "SUPER ROD"
-	li "PP UP"
-	li "ETHER"
-	li "MAX ETHER"
-	li "ELIXER"
-	li "RED SCALE"
-	li "SECRETPOTION"
-	li "S.S.TICKET"
-	li "MYSTERY EGG"
-	li "CLEAR BELL"
-	li "SILVER WING"
-	li "MOOMOO MILK"
-	li "QUICK CLAW"
-	li "PSNCUREBERRY"
-	li "GOLD LEAF"
-	li "SOFT SAND"
-	li "SHARP BEAK"
-	li "PRZCUREBERRY"
-	li "BURNT BERRY"
-	li "ICE BERRY"
-	li "POISON BARB"
-	li "KING'S ROCK"
-	li "BITTER BERRY"
-	li "MINT BERRY"
-	li "RED APRICORN"
-	li "TINYMUSHROOM"
-	li "BIG MUSHROOM"
-	li "SILVERPOWDER"
-	li "BLU APRICORN"
-	li "TERU-SAMA"
-	li "AMULET COIN"
-	li "YLW APRICORN"
-	li "GRN APRICORN"
-	li "CLEANSE TAG"
-	li "MYSTIC WATER"
-	li "TWISTEDSPOON"
-	li "WHT APRICORN"
-	li "BLACKBELT"
-	li "BLK APRICORN"
-	li "TERU-SAMA"
-	li "PNK APRICORN"
-	li "BLACKGLASSES"
-	li "SLOWPOKETAIL"
-	li "SILK SCARF"
-	li "STICK"
-	li "SMOKE BALL"
-	li "NEVERMELTICE"
-	li "MAGNET"
-	li "MIRACLEBERRY"
-	li "PEARL"
-	li "BIG PEARL"
-	li "EVERSTONE"
-	li "SPELL TAG"
-	li "RAGECANDYBAR"
-	li "GS BALL"
-	li "BLUE CARD"
-	li "MIRACLE SEED"
-	li "THICK CLUB"
-	li "FOCUS BAND"
-	li "TERU-SAMA"
-	li "ENERGYPOWDER"
-	li "ENERGY ROOT"
-	li "HEAL POWDER"
-	li "REVIVAL HERB"
-	li "HARD STONE"
-	li "LUCKY EGG"
-	li "CARD KEY"
-	li "MACHINE PART"
-	li "EGG TICKET"
-	li "LOST ITEM"
-	li "STARDUST"
-	li "STAR PIECE"
-	li "BASEMENT KEY"
-	li "PASS"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
-	li "CHARCOAL"
-	li "BERRY JUICE"
-	li "SCOPE LENS"
-	li "TERU-SAMA"
-	li "TERU-SAMA"
-	li "METAL COAT"
-	li "DRAGON FANG"
-	li "TERU-SAMA"
-	li "LEFTOVERS"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
-	li "MYSTERYBERRY"
-	li "DRAGON SCALE"
-	li "BERSERK GENE"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
-	li "SACRED ASH"
-	li "HEAVY BALL"
-	li "FLOWER MAIL"
-	li "LEVEL BALL"
-	li "LURE BALL"
-	li "FAST BALL"
 	li "TERU-SAMA"
-	li "LIGHT BALL"
-	li "FRIEND BALL"
-	li "MOON BALL"
-	li "LOVE BALL"
-	li "NORMAL BOX"
-	li "GORGEOUS BOX"
-	li "SUN STONE"
-	li "PINK BOW"
 	li "TERU-SAMA"
-	li "UP-GRADE"
-	li "BERRY"
-	li "GOLD BERRY"
-	li "SQUIRTBOTTLE"
 	li "TERU-SAMA"
-	li "PARK BALL"
-	li "RAINBOW WING"
 	li "TERU-SAMA"
-	li "BRICK PIECE"
-	li "SURF MAIL"
-	li "LITEBLUEMAIL"
-	li "PORTRAITMAIL"
-	li "LOVELY MAIL"
-	li "EON MAIL"
-	li "MORPH MAIL"
-	li "BLUESKY MAIL"
-	li "MUSIC MAIL"
-	li "MIRAGE MAIL"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
+	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
 	li "TERU-SAMA"
