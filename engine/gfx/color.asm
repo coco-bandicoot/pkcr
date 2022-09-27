@@ -439,8 +439,6 @@ LoadBattleCategoryAndTypePals:
 	ld de, wBGPals1 palette 5
 
 LoadCategoryAndTypePals:
-; we need the white palette lol kill me
-; im too dumb to do this any other way
 	ldh a, [rSVBK]
 	push af
 	ld a, BANK(wBGPals1)
@@ -482,6 +480,24 @@ LoadCategoryAndTypePals:
 	ld bc, 2
 	jp FarCopyColorWRAM
 
+LoadGenderPal:
+	hlcoord 18, 0
+	ld a, [hl]
+	cp "♂"
+	jr nz, .try_fem
+	ld hl, ExpBarPalette + 2
+	jr .apply_pal
+.try_fem
+	cp "♀"
+	ret nz ; no gender
+	ld hl, ExpBarPalette
+.apply_pal
+	ld de, wBGPals1 palette 7 + 6
+	ld bc, 2
+	call FarCopyColorWRAM
+	call SetPalettes
+	ret
+
 LoadMonBaseTypePal:
 	ld hl, TypeIconPals
 	ld a, c ; c is the type ID
@@ -522,12 +538,10 @@ LoadStatsScreenPals:
 	ld [wBGPals1 palette 0], a
 	ld [wBGPals1 palette 2], a
 	ld [wBGPals1 palette 6], a
-	ld [wBGPals1 palette 7], a
 	ld a, [hl]
 	ld [wBGPals1 palette 0 + 1], a
 	ld [wBGPals1 palette 2 + 1], a
 	ld [wBGPals1 palette 6 + 1], a
-	ld [wBGPals1 palette 7 + 1], a
 	pop af
 	ldh [rSVBK], a
 	call ApplyPals
