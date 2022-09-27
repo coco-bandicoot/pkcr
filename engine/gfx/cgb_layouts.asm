@@ -178,14 +178,27 @@ _CGB_FinishBattleScreenLayout:
 	hlcoord 0, 12
 	ld a, [hl]
 	cp $7d
-	jr nz, .done
+	jr nz, .movebox_done
 
 	; Move Type and Category pal
 	hlcoord 1, 11, wAttrmap
 	ld bc, 7
 	ld a, $5
 	call ByteFill
-.done
+.movebox_done
+	
+	; enemy gender
+	hlcoord 9, 1, wAttrmap
+	ld bc, 1
+	ld a, PAL_BATTLE_BG_EXP
+	call ByteFill
+
+	; player gender
+	hlcoord 17, 8, wAttrmap
+	ld bc, 1
+	ld a, PAL_BATTLE_BG_EXP
+	call ByteFill
+
 	ld hl, BattleObjectPals
 	ld de, wOBPals1 palette PAL_BATTLE_OB_GRAY
 	ld bc, 6 palettes
@@ -267,8 +280,8 @@ _CGB_StatsScreenHPPals:
 	ld a, $1 ; mon palette
 	call FillBoxCGB
 
-	hlcoord 10, 16, wAttrmap
-	ld bc, 10
+	hlcoord 11, 8, wAttrmap
+	ld bc, 8
 	ld a, $2 ; exp palette
 	call ByteFill
 
@@ -293,20 +306,20 @@ _CGB_StatsScreenHPPals:
 	call FillBoxCGB
 
 	; mon type(s)
-	hlcoord 5, 14, wAttrmap
-	lb bc, 2, 4
+	hlcoord 10, 4, wAttrmap
+	ld bc, 9
 	ld a, $7 ; mon base type light/dark pals
-	call FillBoxCGB
+	call ByteFill
 
 	; mon status
-	hlcoord 7, 12, wAttrmap
+	hlcoord 7, 11, wAttrmap
 	lb bc, 1, 2
 	ld a, $6 ; mon base type light/dark pals
 	call FillBoxCGB
 
 	; heart and player gender (if any)
 	hlcoord 0, 12, wAttrmap
-	lb bc, 5, 5
+	lb bc, 6, 6
 	ld a, $2 ; exp pal
 	call FillBoxCGB
 
@@ -315,7 +328,7 @@ _CGB_StatsScreenHPPals:
 	ld bc, 1
 	ld a, $7 ; type(s) and gender
 	call ByteFill
-	
+
 	call ApplyAttrmap
 	call ApplyPals
 	ld a, TRUE
