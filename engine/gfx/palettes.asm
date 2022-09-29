@@ -207,6 +207,7 @@ CaughtBallPals:
 ; EXP SHARE
 	RGB 21, 23, 21
 	RGB 13, 15, 13
+ApricornPals:
 ; CHERI BERRY
 	RGB 29, 12, 10
 	RGB 15, 23, 09
@@ -411,7 +412,6 @@ CaughtBallPals:
 ; MIRAGE MAIL
 	RGB 07, 26, 31
 	RGB 00, 21, 00
-; KeyItemIconPalettes:
 ; BICYCLE
 	RGB 22, 12, 12
 	RGB 12, 12, 12

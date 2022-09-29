@@ -80,6 +80,12 @@ ItemIconPointers:
 	dba SitrusBerryIcon
 	dba BerryJuiceIcon
 	dba ApricornIcon
+	dba ApricornIcon
+	dba ApricornIcon
+	dba ApricornIcon
+	dba ApricornIcon
+	dba ApricornIcon
+	dba ApricornIcon
 	dba SilkScarfIcon
 	dba BlackBeltIcon
 	dba SharpBeakIcon

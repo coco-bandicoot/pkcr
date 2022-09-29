@@ -1442,20 +1442,20 @@ Pack_InitGFX:
 	ld a, $24
 	call ByteFill
 ; placing the item icon!!!
-	hlcoord 0,9
+	hlcoord 1, 8
 	; 9 tiles, 3 per row, starting with til $63
 	ld [hl], $63
 	inc hl
 	ld [hl], $64
 	inc hl
 	ld [hl], $65
-	hlcoord 0,10
+	hlcoord 1, 9
 	ld [hl], $66
 	inc hl
 	ld [hl], $67
 	inc hl
 	ld [hl], $68
-	hlcoord 0,11
+	hlcoord 1, 10
 	ld [hl], $69
 	inc hl
 	ld [hl], $6a

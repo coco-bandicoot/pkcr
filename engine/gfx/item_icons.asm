@@ -2,8 +2,7 @@ UpdateItemIconAndDescription::
 	farcall UpdateItemDescription
 	jr _UpdateItemIcon
 
-UpdateTMHMIconAndDescriptionAndOwnership::
-	farcall UpdateItemDescription
+UpdateTMHMIconAndDescription::
 	ld a, [wMenuSelection]
 	cp -1
 	jr z, .cancel
@@ -40,40 +39,47 @@ _UpdateKeyItemIcon:
 	farcall LoadItemIconPalette
 	jp SetPalettes
 
-LoadApricornIconForOverworld:
-	ld hl, ApricornIcon
-	lb bc, BANK(ApricornIcon), 9
-	ld de, vTiles1 tile $6d
-	jp DecompressRequest2bpp
-
-LoadKeyItemIconForOverworld::
-	ld hl, ItemIconPointers
-	jr _LoadItemOrKeyItemIconForOverworld
-
 LoadTMHMIconForOverworld::
 	ld hl, TMHMIcon
 	lb bc, BANK(TMHMIcon), 9
-	ld de, vTiles1 tile $6d
-	jp DecompressRequest2bpp	
-	;jr _DecompressItemIconForOverworld
+	push bc
+	ld de, wDecompressScratch
+	call DecompressRequest2bpp
+	call WhiteOutDecompressedItemIconCorners
+	pop bc	
+	ld hl, vTiles1 tile $3a
+	ld de, wDecompressScratch
+	call Request2bpp
+	farcall LoadTMHMIconPalette
+	call SetPalettes
+	call PrintOverworldItemIcon
+	call WaitBGMap
+	ret
 
 LoadItemIconForOverworld::
+LoadApricornIconForOverworld:
+	ld a, d
 	ld hl, ItemIconPointers
-_LoadItemOrKeyItemIconForOverworld:
 	call _SetupLoadItemOrKeyItemIcon
-_DecompressItemIconForOverworld:
 	push bc
-	; call FarDecompressWRA6InB
+	ld de, wDecompressScratch
+	call DecompressRequest2bpp
 	call WhiteOutDecompressedItemIconCorners
 	pop bc
-	ld hl, vTiles1 tile $6d
+	ld hl, vTiles1 tile $3a
 	ld de, wDecompressScratch
-	; jp Request2bppInWRA6
+	jp Request2bpp
 
 _LoadItemOrKeyItemIcon:
 	call _SetupLoadItemOrKeyItemIcon
-	ld de, vTiles2 tile $63
-	jp DecompressRequest2bpp
+	push bc
+	ld de, wDecompressScratch
+	call DecompressRequest2bpp
+	call WhiteOutDecompressedItemIconCorners
+	pop bc
+	ld hl, vTiles2 tile $63
+	ld de, wDecompressScratch
+	jp Request2bpp
 
 _SetupLoadItemOrKeyItemIcon:
 	ld c, a
@@ -90,21 +96,29 @@ _SetupLoadItemOrKeyItemIcon:
 	ret
 
 LoadTMHMIcon::
+	; ld hl, TMHMIcon
+	; lb bc, BANK(TMHMIcon), 9
+	; ld de, vTiles2 tile $63
+	; jp DecompressRequest2bpp
 	ld hl, TMHMIcon
 	lb bc, BANK(TMHMIcon), 9
-	ld de, vTiles2 tile $63
-	jp DecompressRequest2bpp
+	push bc
+	ld de, wDecompressScratch
+	call DecompressRequest2bpp
+	call WhiteOutDecompressedItemIconCorners
+	pop bc	
+	ld hl, vTiles2 tile $63
+	ld de, wDecompressScratch
+	jp Request2bpp
 
 ClearKeyItemIcon::
 ClearTMHMIcon::
 	ld hl, NoItemIcon
 	lb bc, BANK(NoItemIcon), 9
-	ld de, vTiles2 tile $1e
+	ld de, vTiles2 tile $63
 	jp DecompressRequest2bpp
 
 WhiteOutDecompressedItemIconCorners:
-	; call RunFunctionInWRA6
-.Function:
 	lb bc, %01111111, %11111110
 	ld hl, wDecompressScratch tile 0
 	ld a, [hl]
@@ -136,9 +150,9 @@ WhiteOutDecompressedItemIconCorners:
 	ld [hl], a
 	ret
 
-PrintOverworldItemIcon:
+PrintOverworldItemIcon::
 	call SetPalettes
-	ld a, $ed
+	ld a, $ba ; Unown A spot
 	hlcoord 16, 13
 	ld [hli], a
 	inc a

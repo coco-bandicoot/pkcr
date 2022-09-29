@@ -1186,7 +1186,7 @@ _CGB_PackPals:
 	ld a, $5
 	call FillBoxCGB
 
-	hlcoord 0, 9, wAttrmap
+	hlcoord 1, 8, wAttrmap
 	lb bc, 3, 3
 	ld a, $7
 	call FillBoxCGB

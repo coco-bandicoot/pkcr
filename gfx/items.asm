@@ -115,6 +115,7 @@ PersimBerryIcon::  INCBIN "gfx/items/persim_berry.2bpp.lz"
 LumBerryIcon::     INCBIN "gfx/items/lum_berry.2bpp.lz"
 SitrusBerryIcon::  INCBIN "gfx/items/sitrus_berry.2bpp.lz"
 BerryJuiceIcon::   INCBIN "gfx/items/berry_juice.2bpp.lz"
+ApricornIcon::     INCBIN "gfx/items/apricorn.2bpp.lz"
 
 
 SECTION "Item Icons 7", ROMX
@@ -185,7 +186,7 @@ MusicMailIcon::    INCBIN "gfx/items/music_mail.2bpp.lz"
 MirageMailIcon::   INCBIN "gfx/items/mirage_mail.2bpp.lz"
 
 TMHMIcon::         INCBIN "gfx/items/tm_hm.2bpp.lz"
-ApricornIcon::     INCBIN "gfx/items/apricorn.2bpp.lz"
+
 ParkBallIcon::     INCBIN "gfx/items/park_ball.2bpp.lz"
 
 

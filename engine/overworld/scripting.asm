@@ -468,6 +468,7 @@ GiveItemScript:
 	callasm GiveItemScript_DummyFunction
 	writetext .ReceivedItemText
 	iffalse .Full
+	callasm .ShowItemIcon
 	waitsfx
 	specialsound
 	waitbutton
@@ -482,6 +483,24 @@ GiveItemScript:
 .ReceivedItemText:
 	text_far _ReceivedItemText
 	text_end
+
+.ShowItemIcon:
+	ld a, [wCurItem]
+	cp TM01
+	jr c, .NotTMHM
+	ld c, a
+	callfar GetTMHMNumber
+	ld a, c
+	ld [wTempTMHM], a	
+	predef GetTMHMMove
+	farcall LoadTMHMIconForOverworld
+	ret
+.NotTMHM
+	ld d, a
+	farcall LoadItemIconForOverworld
+	farcall LoadItemIconPalette
+	farcall PrintOverworldItemIcon
+	ret
 
 Script_verbosegiveitemvar:
 	call GetScriptByte
@@ -1739,6 +1758,13 @@ Script_giveitem:
 	xor a
 	ld [wScriptVar], a
 	ret
+
+; .ShowItemIcon:
+; 	ld d, a
+; 	farcall LoadItemIconForOverworld
+; 	farcall LoadItemIconPalette
+; 	farcall PrintOverworldItemIcon
+; 	ret
 
 Script_takeitem:
 	xor a

@@ -491,16 +491,10 @@ LoadKeyItemIconPaletteForOverworld:
 	ld bc, ItemIconPalettes
 	jr LoadIconPalette
 
-LoadApricornIconPalette:
-	ld a, [wCurFruit]
-	dec a
-	ld bc, ApricornIconPalettes
-	jr LoadIconPalette
-
-LoadItemIconPalette:
+LoadItemIconPalette::
 	ld a, [wCurSpecies]
 	ld bc, ItemIconPalettes
-LoadIconPalette:
+LoadIconPalette::
 	dec a
 	ld l, a
 	ld h, 0
@@ -512,6 +506,10 @@ LoadIconPalette:
 	call FarCopyColorWRAM
 	ld hl, BlackPalette
 	ld bc, 2
+	call FarCopyColorWRAM
+	ld hl, WhitePalette
+	ld bc, 2
+	ld de, wBGPals1 palette 7 + 0
 	jp FarCopyColorWRAM
 
 LoadTMHMIconPalette:
@@ -523,6 +521,14 @@ LoadTMHMIconPalette:
 	ld a, BANK(Moves)
 	call GetFarByte
 	and TYPE_MASK
+; TYPE ADJUST: Skip Bird
+	cp BIRD
+	jr c, .type_adjust_done
+	cp UNUSED_TYPES
+	dec a
+	jr c, .type_adjust_done
+	sub UNUSED_TYPES
+.type_adjust_done
 	ld hl, TMHMTypeIconPals
 	ld c, a
 	ld b, 0
@@ -534,9 +540,17 @@ endr
 	call FarCopyColorWRAM
 	ld hl, BlackPalette
 	ld bc, 2
+	call FarCopyColorWRAM
+	ld hl, WhitePalette
+	ld bc, 2
+	ld de, wBGPals1 palette 7 + 0
 	jp FarCopyColorWRAM
+
 BlackPalette:
 	RGB 00, 00, 00
+WhitePalette:
+	RGB 31, 31, 31
+
 LoadGenderPal:
 	hlcoord 18, 0
 	ld a, [hl]
